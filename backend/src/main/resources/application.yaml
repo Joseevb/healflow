@@ -1,0 +1,25 @@
+spring:
+    application:
+        name: backend
+
+    datasource:
+        url: jdbc:mysql://db:3306/hospital_db
+        username: admin
+        password: admin
+        driver-class-name: org.mariadb.jdbc.Driver
+    jpa:
+        hibernate:
+            ddl-auto: update
+
+app:
+    v1:
+        base-path: "/api/v1"
+    token:
+        expiration-seconds:
+            jwt: 300
+            refresh: 604800
+
+rsa:
+    keys:
+        public-key: classpath:keys/jwt_public.pem
+        private-key: classpath:keys/jwt_private.pem
