@@ -43,7 +43,24 @@ public class AuthController {
             description =
                     "Authenticates via email and password as an existing user, and returns the JWT"
                             + " and Refresh tokens, as well as the user's ID and role",
-            tags = {"Auth"},
+            requestBody =
+                    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                            description = "Details for the user to authenticate",
+                            required = true,
+                            content =
+                                    @Content(
+                                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                            schema =
+                                                    @Schema(
+                                                            name = "LoginRequest",
+                                                            implementation = LoginRequestDto.class,
+                                                            example =
+                                                                    "{\n"
+                                                                        + "    \"email\":"
+                                                                        + " \"user@example.com\",\n"
+                                                                        + "    \"password\":"
+                                                                        + " \"StrongPassword123!\"\n"
+                                                                        + "}"))),
             responses = {
                 @ApiResponse(
                         responseCode = "200",
@@ -59,7 +76,11 @@ public class AuthController {
                 @ApiResponse(
                         responseCode = "401",
                         description = "Invalid credentials (e.g., incorrect email/password)",
-                        content = @Content(schema = @Schema(implementation = ErrorMessage.class)))
+                        content = @Content(schema = @Schema(implementation = ErrorMessage.class))),
+                @ApiResponse(
+                        responseCode = "500",
+                        description = "Internal server error",
+                        content = {@Content(schema = @Schema(implementation = ErrorMessage.class))})
             })
     @PostMapping("/login")
     public ResponseEntity<LoginResponseDto> login(@Valid @RequestBody LoginRequestDto login) {
@@ -79,7 +100,31 @@ public class AuthController {
                             + "Upon successful registration, a 201 Created response is returned, "
                             + "including the new user's ID and a 'Location' header pointing to the "
                             + "newly created user resource (e.g., /api/v1/users/{id}).",
-            tags = {"Auth", "Users"}, // Can belong to multiple tags
+            tags = {"Users"},
+            requestBody =
+                    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                            description = "Details for the new user account",
+                            required = true,
+                            content =
+                                    @Content(
+                                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                            schema =
+                                                    @Schema(
+                                                            name = "RegisterUserRequest",
+                                                            implementation =
+                                                                    RegisterUserRequestDto.class,
+                                                            example =
+                                                                    "{\n"
+                                                                        + "    \"email\":"
+                                                                        + " \"user@example.com\",\n"
+                                                                        + "    \"password\":"
+                                                                        + " \"StrongPassword123!\",\n"
+                                                                        + "    \"first_name\":"
+                                                                        + " \"John\",\n"
+                                                                        + "    \"last_name\":"
+                                                                        + " \"Doe\",\n"
+                                                                        + "    \"role\": \"USER\"\n"
+                                                                        + "}"))),
             responses = {
                 @ApiResponse(
                         responseCode = "201",
@@ -97,12 +142,16 @@ public class AuthController {
                         responseCode = "400",
                         description =
                                 "Invalid request payload (e.g., missing fields, invalid email"
-                                    + " format, weak password)",
+                                        + " format, weak password)",
                         content = @Content(schema = @Schema(implementation = ErrorMessage.class))),
                 @ApiResponse(
                         responseCode = "409",
                         description = "Conflict: A user with the provided email already exists",
-                        content = @Content(schema = @Schema(implementation = ErrorMessage.class)))
+                        content = @Content(schema = @Schema(implementation = ErrorMessage.class))),
+                @ApiResponse(
+                        responseCode = "500",
+                        description = "Internal server error",
+                        content = {@Content(schema = @Schema(implementation = ErrorMessage.class))})
             })
     @PostMapping("/register")
     public ResponseEntity<UserResponseDto> register(

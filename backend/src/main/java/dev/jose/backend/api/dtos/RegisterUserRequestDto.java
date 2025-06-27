@@ -2,12 +2,25 @@ package dev.jose.backend.api.dtos;
 
 import dev.jose.backend.validation.Password;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 import lombok.Builder;
 
+@Schema(
+        name = "RegisterUserRequest",
+        example =
+                """
+                {
+                    "email": "user@example.com",
+                    "password": "StrongPassword123!",
+                    "first_name": "John",
+                    "last_name": "Doe"
+                }
+                """)
 @Builder
 public record RegisterUserRequestDto(
         @NotNull(message = "Email address is required.")

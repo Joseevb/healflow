@@ -2,6 +2,8 @@ package dev.jose.backend.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import dev.jose.backend.api.exceptions.GlobalExceptionHandler;
+
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -13,9 +15,6 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.time.OffsetDateTime;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 @Component
 public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint {
@@ -33,21 +32,16 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
             AuthenticationException authException)
             throws IOException, ServletException {
 
-        response.setStatus(HttpStatus.UNAUTHORIZED.value());
+        var errorEntity =
+                GlobalExceptionHandler.buildErrorResponse(
+                        "Unauthorized",
+                        "Resource requires authentication to access",
+                        request,
+                        HttpStatus.UNAUTHORIZED);
+
+        response.setStatus(errorEntity.getStatusCode().value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 
-        Map<String, Object> errorDetails = new LinkedHashMap<>();
-        errorDetails.put("timestamp", OffsetDateTime.now().toString());
-        errorDetails.put("status", HttpStatus.UNAUTHORIZED.value());
-        errorDetails.put("error", "Unauthorized");
-        errorDetails.put(
-                "message",
-                authException.getMessage() != null
-                        ? authException.getMessage()
-                        : "Authentication failed: Invalid credentials or token");
-        errorDetails.put("path", request.getRequestURI());
-
-        objectMapper.writeValue(response.getWriter(), errorDetails);
+        objectMapper.writeValue(response.getWriter(), errorEntity.getBody());
     }
 }
-

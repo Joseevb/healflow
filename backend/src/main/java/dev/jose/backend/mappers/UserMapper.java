@@ -11,15 +11,17 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
+import org.mapstruct.ReportingPolicy;
 
 @Mapper(
         componentModel = "spring",
-        nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+        nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE,
+        unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface UserMapper {
 
     UserResponseDto toDto(UserEntity entity);
 
-    @Mapping(target = "role", constant = "java(dev.jose.backend.enumerations.UserRole.USER)")
+    @Mapping(target = "role", constant = "USER")
     CreateUserRequestDto toDto(RegisterUserRequestDto data);
 
     UserEntity toEntity(CreateUserRequestDto data);

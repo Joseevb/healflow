@@ -2,6 +2,8 @@ package dev.jose.backend.api.exceptions;
 
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 import jakarta.servlet.http.HttpServletRequest;
 
 import lombok.Builder;
@@ -22,7 +24,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
-import java.time.OffsetDateTime;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -77,19 +79,6 @@ public class GlobalExceptionHandler {
         throw ex; // If it's not an InvalidFormatException, let Spring handle it
     }
 
-    private ResponseEntity<ErrorMessage> buildErrorResponse(
-            String error, String message, HttpServletRequest request, HttpStatus status) {
-        return ResponseEntity.status(status)
-                .body(
-                        ErrorMessage.builder()
-                                .timestamp(OffsetDateTime.now())
-                                .status(HttpStatus.UNAUTHORIZED.value())
-                                .error(error)
-                                .message(message)
-                                .path(request.getRequestURI())
-                                .build());
-    }
-
     @ExceptionHandler(LockedException.class)
     public ResponseEntity<ErrorMessage> handleLockedException(
             LockedException e, HttpServletRequest request) {
@@ -116,11 +105,50 @@ public class GlobalExceptionHandler {
                 "Authentication failed. Please try again.", request);
     }
 
-    private <T> ResponseEntity<ValidationErrorMessage> buildValidationErrorResponse(
+    /**
+     * Builds a ResponseEntity with the provided error message, status, and path. This method is
+     * typically used by exception handlers to build error responses.
+     *
+     * <p>The timestamp is set to the current instant.
+     *
+     * @param error The error message to include in the response
+     * @param message The message to include in the response
+     * @param request The request object
+     * @param status The HTTP status code to use in the response
+     * @return A ResponseEntity with the provided error message, status, and path
+     */
+    public static ResponseEntity<ErrorMessage> buildErrorResponse(
+            String error, String message, HttpServletRequest request, HttpStatus status) {
+        return ResponseEntity.status(status)
+                .body(
+                        ErrorMessage.builder()
+                                .timestamp(Instant.now())
+                                .status(status.value())
+                                .error(error)
+                                .message(message)
+                                .path(request.getRequestURI())
+                                .build());
+    }
+
+    /**
+     * Builds a ResponseEntity with the provided error message, status, and path. This method is
+     * typically used by exception handlers to build error responses.
+     *
+     * <p>It buids a {@link ValidationErrorMessage} with the provided errors, status, and path.
+     *
+     * <p>The timestamp is set to the current instant.
+     *
+     * <p>The status is set to 400 (Bad Request).
+     *
+     * @param errors A map of field names to error messages
+     * @param request The request object
+     * @return A ResponseEntity with the provided error message, status, and path
+     */
+    public static ResponseEntity<ValidationErrorMessage> buildValidationErrorResponse(
             Map<String, String> errors, HttpServletRequest request) {
         var res =
                 ValidationErrorMessage.builder()
-                        .timestamp(OffsetDateTime.now())
+                        .timestamp(Instant.now())
                         .status(HttpStatus.BAD_REQUEST.value())
                         .error("Validation Error")
                         .messages(errors)
@@ -135,12 +163,35 @@ public class GlobalExceptionHandler {
     }
 
     @Builder
+    @Schema(
+            name = "ErrorMessage",
+            example =
+                    "{\n"
+                            + "    \"timestamp\": \"2023-03-30T15:00:00.000Z\",\n"
+                            + "    \"status\": 401,\n"
+                            + "    \"error\": \"Unauthorized\",\n"
+                            + "    \"message\": \"Authentication Failed\",\n"
+                            + "    \"path\": \"/api/v1/auth/login\"\n"
+                            + "}")
     public static record ErrorMessage(
-            OffsetDateTime timestamp, Integer status, String error, String message, String path) {}
+            Instant timestamp, Integer status, String error, String message, String path) {}
 
     @Builder
+    @Schema(
+            name = "ValidationErrorMessage",
+            example =
+                    "{\n"
+                        + "    \"timestamp\": \"2023-03-30T15:00:00.000Z\",\n"
+                        + "    \"status\": 400,\n"
+                        + "    \"error\": \"Validation Error\",\n"
+                        + "    \"messages\": {\n"
+                        + "        \"email\": \"Invalid value. Accepted values: [user@example.com,"
+                        + " another@example.com]\"\n"
+                        + "    },\n"
+                        + "    \"path\": \"/api/v1/auth/register\"\n"
+                        + "}")
     public static record ValidationErrorMessage(
-            OffsetDateTime timestamp,
+            Instant timestamp,
             Integer status,
             String error,
             Map<String, String> messages,

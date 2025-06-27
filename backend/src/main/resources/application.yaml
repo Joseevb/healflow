@@ -10,6 +10,8 @@ spring:
     jpa:
         hibernate:
             ddl-auto: update
+    jackson:
+        property-naming-strategy: SNAKE_CASE
 
 app:
     v1:

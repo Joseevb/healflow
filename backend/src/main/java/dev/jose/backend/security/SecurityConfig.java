@@ -60,6 +60,7 @@ public class SecurityConfig {
         "/swagger-resources/**",
         "/configuration/ui",
         "/configuration/security",
+        "/api/v1/auth/**",
         "/actuator/**"
     };
 
