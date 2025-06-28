@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -30,11 +31,13 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
 
     @Override
+    @Transactional(readOnly = true)
     public List<UserResponseDto> getAllUsers() {
         return userRepository.findAll().stream().map(userMapper::toDto).toList();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public UserResponseDto getUserById(Long id) throws ResourceNotFoundException {
         return userRepository
                 .findById(id)
@@ -43,37 +46,28 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserResponseDto adminCreateUser(CreateUserRequestDto request) {
+    @Transactional
+    public UserResponseDto createUser(CreateUserRequestDto request) {
         return performUserCreation(request, userMapper::toEntity);
     }
 
     @Override
-    public UserResponseDto adminPartiallyUpdateUserById(
-            Long id, UpdateUserRequestPatchDto request) {
+    @Transactional
+    public UserResponseDto partiallyUpdateUserById(Long id, UpdateUserRequestPatchDto request) {
         return performUserUpdate(
                 id, request, userMapper::updateEntity, this::validateEmailUniqueness);
     }
 
     @Override
-    public UserResponseDto adminUpdateUserById(Long id, UpdateUserRequestPutDto request) {
+    @Transactional
+    public UserResponseDto updateUserById(Long id, UpdateUserRequestPutDto request) {
         return performUserUpdate(
                 id, request, userMapper::updateEntity, this::validateEmailUniqueness);
     }
 
     @Override
-    public UserResponseDto partiallyUpdateLoggedUser(UpdateUserRequestPatchDto request) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'partiallyUpdateLoggedUser'");
-    }
-
-    @Override
-    public void deleteLoggedUser() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'deleteLoggedUser'");
-    }
-
-    @Override
-    public void adminDeleteUserById(Long id) {
+    @Transactional
+    public void deleteUserById(Long id) {
         userRepository
                 .findById(id)
                 .ifPresentOrElse(

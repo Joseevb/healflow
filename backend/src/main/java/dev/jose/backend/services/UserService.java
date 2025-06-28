@@ -6,7 +6,6 @@ import dev.jose.backend.api.dtos.UpdateUserRequestPutDto;
 import dev.jose.backend.api.dtos.UserResponseDto;
 import dev.jose.backend.api.exceptions.ResourceAlreadyExistsException;
 import dev.jose.backend.api.exceptions.ResourceNotFoundException;
-import dev.jose.backend.api.exceptions.UnauthorizedOperationException;
 
 import java.util.List;
 
@@ -38,13 +37,12 @@ public interface UserService {
      * @return A {@link UserResponseDto} object representing the newly created user.
      * @throws ResourceAlreadyExistsException if a user with the provided email already exists.
      */
-    UserResponseDto adminCreateUser(CreateUserRequestDto request)
-            throws ResourceAlreadyExistsException;
+    UserResponseDto createUser(CreateUserRequestDto request) throws ResourceAlreadyExistsException;
 
     /**
-     * Partially updates an existing user's profile based on their ID, typically performed by an
-     * administrator. This method allows an administrator to update any field, including the user's
-     * role. Fields not provided in the request will remain unchanged.
+     * Partially updates an existing user's profile based on their ID. This method allows an
+     * administrator to update any field, including the user's role. Fields not provided in the
+     * request will remain unchanged.
      *
      * @param id The unique identifier (ID) of the user to update. Must not be {@code null}.
      * @param request The {@link UpdateUserRequestPatchDto} containing the fields to be updated.
@@ -52,13 +50,12 @@ public interface UserService {
      * @return A {@link UserResponseDto} object representing the updated user.
      * @throws ResourceNotFoundException if no user is found with the provided {@code id}.
      */
-    UserResponseDto adminPartiallyUpdateUserById(Long id, UpdateUserRequestPatchDto request)
+    UserResponseDto partiallyUpdateUserById(Long id, UpdateUserRequestPatchDto request)
             throws ResourceNotFoundException;
 
     /**
-     * Fully updates an existing user's profile based on their ID, typically performed by an
-     * administrator. This method allows an administrator to update any field, including the user's
-     * role.
+     * Fully updates an existing user's profile based on their ID. This method allows an
+     * administrator to update any field, including the user's role.
      *
      * @param id The unique identifier (ID) of the user to update. Must not be {@code null}.
      * @param request The {@link UpdateUserRequestPutDto} containing the fields to be updated. All
@@ -66,37 +63,14 @@ public interface UserService {
      * @return A {@link UserResponseDto} object representing the updated user.
      * @throws ResourceNotFoundException if no user is found with the provided {@code id}.
      */
-    UserResponseDto adminUpdateUserById(Long id, UpdateUserRequestPutDto request);
+    UserResponseDto updateUserById(Long id, UpdateUserRequestPutDto request)
+            throws ResourceNotFoundException;
 
     /**
-     * Partially updates the currently authenticated user's own profile. This method restricts users
-     * from changing sensitive fields like their role. Fields not provided in the request will
-     * remain unchanged.
-     *
-     * @param request The {@link UpdateUserRequestPatchDto} containing the fields to be updated.
-     *     Only provided fields will be applied. Must not be {@code null}.
-     * @return A {@link UserResponseDto} object representing the updated user.
-     * @throws ResourceNotFoundException if the logged-in user's profile cannot be found (unlikely,
-     *     but defensive).
-     * @throws UnauthorizedOperationException if the user attempts to update forbidden fields (e.g.,
-     *     role).
-     */
-    UserResponseDto partiallyUpdateLoggedUser(UpdateUserRequestPatchDto request)
-            throws ResourceNotFoundException, UnauthorizedOperationException;
-
-    /**
-     * Deletes the currently authenticated user's own profile. This operation typically requires
-     * explicit confirmation from the user.
-     *
-     * @throws ResourceNotFoundException if the logged-in user's profile cannot be found (unlikely).
-     */
-    void deleteLoggedUser() throws ResourceNotFoundException;
-
-    /**
-     * Deletes a user by their unique identifier, typically performed by an administrator.
+     * Deletes a user by their unique identifier,
      *
      * @param id The unique identifier (ID) of the user to delete. Must not be {@code null}.
      * @throws ResourceNotFoundException if no user is found with the provided {@code id}.
      */
-    void adminDeleteUserById(Long id) throws ResourceNotFoundException;
+    void deleteUserById(Long id) throws ResourceNotFoundException;
 }

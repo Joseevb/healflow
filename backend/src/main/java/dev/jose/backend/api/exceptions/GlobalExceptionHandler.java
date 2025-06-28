@@ -166,13 +166,15 @@ public class GlobalExceptionHandler {
     @Schema(
             name = "ErrorMessage",
             example =
-                    "{\n"
-                            + "    \"timestamp\": \"2023-03-30T15:00:00.000Z\",\n"
-                            + "    \"status\": 401,\n"
-                            + "    \"error\": \"Unauthorized\",\n"
-                            + "    \"message\": \"Authentication Failed\",\n"
-                            + "    \"path\": \"/api/v1/auth/login\"\n"
-                            + "}")
+                    """
+                    {
+                        "timestamp": "2023-03-30T15:00:00.000Z",
+                        "status": 401,
+                        "error": "Unauthorized"
+                        "message": "Authentication Failed",
+                        "path": "/api/v1/auth/login"
+                    }
+                    """)
     public static record ErrorMessage(
             Instant timestamp, Integer status, String error, String message, String path) {}
 
@@ -180,16 +182,17 @@ public class GlobalExceptionHandler {
     @Schema(
             name = "ValidationErrorMessage",
             example =
-                    "{\n"
-                        + "    \"timestamp\": \"2023-03-30T15:00:00.000Z\",\n"
-                        + "    \"status\": 400,\n"
-                        + "    \"error\": \"Validation Error\",\n"
-                        + "    \"messages\": {\n"
-                        + "        \"email\": \"Invalid value. Accepted values: [user@example.com,"
-                        + " another@example.com]\"\n"
-                        + "    },\n"
-                        + "    \"path\": \"/api/v1/auth/register\"\n"
-                        + "}")
+                    """
+                    {
+                        "timestamp": "2023-03-30T15:00:00.000Z",
+                        "status": 401,
+                        "error": "Unauthorized"
+                        "messages": {
+                            "password": "Password is too weak"
+                        }
+                        "path": "/api/v1/auth/login"
+                    }
+                    """)
     public static record ValidationErrorMessage(
             Instant timestamp,
             Integer status,

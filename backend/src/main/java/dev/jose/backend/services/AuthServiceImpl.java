@@ -1,5 +1,6 @@
 package dev.jose.backend.services;
 
+import dev.jose.backend.api.dtos.LoginRequestDto;
 import dev.jose.backend.api.dtos.LoginResponseDto;
 import dev.jose.backend.api.dtos.RegisterUserRequestDto;
 import dev.jose.backend.api.dtos.UserResponseDto;
@@ -9,12 +10,15 @@ import dev.jose.backend.security.AuthUser;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.Authentication;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -33,9 +37,17 @@ public class AuthServiceImpl implements AuthService {
     private final JwtEncoder jwtEncoder;
     private final UserMapper userMapper;
     private final UserService userService;
+    private final AuthenticationManager authenticationManager;
 
     @Override
-    public LoginResponseDto login(Authentication authentication) {
+    @Transactional
+    public LoginResponseDto login(LoginRequestDto login) {
+
+        var authentication =
+                authenticationManager.authenticate(
+                        new UsernamePasswordAuthenticationToken(login.email(), login.password()));
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);
         final var now = Instant.now();
 
         final var authorities =
@@ -78,8 +90,9 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
+    @Transactional
     public UserResponseDto register(RegisterUserRequestDto register) {
         var user = userMapper.toDto(register);
-        return userService.adminCreateUser(user);
+        return userService.createUser(user);
     }
 }
