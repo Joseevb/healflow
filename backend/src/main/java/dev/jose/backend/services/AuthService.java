@@ -10,4 +10,6 @@ public interface AuthService {
     LoginResponseDto login(LoginRequestDto login);
 
     UserResponseDto register(RegisterUserRequestDto register);
+
+    void verifyAccount(String token);
 }

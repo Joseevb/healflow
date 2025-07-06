@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
+import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
 
 import lombok.Builder;
@@ -105,6 +106,16 @@ public class GlobalExceptionHandler {
                 "Authentication failed. Please try again.", request);
     }
 
+    @ExceptionHandler(MessagingException.class)
+    public ResponseEntity<ErrorMessage> handleMessagingException(
+            MessagingException e, HttpServletRequest request) {
+        return buildErrorResponse(
+                "Failed to send email. Please try again.",
+                "Failed to send email",
+                request,
+                HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
     /**
      * Builds a ResponseEntity with the provided error message, status, and path. This method is
      * typically used by exception handlers to build error responses.
@@ -191,7 +202,7 @@ public class GlobalExceptionHandler {
                             "password": "Password is too weak"
                         }
                         "path": "/api/v1/auth/login"
-                    }
+                    }\
                     """)
     public static record ValidationErrorMessage(
             Instant timestamp,

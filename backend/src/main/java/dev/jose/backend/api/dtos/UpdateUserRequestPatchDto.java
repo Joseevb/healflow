@@ -4,10 +4,12 @@ import dev.jose.backend.enumerations.UserRole;
 import dev.jose.backend.validation.ValidEnum;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 
 import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 
 import lombok.Builder;
 
@@ -25,13 +27,45 @@ import lombok.Builder;
                 """)
 @Builder
 public record UpdateUserRequestPatchDto(
-        @Nullable
+        @Schema(requiredMode = RequiredMode.NOT_REQUIRED)
+                @Nullable
                 @Email(message = "The provided email address is not in a valid format.")
-                @NotBlank(message = "Email address cannot be empty or consist only of whitespace.")
+                @Size(min = 1, message = "First name cannot be blank.")
+                @Pattern(
+                        regexp = "\\S+",
+                        message = "Email address cannot be empty or consist only of whitespace.")
                 String email,
-        @Nullable @NotBlank(message = "First name cannot be empty or consist only of whitespace.")
+        @Schema(requiredMode = RequiredMode.NOT_REQUIRED)
+                @Size(min = 1, message = "First name cannot be blank.")
+                @Nullable
+                @Pattern(
+                        regexp = "\\S+",
+                        message = "First name cannot be blank or whitespace only.")
                 String fistName,
-        @Nullable @NotBlank(message = "Last name cannot be empty or consist only of whitespace.")
+        @Schema(requiredMode = RequiredMode.NOT_REQUIRED)
+                @Nullable
+                @Size(min = 1, message = "First name cannot be blank.")
+                @Pattern(
+                        regexp = "\\S+",
+                        message = "Last name cannot be empty or consist only of whitespace.")
                 String lastName,
-        @Nullable @ValidEnum(UserRole.class) UserRole role)
+        @Schema(
+                        requiredMode = RequiredMode.NOT_REQUIRED,
+                        description =
+                                """
+                                Role, can only be set by administrators.
+                                Will return an error when setting while authenticated as a non administrator user
+                                """)
+                @Nullable
+                @ValidEnum(UserRole.class)
+                UserRole role,
+        @Schema(
+                        requiredMode = RequiredMode.NOT_REQUIRED,
+                        description =
+                                """
+                                Active flag, can only be set by administrators.
+                                Will return an error when setting while authenticated as a non administrator user
+                                """)
+                @Nullable
+                boolean isActive)
         implements BaseUpdateUserRequest {}

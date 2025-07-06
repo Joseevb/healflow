@@ -1,6 +1,7 @@
 package dev.jose.backend.api;
 
 import dev.jose.backend.api.dtos.CreateUserRequestDto;
+import dev.jose.backend.api.dtos.UpdateUserRequestPatchDto;
 import dev.jose.backend.api.dtos.UpdateUserRequestPutDto;
 import dev.jose.backend.api.dtos.UserResponseDto;
 import dev.jose.backend.api.exceptions.GlobalExceptionHandler.ErrorMessage;
@@ -16,11 +17,14 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
+import jakarta.validation.Valid;
+
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -126,17 +130,7 @@ public interface UsersApi {
                                                     @Schema(
                                                             name = "CreateUserRequest",
                                                             implementation =
-                                                                    CreateUserRequestDto.class,
-                                                            example =
-                                                                    """
-                                                                    {
-                                                                        "email": "user@example.com",
-                                                                        "password": "StrongPassword123",
-                                                                        "first_name": "John",
-                                                                        "last_name": "Doe",
-                                                                        "role": "USER"
-                                                                    }
-                                                                    """))),
+                                                                    CreateUserRequestDto.class))),
             security = {
                 @SecurityRequirement(name = "bearerAuth"),
             },
@@ -150,18 +144,7 @@ public interface UsersApi {
                                         schema =
                                                 @Schema(
                                                         name = "UserResponse",
-                                                        implementation = UserResponseDto.class,
-                                                        example =
-                                                                """
-                                                                {
-                                                                    "id": 1,
-                                                                    "email": "user@example.com",
-                                                                    "password": "StrongPassword123!",
-                                                                    "firstName": "John",
-                                                                    "lastName": "Doe",
-                                                                    "role": "USER"
-                                                                }
-                                                                """)),
+                                                        implementation = UserResponseDto.class)),
                         headers =
                                 @io.swagger.v3.oas.annotations.headers.Header(
                                         name = "Location",
@@ -197,7 +180,7 @@ public interface UsersApi {
             })
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    ResponseEntity<UserResponseDto> createUser(@RequestBody CreateUserRequestDto request);
+    ResponseEntity<UserResponseDto> createUser(@RequestBody @Valid CreateUserRequestDto request);
 
     @Operation(
             operationId = "adminUpdateUserById",
@@ -220,17 +203,8 @@ public interface UsersApi {
                                                     @Schema(
                                                             name = "UpdateUserRequest",
                                                             implementation =
-                                                                    UpdateUserRequestPutDto.class,
-                                                            example =
-                                                                    """
-                                                                    {
-                                                                        "email": "user@example.com",
-                                                                        "password": "StrongPassword123!",
-                                                                        "first_name": "John",
-                                                                        "last_name": "Doe",
-                                                                        "role": "USER"
-                                                                    }
-                                                                    """))),
+                                                                    UpdateUserRequestPutDto
+                                                                            .class))),
             security = {
                 @SecurityRequirement(name = "bearerAuth"),
             },
@@ -244,18 +218,7 @@ public interface UsersApi {
                                         schema =
                                                 @Schema(
                                                         name = "UserResponse",
-                                                        implementation = UserResponseDto.class,
-                                                        example =
-                                                                """
-                                                                {
-                                                                    "id": 1,
-                                                                    "email": "user@example.com",
-                                                                    "password": "StrongPassword123!",
-                                                                    "firstName": "John",
-                                                                    "lastName": "Doe",
-                                                                    "role": "USER"
-                                                                }
-                                                                """))),
+                                                        implementation = UserResponseDto.class))),
                 @ApiResponse(
                         responseCode = "400",
                         description =
@@ -287,7 +250,76 @@ public interface UsersApi {
     @PreAuthorize("hasRole('ADMIN') or authentication.principal.id == #id")
     @PutMapping("/{id}")
     ResponseEntity<UserResponseDto> updateUserById(
-            @PathVariable Long id, @RequestBody UpdateUserRequestPutDto request);
+            @PathVariable Long id, @RequestBody @Valid UpdateUserRequestPutDto request);
+
+    @Operation(
+            operationId = "partiallyUpdateUserById",
+            summary = "Partially updates a user's profile.",
+            description =
+                    "Partially updates a user's profile with the provided details. Only provided"
+                        + " fields will be applied. Users can only update their own profile, while"
+                        + " administrators can update any user profile. Upon successful update, a"
+                        + " 200 OK response is returned.",
+            tags = {"Admin"},
+            requestBody =
+                    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                            description = "Details for the updated user",
+                            required = true,
+                            content =
+                                    @Content(
+                                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                            schema =
+                                                    @Schema(
+                                                            name = "UpdateUserRequest",
+                                                            implementation =
+                                                                    UpdateUserRequestPatchDto
+                                                                            .class))),
+            security = {
+                @SecurityRequirement(name = "bearerAuth"),
+            },
+            responses = {
+                @ApiResponse(
+                        responseCode = "200",
+                        description = "User updated successfully",
+                        content =
+                                @Content(
+                                        mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                        schema =
+                                                @Schema(
+                                                        name = "UserResponse",
+                                                        implementation = UserResponseDto.class))),
+                @ApiResponse(
+                        responseCode = "400",
+                        description =
+                                "Invalid request payload (e.g., missing fields, invalid email, weak"
+                                        + " password)",
+                        content =
+                                @Content(
+                                        schema =
+                                                @Schema(
+                                                        implementation =
+                                                                ValidationErrorMessage.class))),
+                @ApiResponse(
+                        responseCode = "401",
+                        description = "Unauthorized: Not authenticated",
+                        content = @Content(schema = @Schema(implementation = ErrorMessage.class))),
+                @ApiResponse(
+                        responseCode = "403",
+                        description = "Forbidden: Not authorized to update users",
+                        content = @Content(schema = @Schema(implementation = ErrorMessage.class))),
+                @ApiResponse(
+                        responseCode = "404",
+                        description = "User not found",
+                        content = @Content(schema = @Schema(implementation = ErrorMessage.class))),
+                @ApiResponse(
+                        responseCode = "500",
+                        description = "Internal server error",
+                        content = {@Content(schema = @Schema(implementation = ErrorMessage.class))})
+            })
+    @PreAuthorize("hasRole('ADMIN') or authentication.principal.id == #id")
+    @PatchMapping("/{id}")
+    ResponseEntity<UserResponseDto> partiallyUpdateUserById(
+            @PathVariable Long id, @RequestBody @Valid UpdateUserRequestPatchDto request);
 
     @Operation(
             operationId = "deleteUserById",
@@ -335,5 +367,5 @@ public interface UsersApi {
             })
     @PreAuthorize("hasRole('ADMIN') or authentication.principal.id == #id")
     @DeleteMapping("/{id}")
-    ResponseEntity<Void> deleteUserById(@PathVariable(name = "id", required = true) Long id);
+    ResponseEntity<Void> deleteUserById(@PathVariable(required = true) Long id);
 }

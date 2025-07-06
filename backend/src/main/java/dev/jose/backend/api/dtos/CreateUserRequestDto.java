@@ -25,7 +25,8 @@ import lombok.Builder;
                     "password": "StrongPassword123!",
                     "first_name": "John",
                     "last_name": "Doe",
-                    "role": "USER"
+                    "role": "USER",
+                    "is_active": false
                 }
                 """)
 @Builder
@@ -48,4 +49,5 @@ public record CreateUserRequestDto(
         @NotNull(message = "Last name is required.")
                 @NotBlank(message = "Last name cannot be empty or consist only of whitespace.")
                 String lastName,
-        @NotNull(message = "Role is required.") @ValidEnum(UserRole.class) UserRole role) {}
+        @NotNull(message = "Role is required.") @ValidEnum(UserRole.class) UserRole role,
+        @NotNull(message = "Active flag cannot be null") Boolean isActive) {}

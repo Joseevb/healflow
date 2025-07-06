@@ -64,7 +64,7 @@ public class SecurityConfig {
         "/actuator/**"
     };
 
-    private static final String[] GET_ALLOWED_RESOURCES = {"/users"};
+    private static final String[] GET_ALLOWED_RESOURCES = {"/users/**"};
 
     private static final String[] ALLOWED_ORIGINS = {
         "http://localhost:5173", "http://localhost:4173", "http://localhost",

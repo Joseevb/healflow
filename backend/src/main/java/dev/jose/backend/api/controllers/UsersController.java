@@ -2,6 +2,7 @@ package dev.jose.backend.api.controllers;
 
 import dev.jose.backend.api.UsersApi;
 import dev.jose.backend.api.dtos.CreateUserRequestDto;
+import dev.jose.backend.api.dtos.UpdateUserRequestPatchDto;
 import dev.jose.backend.api.dtos.UpdateUserRequestPutDto;
 import dev.jose.backend.api.dtos.UserResponseDto;
 import dev.jose.backend.enumerations.UserRole;
@@ -55,8 +56,13 @@ public class UsersController implements UsersApi {
     }
 
     @Override
-    public ResponseEntity<Void> deleteUserById(
-            @PathVariable(name = "id", required = true) Long id) {
+    public ResponseEntity<UserResponseDto> partiallyUpdateUserById(
+            Long id, UpdateUserRequestPatchDto request) {
+        return ResponseEntity.ok(userService.partiallyUpdateUserById(id, request));
+    }
+
+    @Override
+    public ResponseEntity<Void> deleteUserById(@PathVariable(required = true) Long id) {
         userService.deleteUserById(id);
         return ResponseEntity.noContent().build();
     }

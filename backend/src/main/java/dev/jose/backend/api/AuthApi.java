@@ -4,6 +4,7 @@ import dev.jose.backend.api.dtos.LoginRequestDto;
 import dev.jose.backend.api.dtos.LoginResponseDto;
 import dev.jose.backend.api.dtos.RegisterUserRequestDto;
 import dev.jose.backend.api.dtos.UserResponseDto;
+import dev.jose.backend.api.dtos.VerifyUserRequestDto;
 import dev.jose.backend.api.exceptions.GlobalExceptionHandler.ErrorMessage;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -70,7 +71,7 @@ public interface AuthApi {
                         content = {@Content(schema = @Schema(implementation = ErrorMessage.class))})
             })
     @PostMapping("/login")
-    ResponseEntity<LoginResponseDto> login(@Valid @RequestBody LoginRequestDto login);
+    ResponseEntity<LoginResponseDto> login(@RequestBody @Valid LoginRequestDto login);
 
     @Operation(
             operationId = "registerUser",
@@ -131,5 +132,8 @@ public interface AuthApi {
                         content = {@Content(schema = @Schema(implementation = ErrorMessage.class))})
             })
     @PostMapping("/register")
-    ResponseEntity<UserResponseDto> register(@Valid @RequestBody RegisterUserRequestDto register);
+    ResponseEntity<UserResponseDto> register(@RequestBody @Valid RegisterUserRequestDto register);
+
+    @PostMapping("/verify")
+    ResponseEntity<Void> verifyAccount(@RequestBody @Valid VerifyUserRequestDto token);
 }

@@ -56,6 +56,10 @@ public class UserEntity {
     @Enumerated(EnumType.STRING)
     private UserRole role;
 
+    @Column(name = "is_active", nullable = false, columnDefinition = "boolean default false")
+    @Builder.Default
+    private boolean isActive = false;
+
     @Column(name = "created_at", updatable = false, nullable = false)
     @CreatedDate
     private Instant createdAt;

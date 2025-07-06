@@ -6,12 +6,14 @@ import dev.jose.backend.api.dtos.UpdateUserRequestPatchDto;
 import dev.jose.backend.api.dtos.UpdateUserRequestPutDto;
 import dev.jose.backend.api.dtos.UserResponseDto;
 import dev.jose.backend.api.exceptions.ResourceNotFoundException;
+import dev.jose.backend.api.exceptions.UnauthorizedOperationException;
 import dev.jose.backend.mappers.UserMapper;
 import dev.jose.backend.presistence.entities.UserEntity;
 import dev.jose.backend.presistence.repositories.UserRepository;
 import dev.jose.backend.utils.JpaUtils;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -22,12 +24,14 @@ import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
     private final UserMapper userMapper;
     private final UserRepository userRepository;
+    private final SecurityService securityService;
     private final PasswordEncoder passwordEncoder;
 
     @Override
@@ -61,8 +65,12 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public UserResponseDto updateUserById(Long id, UpdateUserRequestPutDto request) {
-        return performUserUpdate(
-                id, request, userMapper::updateEntity, this::validateEmailUniqueness);
+        log.info("Updating user with ID {} with request {}", id, request);
+        var user =
+                performUserUpdate(
+                        id, request, userMapper::updateEntity, this::validateEmailUniqueness);
+        log.info("Updated user: {}", user);
+        return user;
     }
 
     @Override
@@ -172,13 +180,15 @@ public class UserServiceImpl implements UserService {
      * @throws ValidationException if validation fails during the update process
      * @throws DataAccessException if database operations fail
      */
-    private <T> UserResponseDto performUserUpdate(
+    private <T extends BaseUpdateUserRequest> UserResponseDto performUserUpdate(
             Long id,
             T updateRequestDto,
             BiConsumer<T, UserEntity> mapperFunction,
             BiConsumer<T, UserEntity> preUpdateValidator) {
+
         return userRepository
                 .findById(id)
+                .map(foundUser -> validateUpdateUserRequest(updateRequestDto, foundUser))
                 .map(
                         foundUser ->
                                 applyUpdateAndValidate(
@@ -190,6 +200,42 @@ public class UserServiceImpl implements UserService {
                 .map(userRepository::save)
                 .map(userMapper::toDto)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "id", id.toString()));
+    }
+
+    /**
+     * Validates the update request and throws an exception if the request is not valid.
+     *
+     * <p>This method checks if the user is an administrator and if the provided request is valid.
+     * If the user is not an administrator, the method checks if the provided request is valid and
+     * if the user's role and activation status are not changed.
+     *
+     * @param <T> the type of the update request DTO
+     * @param dto the update request DTO containing the email to validate
+     * @param currentUser the existing user entity being updated
+     * @throws ValidationException if another user already has the specified email address
+     */
+    private <T extends BaseUpdateUserRequest> UserEntity validateUpdateUserRequest(
+            T dto, UserEntity currentUser) {
+
+        if (!securityService.isAdmin()) {
+            Optional.ofNullable(dto.role())
+                    .filter(role -> !role.equals(currentUser.getRole()))
+                    .ifPresent(
+                            role -> {
+                                throw new UnauthorizedOperationException(
+                                        "Cannot change your own role.");
+                            });
+
+            Optional.ofNullable(dto.isActive())
+                    .filter(active -> !active.equals(currentUser.isActive()))
+                    .ifPresent(
+                            active -> {
+                                throw new UnauthorizedOperationException(
+                                        "Cannot change your activation status.");
+                            });
+        }
+
+        return currentUser;
     }
 
     /**
@@ -218,7 +264,9 @@ public class UserServiceImpl implements UserService {
     }
 
     private UserEntity encodePassword(UserEntity userEntity) {
-        userEntity.setPassword(passwordEncoder.encode(userEntity.getPassword()));
+        Optional.ofNullable(userEntity.getPassword())
+                .map(passwordEncoder::encode)
+                .ifPresent(userEntity::setPassword);
         return userEntity;
     }
 }

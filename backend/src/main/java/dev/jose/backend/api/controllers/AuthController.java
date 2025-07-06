@@ -5,6 +5,7 @@ import dev.jose.backend.api.dtos.LoginRequestDto;
 import dev.jose.backend.api.dtos.LoginResponseDto;
 import dev.jose.backend.api.dtos.RegisterUserRequestDto;
 import dev.jose.backend.api.dtos.UserResponseDto;
+import dev.jose.backend.api.dtos.VerifyUserRequestDto;
 import dev.jose.backend.services.AuthService;
 
 import jakarta.validation.Valid;
@@ -40,5 +41,11 @@ public class AuthController implements AuthApi {
                         .toUri();
 
         return ResponseEntity.created(location).body(createdUser);
+    }
+
+    @Override
+    public ResponseEntity<Void> verifyAccount(VerifyUserRequestDto token) {
+        authService.verifyAccount(token.token());
+        return ResponseEntity.ok().build();
     }
 }

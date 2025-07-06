@@ -95,4 +95,7 @@ public class AuthServiceImpl implements AuthService {
         var user = userMapper.toDto(register);
         return userService.createUser(user);
     }
+
+    @Override
+    public void verifyAccount(String token) {}
 }
