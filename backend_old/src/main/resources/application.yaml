@@ -1,0 +1,45 @@
+spring:
+    application:
+        name: backend
+
+    datasource:
+        url: jdbc:mysql://${DATABASE_HOST:db}:${DATABASE_PORT:3306}/${DATABASE_NAME:hospital_db}
+        username: ${DATABASE_USERNAME:admin}
+        password: ${DATABASE_PASSWORD:admin}
+        driver-class-name: org.mariadb.jdbc.Driver
+    jpa:
+        hibernate:
+            ddl-auto: create-drop
+
+    jackson:
+        property-naming-strategy: SNAKE_CASE
+
+    mail:
+        host: ${MAIL_HOST}
+        port: ${MAIL_PORT}
+        username: ${MAIL_USERNAME}
+        password: ${MAIL_PASSWORD}
+        properties:
+            mail:
+                smtp:
+                    auth: true
+                    starttls:
+                        enable: true
+
+server:
+    error:
+        include-stacktrace: never
+
+app:
+    v1:
+        base-path: "/api/v1"
+    token:
+        expiration-seconds:
+            jwt: ${JWT_EXPIRATION_SECONDS}
+            refresh: ${REFRESH_TOKEN_EXPIRATION_SECONDS}
+            verification: ${VERIFICATION_TOKEN_EXPIRATION_SECONDS}
+
+rsa:
+    keys:
+        public-key: classpath:keys/jwt_public.pem
+        private-key: classpath:keys/jwt_private.pem

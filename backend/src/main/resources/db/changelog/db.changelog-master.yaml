@@ -1,0 +1,96 @@
+databaseChangeLog:
+    - changeSet:
+          id: "1"
+          author: "JV"
+          comment: Creates the initial users table. # Optional but recommended comment
+
+          changes:
+              - createTable:
+                    tableName: users
+                    columns:
+                        - column:
+                              name: id
+                              type: BIGINT
+                              autoIncrement: true
+                              constraints:
+                                  primaryKey: true
+                                  nullable: false
+                        - column:
+                              name: email
+                              type: VARCHAR(255)
+                              constraints:
+                                  nullable: false
+                                  unique: true
+                        - column:
+                              name: password
+                              type: VARCHAR(70)
+                              constraints:
+                                  nullable: false
+                        - column:
+                              name: first_name
+                              type: VARCHAR(255)
+                              constraints:
+                                  nullable: false
+                        - column:
+                              name: last_name
+                              type: VARCHAR(255)
+                              constraints:
+                                  nullable: false
+                        - column:
+                              name: role
+                              type: VARCHAR(255)
+                              constraints:
+                                  nullable: false
+                        - column:
+                              name: is_active
+                              type: BOOLEAN
+                              defaultValueBoolean: false
+                              constraints:
+                                  nullable: false
+                        - column:
+                              name: created_at
+                              type: TIMESTAMP WITH TIME ZONE
+                              constraints:
+                                  nullable: false
+                        - column:
+                              name: last_modified_at
+                              type: TIMESTAMP WITH TIME ZONE
+                              constraints:
+                                  nullable: false
+    - changeSet:
+          id: "2"
+          author: JV
+          comment: Creates the verification_tokens table and adds foreign key to users table.
+
+          changes:
+              - createTable:
+                    tableName: verification_tokens
+                    columns:
+                        - column:
+                              name: id
+                              type: BIGINT
+                              autoIncrement: true
+                              constraints:
+                                  primaryKey: true
+                                  nullable: false
+
+                        - column:
+                              name: token
+                              type: VARCHAR(255)
+                              constraints:
+                                  nullable: false
+
+                        - column:
+                              name: user_id
+                              type: BIGINT
+                              constraints:
+                                  nullable: false
+                                  unique: true
+
+              - addForeignKeyConstraint:
+                    baseTableName: verification_tokens
+                    baseColumnNames: user_id
+                    referencedTableName: users
+                    referencedColumnNames: id
+                    constraintName: fk_verification_token_user
+                    onDelete: CASCADE

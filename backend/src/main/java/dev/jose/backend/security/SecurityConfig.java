@@ -13,40 +13,40 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.ProviderManager;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.authentication.ReactiveAuthenticationManager;
+import org.springframework.security.authentication.UserDetailsRepositoryReactiveAuthenticationManager;
+import org.springframework.security.config.annotation.method.configuration.EnableReactiveMethodSecurity;
+import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
+import org.springframework.security.config.web.server.ServerHttpSecurity;
+import org.springframework.security.config.web.server.ServerHttpSecurity.CsrfSpec;
+import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
-import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
+import org.springframework.security.oauth2.jwt.NimbusReactiveJwtDecoder;
+import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
-import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.oauth2.server.resource.authentication.ReactiveJwtAuthenticationConverterAdapter;
+import org.springframework.security.web.server.SecurityWebFilterChain;
+import org.springframework.security.web.server.ServerAuthenticationEntryPoint;
 import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.cors.reactive.CorsConfigurationSource;
+import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
 import java.util.List;
 
 @Configuration
-@EnableWebSecurity
-@EnableMethodSecurity
+@EnableReactiveMethodSecurity
+@EnableWebFluxSecurity
 @RequiredArgsConstructor
 @EnableConfigurationProperties(RsaKeyConfigProperties.class)
 public class SecurityConfig {
 
-    private final UserDetailsService userDetailsService;
+    private final ReactiveUserDetailsService userDetailsService;
     private final RsaKeyConfigProperties rsaKeyConfigProperties;
-    private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
+    private final ServerAuthenticationEntryPoint customAuthenticationEntryPoint;
 
     private static final String[] PUBLIC_RESOURCES = {
         "/",
@@ -76,14 +76,6 @@ public class SecurityConfig {
     }
 
     @Bean
-    AuthenticationManager authManager() {
-        var authProvider = new DaoAuthenticationProvider();
-        authProvider.setUserDetailsService(userDetailsService);
-        authProvider.setPasswordEncoder(passwordEncoder());
-        return new ProviderManager(authProvider);
-    }
-
-    @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(List.of(ALLOWED_ORIGINS));
@@ -97,8 +89,8 @@ public class SecurityConfig {
     }
 
     @Bean
-    JwtDecoder jwtDecoder() {
-        return NimbusJwtDecoder.withPublicKey(rsaKeyConfigProperties.publicKey()).build();
+    ReactiveJwtDecoder jwtDecoder() {
+        return NimbusReactiveJwtDecoder.withPublicKey(rsaKeyConfigProperties.publicKey()).build();
     }
 
     @Bean
@@ -113,40 +105,47 @@ public class SecurityConfig {
     }
 
     @Bean
-    JwtAuthenticationConverter jwtAuthenticationConverter() {
+    ReactiveJwtAuthenticationConverterAdapter jwtAuthenticationConverter() {
         JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
         converter.setJwtGrantedAuthoritiesConverter(new CustomJwtAuthenticationConverter());
-        return converter;
+        return new ReactiveJwtAuthenticationConverterAdapter(converter);
     }
 
     @Bean
-    SecurityFilterChain filterChain(
-            HttpSecurity http, @Value("${app.v1.base-path}") String apiV1BasePath)
-            throws Exception {
+    ReactiveAuthenticationManager authenticationManager() {
+        var authenticationManager =
+                new UserDetailsRepositoryReactiveAuthenticationManager(userDetailsService);
+        authenticationManager.setPasswordEncoder(passwordEncoder());
+        return authenticationManager;
+    }
+
+    @Bean
+    SecurityWebFilterChain filterChain(
+            ServerHttpSecurity http, @Value("${app.v1.base-path}") String apiV1BasePath) {
         return http.cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .csrf(AbstractHttpConfigurer::disable)
-                .headers(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(
+                .csrf(CsrfSpec::disable)
+                .headers(header -> header.disable())
+                .authorizeExchange(
                         authorize ->
                                 authorize
-                                        .requestMatchers(PUBLIC_RESOURCES)
+                                        .pathMatchers(PUBLIC_RESOURCES)
                                         .permitAll()
-                                        .requestMatchers(
+                                        .pathMatchers(
                                                 HttpMethod.GET,
                                                 Arrays.stream(GET_ALLOWED_RESOURCES)
                                                         .map(apiV1BasePath::concat)
                                                         .toArray(String[]::new))
                                         .permitAll()
-                                        .anyRequest()
+                                        .anyExchange()
                                         .authenticated())
-                .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                // .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .exceptionHandling(
                         ex -> ex.authenticationEntryPoint(customAuthenticationEntryPoint))
                 .oauth2ResourceServer(
                         (oauth2) ->
                                 oauth2.jwt(
                                         (jwt) ->
-                                                jwt.decoder(jwtDecoder())
+                                                jwt.jwtDecoder(jwtDecoder())
                                                         .jwtAuthenticationConverter(
                                                                 jwtAuthenticationConverter())))
                 .build();

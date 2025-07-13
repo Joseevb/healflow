@@ -32,7 +32,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import java.util.List;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
 import java.util.Optional;
 
 @Tag(name = "Users", description = "Endpoint to manage CRUD operations for users.")
@@ -75,7 +77,7 @@ public interface UsersApi {
                         content = {@Content(schema = @Schema(implementation = ErrorMessage.class))})
             })
     @GetMapping
-    ResponseEntity<List<UserResponseDto>> getAllUsers(@RequestParam Optional<UserRole> role);
+    ResponseEntity<Flux<UserResponseDto>> getAllUsers(@RequestParam Optional<UserRole> role);
 
     @Operation(
             operationId = "getUserById",
@@ -107,7 +109,7 @@ public interface UsersApi {
                         content = {@Content(schema = @Schema(implementation = ErrorMessage.class))})
             })
     @GetMapping("/{id}")
-    ResponseEntity<UserResponseDto> getUserById(@PathVariable Long id);
+    Mono<ResponseEntity<UserResponseDto>> getUserById(@PathVariable Long id);
 
     @Operation(
             operationId = "createUser",
@@ -180,7 +182,8 @@ public interface UsersApi {
             })
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    ResponseEntity<UserResponseDto> createUser(@RequestBody @Valid CreateUserRequestDto request);
+    Mono<ResponseEntity<UserResponseDto>> createUser(
+            @RequestBody @Valid CreateUserRequestDto request);
 
     @Operation(
             operationId = "adminUpdateUserById",
@@ -247,9 +250,9 @@ public interface UsersApi {
                         description = "Internal server error",
                         content = {@Content(schema = @Schema(implementation = ErrorMessage.class))})
             })
-    @PreAuthorize("hasRole('ADMIN') or authentication.principal.id == #id")
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
-    ResponseEntity<UserResponseDto> updateUserById(
+    Mono<ResponseEntity<UserResponseDto>> updateUserById(
             @PathVariable Long id, @RequestBody @Valid UpdateUserRequestPutDto request);
 
     @Operation(
@@ -318,7 +321,7 @@ public interface UsersApi {
             })
     @PreAuthorize("hasRole('ADMIN') or authentication.principal.id == #id")
     @PatchMapping("/{id}")
-    ResponseEntity<UserResponseDto> partiallyUpdateUserById(
+    Mono<ResponseEntity<UserResponseDto>> partiallyUpdateUserById(
             @PathVariable Long id, @RequestBody @Valid UpdateUserRequestPatchDto request);
 
     @Operation(
@@ -367,5 +370,5 @@ public interface UsersApi {
             })
     @PreAuthorize("hasRole('ADMIN') or authentication.principal.id == #id")
     @DeleteMapping("/{id}")
-    ResponseEntity<Void> deleteUserById(@PathVariable(required = true) Long id);
+    Mono<ResponseEntity<Void>> deleteUserById(@PathVariable(required = true) Long id);
 }

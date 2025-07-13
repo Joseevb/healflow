@@ -1,4 +1,4 @@
-package dev.jose.backend.services;
+package dev.jose.backend.services.security;
 
 import dev.jose.backend.presistence.repositories.UserRepository;
 import dev.jose.backend.security.AuthUser;

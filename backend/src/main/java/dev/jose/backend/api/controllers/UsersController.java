@@ -1,5 +1,7 @@
 package dev.jose.backend.api.controllers;
 
+import static dev.jose.backend.utils.LocationUtils.buildLocationUriFromCurrentRequest;
+
 import dev.jose.backend.api.UsersApi;
 import dev.jose.backend.api.dtos.CreateUserRequestDto;
 import dev.jose.backend.api.dtos.UpdateUserRequestPatchDto;
@@ -15,9 +17,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import java.util.List;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
 import java.util.Optional;
 
 @RestController
@@ -27,43 +30,43 @@ public class UsersController implements UsersApi {
     private final UserService userService;
 
     @Override
-    public ResponseEntity<List<UserResponseDto>> getAllUsers(
+    public ResponseEntity<Flux<UserResponseDto>> getAllUsers(
             @RequestParam Optional<UserRole> role) {
         return ResponseEntity.ok(userService.getAllUsers());
     }
 
     @Override
-    public ResponseEntity<UserResponseDto> getUserById(@PathVariable Long id) {
-        return ResponseEntity.ok(userService.getUserById(id));
+    public Mono<ResponseEntity<UserResponseDto>> getUserById(@PathVariable Long id) {
+        return userService.getUserById(id).map(ResponseEntity::ok);
     }
 
     @Override
-    public ResponseEntity<UserResponseDto> createUser(@RequestBody CreateUserRequestDto request) {
-        var response = userService.createUser(request);
-        var location =
-                ServletUriComponentsBuilder.fromCurrentRequestUri()
-                        .pathSegment(response.id().toString())
-                        .build()
-                        .toUri();
-
-        return ResponseEntity.created(location).body(response);
+    public Mono<ResponseEntity<UserResponseDto>> createUser(
+            @RequestBody CreateUserRequestDto request) {
+        return userService
+                .createUser(request)
+                .map(
+                        response -> {
+                            var location = buildLocationUriFromCurrentRequest(response.id());
+                            return ResponseEntity.created(location).body(response);
+                        });
     }
 
     @Override
-    public ResponseEntity<UserResponseDto> updateUserById(
+    public Mono<ResponseEntity<UserResponseDto>> updateUserById(
             @PathVariable Long id, @RequestBody UpdateUserRequestPutDto request) {
-        return ResponseEntity.ok(userService.updateUserById(id, request));
+        return userService.updateUserById(id, request).map(ResponseEntity::ok);
     }
 
     @Override
-    public ResponseEntity<UserResponseDto> partiallyUpdateUserById(
+    public Mono<ResponseEntity<UserResponseDto>> partiallyUpdateUserById(
             Long id, UpdateUserRequestPatchDto request) {
-        return ResponseEntity.ok(userService.partiallyUpdateUserById(id, request));
+        return userService.partiallyUpdateUserById(id, request).map(ResponseEntity::ok);
     }
 
     @Override
-    public ResponseEntity<Void> deleteUserById(@PathVariable(required = true) Long id) {
+    public Mono<ResponseEntity<Void>> deleteUserById(@PathVariable(required = true) Long id) {
         userService.deleteUserById(id);
-        return ResponseEntity.noContent().build();
+        return Mono.just(ResponseEntity.noContent().build());
     }
 }

@@ -2,16 +2,6 @@ package dev.jose.backend.presistence.entities;
 
 import dev.jose.backend.enumerations.UserRole;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EntityListeners;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -20,51 +10,48 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import org.springframework.data.relational.core.mapping.Column;
+import org.springframework.data.relational.core.mapping.Table;
 
 import java.time.Instant;
 
 @Data
 @Table(name = "users")
-@Entity
 @Builder
 @Accessors(chain = true)
-@EntityListeners(AuditingEntityListener.class)
 @NoArgsConstructor
 @EqualsAndHashCode(of = "id")
 @AllArgsConstructor
 public class UserEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Id private Long id;
 
-    @Column(name = "email", unique = true, nullable = false)
+    @Column("email")
     private String email;
 
-    @Column(name = "password", length = 70, nullable = false)
+    @Column("password")
     private String password;
 
-    @Column(name = "first_name", nullable = false)
+    @Column("first_name")
     private String firstName;
 
-    @Column(name = "last_name", nullable = false)
+    @Column("last_name")
     private String lastName;
 
-    @Column(name = "role", nullable = false)
-    @Enumerated(EnumType.STRING)
+    @Column("role")
     private UserRole role;
 
-    @Column(name = "is_active", nullable = false, columnDefinition = "boolean default false")
+    @Column("is_active")
     @Builder.Default
     private boolean isActive = false;
 
-    @Column(name = "created_at", updatable = false, nullable = false)
+    @Column("created_at")
     @CreatedDate
     private Instant createdAt;
 
-    @Column(name = "last_modified_at", nullable = false)
+    @Column("last_modified_at")
     @LastModifiedDate
     private Instant lastModifiedAt;
 }

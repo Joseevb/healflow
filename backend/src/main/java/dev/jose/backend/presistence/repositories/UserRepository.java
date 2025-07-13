@@ -3,14 +3,21 @@ package dev.jose.backend.presistence.repositories;
 import dev.jose.backend.enumerations.UserRole;
 import dev.jose.backend.presistence.entities.UserEntity;
 
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.r2dbc.repository.R2dbcRepository;
 
-import java.util.List;
-import java.util.Optional;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
-public interface UserRepository extends JpaRepository<UserEntity, Long> {
+public interface UserRepository extends R2dbcRepository<UserEntity, Long> {
 
-    Optional<UserEntity> findByEmail(String email);
+    /**
+     * Finds a user by email.
+     *
+     * @param email The email to search for.
+     * @return A {@link Mono} containing the UserEntity if found, or {@link Mono#empty()} if no such
+     *     user exists.
+     */
+    Mono<UserEntity> findByEmail(String email);
 
     /**
      * Finds a user by email, excluding the user with the given ID. Useful for checking uniqueness
@@ -19,10 +26,10 @@ public interface UserRepository extends JpaRepository<UserEntity, Long> {
      * @param email The email to search for.
      * @param id The ID of the user to exclude from the search (i.e., the user currently being
      *     updated).
-     * @return An Optional containing the UserEntity if a different user with the same email is
-     *     found, or Optional.empty() if no such user exists.
+     * @return A {@link Mono} containing the UserEntity if a different user with the same email is
+     *     found, or {@link Mono#empty()} if no such user exists.
      */
-    Optional<UserEntity> findByEmailAndIdNot(String email, Long id);
+    Mono<UserEntity> findByEmailAndIdNot(String email, Long id);
 
-    List<UserEntity> findAllByRole(UserRole role);
+    Flux<UserEntity> findAllByRole(UserRole role);
 }

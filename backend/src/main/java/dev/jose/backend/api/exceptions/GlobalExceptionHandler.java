@@ -1,29 +1,32 @@
 package dev.jose.backend.api.exceptions;
 
+import static dev.jose.backend.utils.StringUtils.toSnake;
+
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import jakarta.mail.MessagingException;
-import jakarta.servlet.http.HttpServletRequest;
 
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.LockedException;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.validation.BeanPropertyBindingResult;
-import org.springframework.validation.BindException;
 import org.springframework.validation.FieldError;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.support.WebExchangeBindException;
+import org.springframework.web.server.ServerWebInputException;
+
+import reactor.core.publisher.Mono;
 
 import java.time.Instant;
 import java.util.Arrays;
@@ -34,81 +37,115 @@ import java.util.stream.Collectors;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ValidationErrorMessage> handleValidationExceptions(
-            final MethodArgumentNotValidException ex, final HttpServletRequest request) {
+    @ExceptionHandler(WebExchangeBindException.class)
+    public Mono<ResponseEntity<ValidationErrorMessage>> handleValidationExceptions(
+            final WebExchangeBindException ex, final ServerHttpRequest request) {
 
         final var errors =
                 ex.getBindingResult().getFieldErrors().stream()
                         .collect(
                                 Collectors.toMap(
-                                        FieldError::getField,
+                                        fe -> toSnake(fe.getField()),
                                         FieldError::getDefaultMessage,
-                                        (existing, replacement) -> existing));
+                                        (a, _) -> a));
 
         return buildValidationErrorResponse(errors, request);
     }
 
     @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<ErrorMessage> handleAccessDeniedExceptions(
-            final AccessDeniedException ex, final HttpServletRequest request) {
+    public Mono<ResponseEntity<ErrorMessage>> handleAccessDeniedExceptions(
+            final AccessDeniedException ex, final ServerHttpRequest request) {
         return buildErrorResponse(
                 ex.getMessage(), "Authorization failed", request, HttpStatus.FORBIDDEN);
     }
 
-    @ExceptionHandler(HttpMessageNotReadableException.class)
-    public void handleInvalidEnumException(
-            HttpMessageNotReadableException ex, HttpServletRequest request) throws BindException {
+    @ExceptionHandler(ServerWebInputException.class)
+    public Mono<ResponseEntity<ErrorMessage>> handleServerWebInputException(
+            final ServerWebInputException ex, final ServerHttpRequest request) {
 
         if (ex.getCause() instanceof InvalidFormatException invalidFormatEx) {
             String fieldName = invalidFormatEx.getPath().get(0).getFieldName();
+            String invalidValue =
+                    invalidFormatEx.getValue() != null
+                            ? invalidFormatEx.getValue().toString()
+                            : "null";
 
-            FieldError fieldError =
-                    new FieldError(
-                            "requestBody",
-                            fieldName,
-                            "Invalid value. Accepted values: "
-                                    + Arrays.asList(
-                                            invalidFormatEx.getTargetType().getEnumConstants()));
+            String errorMessage =
+                    "Invalid value '%s' for field '%s'. Expected type: %s"
+                            .formatted(
+                                    invalidValue,
+                                    fieldName,
+                                    invalidFormatEx.getTargetType().getSimpleName());
 
-            var bindingResult = new BeanPropertyBindingResult(null, "requestBody");
-            bindingResult.addError(fieldError);
+            if (invalidFormatEx.getTargetType().isEnum()) {
+                errorMessage =
+                        "Invalid value '%s' for field '%s'. Accepted values: %s"
+                                .formatted(
+                                        invalidValue,
+                                        fieldName,
+                                        Arrays.stream(
+                                                        invalidFormatEx
+                                                                .getTargetType()
+                                                                .getEnumConstants())
+                                                .map(Object::toString)
+                                                .collect(Collectors.joining(", ")));
+            }
 
-            throw new BindException(bindingResult);
+            return buildErrorResponse(
+                    errorMessage, "Invalid request format", request, HttpStatus.BAD_REQUEST);
+
+        } else if (ex.getCause() instanceof MismatchedInputException mismatchedInputEx) {
+            String fieldName = mismatchedInputEx.getPath().get(0).getFieldName();
+            String errorMessage =
+                    "Mismatched input for field '%s'. Expected type: %s"
+                            .formatted(
+                                    fieldName, mismatchedInputEx.getTargetType().getSimpleName());
+            return buildErrorResponse(
+                    errorMessage, "Invalid request format", request, HttpStatus.BAD_REQUEST);
+
+        } else {
+            return buildErrorResponse(
+                    ex.getReason() != null
+                            ? ex.getReason()
+                            : ex.getMessage(), // Use reason or message
+                    "Invalid request input",
+                    request,
+                    HttpStatus.BAD_REQUEST);
         }
-
-        throw ex; // If it's not an InvalidFormatException, let Spring handle it
     }
 
     @ExceptionHandler(LockedException.class)
-    public ResponseEntity<ErrorMessage> handleLockedException(
-            LockedException e, HttpServletRequest request) {
+    public Mono<ResponseEntity<ErrorMessage>> handleLockedException(
+            LockedException e, ServerHttpRequest request) {
         return buildAuthenticationErrorResponse(
                 "Your account is locked. Please contact support.", request);
     }
 
     @ExceptionHandler(DisabledException.class)
-    public ResponseEntity<ErrorMessage> handleDisabledException(
-            DisabledException e, HttpServletRequest request) {
+    public Mono<ResponseEntity<ErrorMessage>> handleDisabledException(
+            DisabledException e, ServerHttpRequest request) {
         return buildAuthenticationErrorResponse("Your account is disabled.", request);
     }
 
     @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<ErrorMessage> handleBadCredentials(
-            BadCredentialsException e, HttpServletRequest request) {
+    public Mono<ResponseEntity<ErrorMessage>> handleBadCredentials(
+            BadCredentialsException e, ServerHttpRequest request) {
         return buildAuthenticationErrorResponse("Invalid username or password.", request);
     }
 
     @ExceptionHandler(AuthenticationException.class)
-    public ResponseEntity<ErrorMessage> handleAuthenticationException(
-            AuthenticationException e, HttpServletRequest request) {
+    public Mono<ResponseEntity<ErrorMessage>> handleAuthenticationException(
+            AuthenticationException e, ServerHttpRequest request) {
+        // Note: Spring Security for WebFlux often handles AuthenticationException internally
+        // via ServerAuthenticationEntryPoint, but this handler will catch it if thrown
+        // explicitly in your reactive code and not handled earlier.
         return buildAuthenticationErrorResponse(
                 "Authentication failed. Please try again.", request);
     }
 
     @ExceptionHandler(MessagingException.class)
-    public ResponseEntity<ErrorMessage> handleMessagingException(
-            MessagingException e, HttpServletRequest request) {
+    public Mono<ResponseEntity<ErrorMessage>> handleMessagingException(
+            MessagingException e, ServerHttpRequest request) {
         return buildErrorResponse(
                 "Failed to send email. Please try again.",
                 "Failed to send email",
@@ -117,59 +154,61 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * Builds a ResponseEntity with the provided error message, status, and path. This method is
-     * typically used by exception handlers to build error responses.
+     * Builds a Mono with a ResponseEntity wrapping the provided error message, status, and path.
+     * This method is typically used by exception handlers to build error responses in WebFlux.
      *
      * <p>The timestamp is set to the current instant.
      *
      * @param error The error message to include in the response
      * @param message The message to include in the response
-     * @param request The request object
+     * @param request The reactive request object
      * @param status The HTTP status code to use in the response
-     * @return A ResponseEntity with the provided error message, status, and path
+     * @return A Mono emitting a ResponseEntity with the provided error message, status, and path
      */
-    public static ResponseEntity<ErrorMessage> buildErrorResponse(
-            String error, String message, HttpServletRequest request, HttpStatus status) {
-        return ResponseEntity.status(status)
-                .body(
-                        ErrorMessage.builder()
-                                .timestamp(Instant.now())
-                                .status(status.value())
-                                .error(error)
-                                .message(message)
-                                .path(request.getRequestURI())
-                                .build());
+    public static Mono<ResponseEntity<ErrorMessage>> buildErrorResponse(
+            String error, String message, ServerHttpRequest request, HttpStatus status) {
+        ErrorMessage errorMessageBody =
+                ErrorMessage.builder()
+                        .timestamp(Instant.now())
+                        .status(status.value())
+                        .error(error)
+                        .message(message)
+                        .path(
+                                request.getPath()
+                                        .pathWithinApplication()
+                                        .value()) // Get path reactively
+                        .build();
+        return Mono.just(ResponseEntity.status(status).body(errorMessageBody)); // Wrap in Mono
     }
 
     /**
-     * Builds a ResponseEntity with the provided error message, status, and path. This method is
-     * typically used by exception handlers to build error responses.
+     * Builds a Mono with a ResponseEntity wrapping a ValidationErrorMessage for validation errors.
      *
-     * <p>It buids a {@link ValidationErrorMessage} with the provided errors, status, and path.
+     * <p>It builds a {@link ValidationErrorMessage} with the provided errors, status, and path.
      *
      * <p>The timestamp is set to the current instant.
      *
      * <p>The status is set to 400 (Bad Request).
      *
      * @param errors A map of field names to error messages
-     * @param request The request object
-     * @return A ResponseEntity with the provided error message, status, and path
+     * @param request The reactive request object
+     * @return A Mono emitting a ResponseEntity with the validation error details
      */
-    public static ResponseEntity<ValidationErrorMessage> buildValidationErrorResponse(
-            Map<String, String> errors, HttpServletRequest request) {
-        var res =
+    public static Mono<ResponseEntity<ValidationErrorMessage>> buildValidationErrorResponse(
+            Map<String, String> errors, ServerHttpRequest request) {
+        ValidationErrorMessage errorMessageBody =
                 ValidationErrorMessage.builder()
                         .timestamp(Instant.now())
                         .status(HttpStatus.BAD_REQUEST.value())
                         .error("Validation Error")
                         .messages(errors)
-                        .path(request.getRequestURI())
+                        .path(request.getPath().pathWithinApplication().value())
                         .build();
-        return ResponseEntity.badRequest().body(res);
+        return Mono.just(ResponseEntity.badRequest().body(errorMessageBody));
     }
 
-    private ResponseEntity<ErrorMessage> buildAuthenticationErrorResponse(
-            String error, HttpServletRequest request) {
+    private Mono<ResponseEntity<ErrorMessage>> buildAuthenticationErrorResponse(
+            String error, ServerHttpRequest request) {
         return buildErrorResponse(error, "Authentication Failed", request, HttpStatus.UNAUTHORIZED);
     }
 

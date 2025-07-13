@@ -1,11 +1,17 @@
-package dev.jose.backend.services;
+package dev.jose.backend.services.security;
 
 import dev.jose.backend.api.dtos.LoginRequestDto;
 import dev.jose.backend.api.dtos.LoginResponseDto;
 import dev.jose.backend.api.dtos.RegisterUserRequestDto;
+import dev.jose.backend.api.dtos.UpdateUserRequestPatchDto;
 import dev.jose.backend.api.dtos.UserResponseDto;
+import dev.jose.backend.api.exceptions.UnauthorizedOperationException;
 import dev.jose.backend.mappers.UserMapper;
+import dev.jose.backend.presistence.entities.UserEntity;
 import dev.jose.backend.security.AuthUser;
+import dev.jose.backend.services.UserService;
+
+import jakarta.mail.MessagingException;
 
 import lombok.RequiredArgsConstructor;
 
@@ -38,6 +44,7 @@ public class AuthServiceImpl implements AuthService {
     private final UserMapper userMapper;
     private final UserService userService;
     private final AuthenticationManager authenticationManager;
+    private final UserVerificationService userVerificationService;
 
     @Override
     @Transactional
@@ -91,11 +98,27 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     @Transactional
-    public UserResponseDto register(RegisterUserRequestDto register) {
-        var user = userMapper.toDto(register);
-        return userService.createUser(user);
+    public UserResponseDto register(RegisterUserRequestDto register) throws MessagingException {
+        var request = userMapper.toDto(register);
+        var createdUserDto = userService.createUser(request);
+
+        UserEntity userEntity = userService.getUserEntityById(createdUserDto.id());
+
+        userVerificationService.createAndSendVerificationToken(userEntity);
+
+        return createdUserDto;
     }
 
     @Override
-    public void verifyAccount(String token) {}
+    public UserResponseDto verifyAccount(String token) {
+        AuthUser principal =
+                (AuthUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Long userId = principal.userEntity().getId();
+
+        if (!userVerificationService.validateToken(token, userId)) {
+            throw new UnauthorizedOperationException("Invalid token");
+        }
+        return userService.partiallyUpdateUserById(
+                userId, UpdateUserRequestPatchDto.builder().isActive(true).build());
+    }
 }

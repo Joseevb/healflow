@@ -5,12 +5,13 @@ import dev.jose.backend.api.dtos.CreateUserRequestDto;
 import dev.jose.backend.api.dtos.UpdateUserRequestPatchDto;
 import dev.jose.backend.api.dtos.UpdateUserRequestPutDto;
 import dev.jose.backend.api.dtos.UserResponseDto;
+import dev.jose.backend.api.exceptions.ResourceAlreadyExistsException;
 import dev.jose.backend.api.exceptions.ResourceNotFoundException;
 import dev.jose.backend.api.exceptions.UnauthorizedOperationException;
 import dev.jose.backend.mappers.UserMapper;
 import dev.jose.backend.presistence.entities.UserEntity;
 import dev.jose.backend.presistence.repositories.UserRepository;
-import dev.jose.backend.utils.JpaUtils;
+import dev.jose.backend.utils.ResourceValidationUtils;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,10 +20,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
 import java.util.Optional;
-import java.util.function.BiConsumer;
-import java.util.function.Function;
+import java.util.function.BiFunction;
 
 @Slf4j
 @Service
@@ -36,104 +38,88 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<UserResponseDto> getAllUsers() {
-        return userRepository.findAll().stream().map(userMapper::toDto).toList();
+    public Flux<UserResponseDto> getAllUsers() {
+        return userRepository.findAll().map(userMapper::toDto);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public UserResponseDto getUserById(Long id) throws ResourceNotFoundException {
+    public Mono<UserResponseDto> getUserById(Long id) throws ResourceNotFoundException {
+        return getUserEntityById(id).map(userMapper::toDto);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Mono<UserEntity> getUserEntityById(Long id) {
         return userRepository
                 .findById(id)
-                .map(userMapper::toDto)
-                .orElseThrow(() -> new ResourceNotFoundException("User", "id", id.toString()));
+                .switchIfEmpty(
+                        Mono.error(new ResourceNotFoundException("User", "id", id.toString())));
     }
 
     @Override
     @Transactional
-    public UserResponseDto createUser(CreateUserRequestDto request) {
-        return performUserCreation(request, userMapper::toEntity);
+    public Mono<UserResponseDto> createUser(CreateUserRequestDto request) {
+        return userRepository
+                .findByEmail(request.email())
+                .flatMap(
+                        _ ->
+                                Mono.<UserResponseDto>error(
+                                        new ResourceAlreadyExistsException(
+                                                "User", "email", request.email())))
+                .switchIfEmpty(
+                        Mono.just(request)
+                                .map(userMapper::toEntity)
+                                .map(this::encodePassword)
+                                .flatMap(userRepository::save)
+                                .map(userMapper::toDto));
     }
 
     @Override
     @Transactional
-    public UserResponseDto partiallyUpdateUserById(Long id, UpdateUserRequestPatchDto request) {
-        return performUserUpdate(
-                id, request, userMapper::updateEntity, this::validateEmailUniqueness);
+    public Mono<UserResponseDto> partiallyUpdateUserById(
+            Long id, UpdateUserRequestPatchDto request) {
+        return updateUser(id, request, userMapper::updateEntity).map(userMapper::toDto);
     }
 
     @Override
     @Transactional
-    public UserResponseDto updateUserById(Long id, UpdateUserRequestPutDto request) {
-        log.info("Updating user with ID {} with request {}", id, request);
-        var user =
-                performUserUpdate(
-                        id, request, userMapper::updateEntity, this::validateEmailUniqueness);
-        log.info("Updated user: {}", user);
-        return user;
+    public Mono<UserResponseDto> updateUserById(Long id, UpdateUserRequestPutDto request) {
+        return updateUser(id, request, userMapper::updateEntity).map(userMapper::toDto);
     }
 
     @Override
     @Transactional
-    public void deleteUserById(Long id) {
-        userRepository
+    public Mono<Void> deleteUserById(Long id) {
+        return userRepository
                 .findById(id)
-                .ifPresentOrElse(
-                        userRepository::delete,
-                        () -> {
-                            throw new ResourceNotFoundException("User", "id", id.toString());
-                        });
+                .switchIfEmpty(
+                        Mono.error(new ResourceNotFoundException("User", "id", id.toString())))
+                .flatMap(userRepository::delete);
     }
 
     /**
-     * Performs the complete user creation flow including validation, entity creation, persistence,
-     * and DTO mapping.
+     * Performs the complete user update flow including retrieval, validation, modification, and
+     * persistence.
      *
-     * <p>This method orchestrates the user creation process by:
-     *
-     * <ol>
-     *   <li>Validating the request and creating the entity using the provided mapper
-     *   <li>Persisting the entity to the database
-     *   <li>Converting the persisted entity back to a response DTO
-     * </ol>
-     *
-     * @param createRequestDto the request DTO containing user data to be created
-     * @param mapperFunction the function to convert the request DTO to a {@link UserEntity}
-     * @return the created user as a {@link UserResponseDto}
-     * @throws ValidationException if email validation fails (email already exists)
-     * @throws DataAccessException if database operations fail
-     * @throws NoSuchElementException if the Optional chain fails unexpectedly
+     * @param <T> the type of the update request DTO
+     * @param id the ID of the user to update
+     * @param request the request DTO containing updated user data
+     * @param mapperFunction the function to apply updates from DTO to entity
+     * @return the updated user as a {@link UserResponseDto}
+     * @throws ResourceNotFoundException if no user exists with the specified ID
+     * @throws UnauthorizedOperationException if a non-admin tries to change role/activation status
      */
-    private UserResponseDto performUserCreation(
-            CreateUserRequestDto createRequestDto,
-            Function<CreateUserRequestDto, UserEntity> mapperFunction) {
-        return Optional.of(createRequestDto)
-                .map(dto -> validateAndCreate(dto, mapperFunction))
-                .map(this::encodePassword)
-                .map(userRepository::save)
-                .map(userMapper::toDto)
-                .get();
-    }
-
-    /**
-     * Validates the create request and creates a new UserEntity.
-     *
-     * <p>This method performs email uniqueness validation before creating the entity. It ensures
-     * that no user with the same email address already exists in the system.
-     *
-     * @param createRequestDto the request DTO containing user data to validate and convert
-     * @param mapperFunction the function to convert the validated request DTO to a {@link
-     *     UserEntity}
-     * @return a new {@link UserEntity} ready for persistence
-     * @throws ValidationException if a user with the same email already exists
-     * @throws IllegalArgumentException if the request DTO contains invalid data
-     */
-    private UserEntity validateAndCreate(
-            CreateUserRequestDto createRequestDto,
-            Function<CreateUserRequestDto, UserEntity> mapperFunction) {
-        JpaUtils.validateResourceDoesNotExist(
-                userRepository::findByEmail, createRequestDto.email(), "email", "user");
-        return mapperFunction.apply(createRequestDto);
+    private <T extends BaseUpdateUserRequest> Mono<UserEntity> updateUser(
+            Long id, T request, BiFunction<T, UserEntity, UserEntity> mapperFunction) {
+        return userRepository
+                .findById(id)
+                .switchIfEmpty(
+                        Mono.error(new ResourceNotFoundException("User", "id", id.toString())))
+                .flatMap(foundUser -> validateUpdateUserRequest(request, foundUser))
+                .flatMap(foundUser -> validateEmailUniqueness(request, foundUser))
+                .map(validatedUser -> mapperFunction.apply(request, validatedUser))
+                .map(this::encodePassword);
     }
 
     /**
@@ -146,123 +132,66 @@ public class UserServiceImpl implements UserService {
      * @param <T> the type of the update request DTO, must extend {@link BaseUpdateUserRequest}
      * @param dto the update request DTO containing the email to validate
      * @param currentUser the existing user entity being updated
-     * @throws ValidationException if another user already has the specified email address
+     * @return A {@link Mono} that emits the `currentUser` if validation passes (or no email
+     *     change), or emits a {@link ResourceAlreadyExistsException} if another user already has
+     *     the specified email.
      */
-    private <T extends BaseUpdateUserRequest> void validateEmailUniqueness(
+    private <T extends BaseUpdateUserRequest> Mono<UserEntity> validateEmailUniqueness(
             T dto, UserEntity currentUser) {
-        JpaUtils.validateResourceDoesNotExist(
-                email -> userRepository.findByEmailAndIdNot(dto.email(), currentUser.getId()),
-                dto.email(),
-                "email",
-                "user");
-    }
-
-    /**
-     * Performs the complete user update flow including retrieval, validation, modification, and
-     * persistence.
-     *
-     * <p>This method orchestrates the user update process by:
-     *
-     * <ol>
-     *   <li>Finding the user by ID
-     *   <li>Applying validation and updates to the found user
-     *   <li>Persisting the updated entity to the database
-     *   <li>Converting the updated entity to a response DTO
-     * </ol>
-     *
-     * @param <T> the type of the update request DTO
-     * @param id the ID of the user to update
-     * @param updateRequestDto the request DTO containing updated user data
-     * @param mapperFunction the function to apply updates from DTO to entity
-     * @param preUpdateValidator the function to validate the update request before applying changes
-     * @return the updated user as a {@link UserResponseDto}
-     * @throws ResourceNotFoundException if no user exists with the specified ID
-     * @throws ValidationException if validation fails during the update process
-     * @throws DataAccessException if database operations fail
-     */
-    private <T extends BaseUpdateUserRequest> UserResponseDto performUserUpdate(
-            Long id,
-            T updateRequestDto,
-            BiConsumer<T, UserEntity> mapperFunction,
-            BiConsumer<T, UserEntity> preUpdateValidator) {
-
-        return userRepository
-                .findById(id)
-                .map(foundUser -> validateUpdateUserRequest(updateRequestDto, foundUser))
-                .map(
-                        foundUser ->
-                                applyUpdateAndValidate(
-                                        updateRequestDto,
-                                        foundUser,
-                                        mapperFunction,
-                                        preUpdateValidator))
-                .map(this::encodePassword)
-                .map(userRepository::save)
-                .map(userMapper::toDto)
-                .orElseThrow(() -> new ResourceNotFoundException("User", "id", id.toString()));
-    }
-
-    /**
-     * Validates the update request and throws an exception if the request is not valid.
-     *
-     * <p>This method checks if the user is an administrator and if the provided request is valid.
-     * If the user is not an administrator, the method checks if the provided request is valid and
-     * if the user's role and activation status are not changed.
-     *
-     * @param <T> the type of the update request DTO
-     * @param dto the update request DTO containing the email to validate
-     * @param currentUser the existing user entity being updated
-     * @throws ValidationException if another user already has the specified email address
-     */
-    private <T extends BaseUpdateUserRequest> UserEntity validateUpdateUserRequest(
-            T dto, UserEntity currentUser) {
-
-        if (!securityService.isAdmin()) {
-            Optional.ofNullable(dto.role())
-                    .filter(role -> !role.equals(currentUser.getRole()))
-                    .ifPresent(
-                            role -> {
-                                throw new UnauthorizedOperationException(
-                                        "Cannot change your own role.");
-                            });
-
-            Optional.ofNullable(dto.isActive())
-                    .filter(active -> !active.equals(currentUser.isActive()))
-                    .ifPresent(
-                            active -> {
-                                throw new UnauthorizedOperationException(
-                                        "Cannot change your activation status.");
-                            });
+        if (dto.email() != null && !dto.email().equals(currentUser.getEmail())) {
+            return ResourceValidationUtils.<String, UserEntity>validateResourceDoesNotExistReactive(
+                            email -> userRepository.findByEmailAndIdNot(email, currentUser.getId()),
+                            dto.email(),
+                            "email",
+                            "user")
+                    .thenReturn(currentUser);
         }
-
-        return currentUser;
+        return Mono.just(currentUser);
     }
 
     /**
-     * Applies validation and update operations to a user entity.
-     *
-     * <p>This method executes the pre-update validation first, then applies the actual updates to
-     * the user entity. The validation ensures data integrity before modifying the entity state.
+     * Validates an update request, ensuring that non-admin users cannot change their own role or
+     * activation status.
      *
      * @param <T> the type of the update request DTO
-     * @param updateRequestDto the request DTO containing updated user data
-     * @param foundUser the existing user entity to be updated
-     * @param mapperFunction the function to apply updates from DTO to entity
-     * @param preUpdateValidator the function to validate the update request before applying changes
-     * @return the updated {@link UserEntity} ready for persistence
-     * @throws ValidationException if validation fails
-     * @throws IllegalArgumentException if the update request contains invalid data
+     * @param dto the update request DTO
+     * @param currentUser the existing user entity being updated
+     * @return A {@link Mono} that emits the `currentUser` if validation passes, or emits an {@link
+     *     UnauthorizedOperationException} if validation fails.
      */
-    private <T> UserEntity applyUpdateAndValidate(
-            T updateRequestDto,
-            UserEntity foundUser,
-            BiConsumer<T, UserEntity> mapperFunction,
-            BiConsumer<T, UserEntity> preUpdateValidator) {
-        preUpdateValidator.accept(updateRequestDto, foundUser);
-        mapperFunction.accept(updateRequestDto, foundUser);
-        return foundUser;
+    private <T extends BaseUpdateUserRequest> Mono<UserEntity> validateUpdateUserRequest(
+            T dto, UserEntity currentUser) {
+        return Mono.just(currentUser)
+                .flatMap(
+                        user -> {
+                            if (securityService.isAdmin()) return Mono.just(user);
+
+                            Optional.ofNullable(dto.role())
+                                    .filter(role -> !role.equals(currentUser.getRole()))
+                                    .ifPresent(
+                                            _ -> {
+                                                throw new UnauthorizedOperationException(
+                                                        "Cannot change your own role.");
+                                            });
+
+                            Optional.ofNullable(dto.isActive())
+                                    .filter(active -> !active.equals(currentUser.isActive()))
+                                    .ifPresent(
+                                            _ -> {
+                                                throw new UnauthorizedOperationException(
+                                                        "Cannot change your activation status.");
+                                            });
+
+                            return Mono.just(user);
+                        });
     }
 
+    /**
+     * Encodes the password in the provided user entity if it is not null.
+     *
+     * @param userEntity the user entity to encode the password for
+     * @return the updated user entity with the encoded password
+     */
     private UserEntity encodePassword(UserEntity userEntity) {
         Optional.ofNullable(userEntity.getPassword())
                 .map(passwordEncoder::encode)

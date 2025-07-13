@@ -2,13 +2,12 @@ package dev.jose.backend.utils;
 
 import dev.jose.backend.api.exceptions.ResourceAlreadyExistsException;
 
-import lombok.experimental.UtilityClass;
-
 import java.util.Optional;
 import java.util.function.Function;
 
-@UtilityClass
 public class JpaUtils {
+
+    private JpaUtils() {}
 
     /**
      * Validates that a resource does not already exist based on a given unique field and its value.
@@ -27,7 +26,7 @@ public class JpaUtils {
      * @throws ResourceAlreadyExistsException if a user with the specified field value already
      *     exists.
      */
-    public <T, E> void validateResourceDoesNotExist(
+    public static <T, E> void validateResourceDoesNotExist(
             Function<T, Optional<E>> lookupFunction,
             T fieldValue,
             String fieldName,
