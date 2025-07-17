@@ -39,8 +39,7 @@ server:
         include-stacktrace: never
 
 app:
-    v1:
-        base-path: "/api/v1"
+    base-path: "/api/v1"
     token:
         expiration-seconds:
             jwt: ${JWT_EXPIRATION_SECONDS}

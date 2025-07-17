@@ -6,7 +6,6 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
-
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
@@ -16,11 +15,11 @@ import java.lang.annotation.Target;
 @Target({FIELD, METHOD})
 @Retention(RUNTIME)
 public @interface Password {
-    // Default message - this can be overridden on the DTO, which we did for a more comprehensive
-    // message.
-    String message() default "Password does not meet complexity requirements.";
+  // Default message - this can be overridden on the DTO, which we did for a more comprehensive
+  // message.
+  String message() default "Password does not meet complexity requirements.";
 
-    Class<?>[] groups() default {};
+  Class<?>[] groups() default {};
 
-    Class<? extends Payload>[] payload() default {};
+  Class<? extends Payload>[] payload() default {};
 }

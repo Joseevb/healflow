@@ -7,10 +7,10 @@ import dev.jose.backend.enumerations.UserRole;
  * UpdateUserRequestPutDto}
  */
 public sealed interface BaseUpdateUserRequest
-        permits UpdateUserRequestPatchDto, UpdateUserRequestPutDto {
-    String email();
+    permits UpdateUserRequestPatchDto, UpdateUserRequestPutDto {
+  String email();
 
-    UserRole role();
+  UserRole role();
 
-    boolean isActive();
+  boolean isActive();
 }

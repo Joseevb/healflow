@@ -9,13 +9,12 @@ import org.springframework.web.reactive.config.WebFluxConfigurer;
 @Configuration
 public class WebConfig implements WebFluxConfigurer {
 
-    @Value("${app.v1.base-path}")
-    private String apiV1BasePath;
+  @Value("${app.base-path}")
+  private String apiV1BasePath;
 
-    @Override
-    public void configurePathMatching(PathMatchConfigurer configurer) {
-        configurer.addPathPrefix(
-                apiV1BasePath,
-                HandlerTypePredicate.forBasePackage("dev.jose.backend.api.controllers"));
-    }
+  @Override
+  public void configurePathMatching(PathMatchConfigurer configurer) {
+    configurer.addPathPrefix(
+        apiV1BasePath, HandlerTypePredicate.forBasePackage("dev.jose.backend.api.controllers"));
+  }
 }
