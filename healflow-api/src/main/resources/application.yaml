@@ -1,0 +1,52 @@
+spring:
+  application:
+    name: healflow-api
+
+  datasource:
+    url: jdbc:postgresql://${DATABASE_HOST:localhost}:${DATABASE_PORT:5432}/${DATABASE_NAME:hospital_db}
+    username: ${DATABASE_USERNAME:admin}
+    password: ${DATABASE_PASSWORD:admin}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: create-drop
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${JWT_ISSUER_URI:http://localhost:3000}
+          jwk-set-uri: ${JWT_JWK_SET_URI:http://localhost:3000/api/auth/jwks}
+
+  jackson:
+    property-naming-strategy: SNAKE_CASE
+
+springdoc:
+  show-actuator: true
+
+server:
+  error:
+    include-stacktrace: never
+
+scalar:
+  url: ${API_DOCS_URL:http://localhost:8080/v3/api-docs}
+  path: /docs
+  enabled: true
+
+api:
+  prefix: /api
+  version: v1
+  allowedOrigins: ${FRONTEND_URL:http://localhost:3000}
+  key: ${API_SERVICE_KEY:C+QN7dUftY30Oh8SYXvmCiRvO/I+DwwTQUh22/A9QqE=} # TODO: REMOVE
+  key-header: X-API-KEY
+  key-path: /user-provisions/**
+
+logging:
+  level:
+    org.springframework.web.servlet.DispatcherServlet: DEBUG
+    org.springframework.web.filter.CommonsRequestLoggingFilter: DEBUG
+    org.springframework.security: DEBUG
