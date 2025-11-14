@@ -27,8 +27,8 @@ const items = [
 		icon: Calendar,
 	},
 	{
-		title: "Medication",
-		url: `${BASE_URL}/medication`,
+		title: "Medications",
+		url: `${BASE_URL}/medications`,
 		icon: Pill,
 	},
 	{

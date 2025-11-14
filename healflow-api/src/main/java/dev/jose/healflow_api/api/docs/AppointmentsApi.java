@@ -1,8 +1,8 @@
 package dev.jose.healflow_api.api.docs;
 
-import dev.jose.healflow_api.api.models.AppointmentResponseDto;
-import dev.jose.healflow_api.api.models.CreateAppointmentRequestDto;
-import dev.jose.healflow_api.api.models.UpdateAppointmentRequestDto;
+import dev.jose.healflow_api.api.models.AppointmentResponseDTO;
+import dev.jose.healflow_api.api.models.CreateAppointmentRequestDTO;
+import dev.jose.healflow_api.api.models.UpdateAppointmentRequestDTO;
 import dev.jose.healflow_api.api.models.errors.ApiErrorResponseDto;
 import dev.jose.healflow_api.api.models.errors.ValidationErrorResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
@@ -45,7 +45,7 @@ public interface AppointmentsApi {
         content =
             @Content(
                 array =
-                    @ArraySchema(schema = @Schema(implementation = AppointmentResponseDto.class)))),
+                    @ArraySchema(schema = @Schema(implementation = AppointmentResponseDTO.class)))),
     @ApiResponse(
         responseCode = "401",
         description = "Unauthorized",
@@ -56,7 +56,7 @@ public interface AppointmentsApi {
         content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
   })
   @GetMapping
-  ResponseEntity<List<AppointmentResponseDto>> getUserAppointments(
+  ResponseEntity<List<AppointmentResponseDTO>> getUserAppointments(
       @Parameter(hidden = true) @RequestAttribute UUID userId);
 
   @Operation(
@@ -71,7 +71,7 @@ public interface AppointmentsApi {
         content =
             @Content(
                 array =
-                    @ArraySchema(schema = @Schema(implementation = AppointmentResponseDto.class)))),
+                    @ArraySchema(schema = @Schema(implementation = AppointmentResponseDTO.class)))),
     @ApiResponse(
         responseCode = "401",
         description = "Unauthorized",
@@ -82,7 +82,7 @@ public interface AppointmentsApi {
         content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
   })
   @GetMapping("/upcoming")
-  ResponseEntity<List<AppointmentResponseDto>> getUpcomingAppointments(
+  ResponseEntity<List<AppointmentResponseDTO>> getUpcomingAppointments(
       @Parameter(hidden = true) @RequestAttribute UUID userId);
 
   @Operation(
@@ -97,7 +97,7 @@ public interface AppointmentsApi {
         content =
             @Content(
                 array =
-                    @ArraySchema(schema = @Schema(implementation = AppointmentResponseDto.class)))),
+                    @ArraySchema(schema = @Schema(implementation = AppointmentResponseDTO.class)))),
     @ApiResponse(
         responseCode = "401",
         description = "Unauthorized",
@@ -108,7 +108,7 @@ public interface AppointmentsApi {
         content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
   })
   @GetMapping("/history")
-  ResponseEntity<List<AppointmentResponseDto>> getPastAppointments(
+  ResponseEntity<List<AppointmentResponseDTO>> getPastAppointments(
       @Parameter(hidden = true) @RequestAttribute UUID userId);
 
   @Operation(
@@ -120,7 +120,7 @@ public interface AppointmentsApi {
     @ApiResponse(
         responseCode = "200",
         description = "Appointment details",
-        content = @Content(schema = @Schema(implementation = AppointmentResponseDto.class))),
+        content = @Content(schema = @Schema(implementation = AppointmentResponseDTO.class))),
     @ApiResponse(
         responseCode = "401",
         description = "Unauthorized",
@@ -139,7 +139,7 @@ public interface AppointmentsApi {
         content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
   })
   @GetMapping("/{id}")
-  ResponseEntity<AppointmentResponseDto> getAppointmentById(
+  ResponseEntity<AppointmentResponseDTO> getAppointmentById(
       @Parameter(description = "Appointment unique identifier") @PathVariable UUID id,
       @Parameter(hidden = true) @RequestAttribute UUID userId);
 
@@ -152,7 +152,7 @@ public interface AppointmentsApi {
     @ApiResponse(
         responseCode = "201",
         description = "Appointment created successfully",
-        content = @Content(schema = @Schema(implementation = AppointmentResponseDto.class))),
+        content = @Content(schema = @Schema(implementation = AppointmentResponseDTO.class))),
     @ApiResponse(
         responseCode = "400",
         description = "Invalid request",
@@ -175,9 +175,9 @@ public interface AppointmentsApi {
         content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
   })
   @PostMapping
-  ResponseEntity<AppointmentResponseDto> createAppointment(
+  ResponseEntity<AppointmentResponseDTO> createAppointment(
       @Parameter(hidden = true) @RequestAttribute UUID userId,
-      @Valid @RequestBody CreateAppointmentRequestDto request,
+      @Valid @RequestBody CreateAppointmentRequestDTO request,
       UriComponentsBuilder uriBuilder);
 
   @Operation(
@@ -189,7 +189,7 @@ public interface AppointmentsApi {
     @ApiResponse(
         responseCode = "200",
         description = "Appointment updated successfully",
-        content = @Content(schema = @Schema(implementation = AppointmentResponseDto.class))),
+        content = @Content(schema = @Schema(implementation = AppointmentResponseDTO.class))),
     @ApiResponse(
         responseCode = "400",
         description = "Invalid request",
@@ -216,10 +216,10 @@ public interface AppointmentsApi {
         content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
   })
   @PutMapping("/{id}")
-  ResponseEntity<AppointmentResponseDto> updateAppointment(
+  ResponseEntity<AppointmentResponseDTO> updateAppointment(
       @Parameter(description = "Appointment unique identifier") @PathVariable UUID id,
       @Parameter(hidden = true) @RequestAttribute UUID userId,
-      @Valid @RequestBody UpdateAppointmentRequestDto request);
+      @Valid @RequestBody UpdateAppointmentRequestDTO request);
 
   @Operation(
       operationId = "cancelAppointment",

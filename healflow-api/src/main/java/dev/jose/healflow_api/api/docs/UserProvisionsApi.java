@@ -1,6 +1,6 @@
 package dev.jose.healflow_api.api.docs;
 
-import dev.jose.healflow_api.api.models.ProvisionUserRequestDto;
+import dev.jose.healflow_api.api.models.ProvisionUserRequestDTO;
 import dev.jose.healflow_api.api.models.errors.ApiErrorResponseDto;
 import dev.jose.healflow_api.api.models.errors.ValidationErrorResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
@@ -47,5 +47,5 @@ public interface UserProvisionsApi {
   })
   @PostMapping
   ResponseEntity<Void> provisionUser(
-      @RequestBody ProvisionUserRequestDto body, UriComponentsBuilder uriBuilder);
+      @RequestBody ProvisionUserRequestDTO body, UriComponentsBuilder uriBuilder);
 }

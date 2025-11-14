@@ -1,7 +1,7 @@
 package dev.jose.healflow_api.api.controllers;
 
 import dev.jose.healflow_api.api.docs.UserProvisionsApi;
-import dev.jose.healflow_api.api.models.ProvisionUserRequestDto;
+import dev.jose.healflow_api.api.models.ProvisionUserRequestDTO;
 import dev.jose.healflow_api.services.UserProvisionService;
 import java.net.URI;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +19,7 @@ public class UserProvisionsController implements UserProvisionsApi {
 
   @Override
   public ResponseEntity<Void> provisionUser(
-      ProvisionUserRequestDto body, UriComponentsBuilder uriBuilder) {
+      ProvisionUserRequestDTO body, UriComponentsBuilder uriBuilder) {
     String id = userProvisionService.provisionUser(body);
     URI location = uriBuilder.path("/{id}").buildAndExpand(id).toUri();
     log.info("Provisioning user with id {}", id);

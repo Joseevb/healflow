@@ -12,7 +12,7 @@ public interface AppointmentService {
    * @param userId User unique identifier
    * @return List of appointment responses
    */
-  List<AppointmentResponseDto> getUserAppointments(UUID userId);
+  List<AppointmentResponseDTO> getUserAppointments(UUID userId);
 
   /**
    * Returns upcoming appointments for the authenticated user
@@ -20,7 +20,7 @@ public interface AppointmentService {
    * @param userId User unique identifier
    * @return List of upcoming appointment responses
    */
-  List<AppointmentResponseDto> getUpcomingAppointments(UUID userId);
+  List<AppointmentResponseDTO> getUpcomingAppointments(UUID userId);
 
   /**
    * Returns past appointments for the authenticated user
@@ -28,7 +28,7 @@ public interface AppointmentService {
    * @param userId User unique identifier
    * @return List of past appointment responses
    */
-  List<AppointmentResponseDto> getPastAppointments(UUID userId);
+  List<AppointmentResponseDTO> getPastAppointments(UUID userId);
 
   /**
    * Returns an appointment by its unique identifier
@@ -37,7 +37,7 @@ public interface AppointmentService {
    * @param userId User ID to verify ownership
    * @return Appointment response
    */
-  AppointmentResponseDto getAppointmentById(UUID id, UUID userId);
+  AppointmentResponseDTO getAppointmentById(UUID id, UUID userId);
 
   /**
    * Creates a new appointment
@@ -46,7 +46,7 @@ public interface AppointmentService {
    * @param request Appointment creation details
    * @return Created appointment response
    */
-  AppointmentResponseDto createAppointment(UUID userId, CreateAppointmentRequestDto request);
+  AppointmentResponseDTO createAppointment(UUID userId, CreateAppointmentRequestDTO request);
 
   /**
    * Updates an existing appointment
@@ -56,8 +56,8 @@ public interface AppointmentService {
    * @param request Update details
    * @return Updated appointment response
    */
-  AppointmentResponseDto updateAppointment(
-      UUID id, UUID userId, UpdateAppointmentRequestDto request);
+  AppointmentResponseDTO updateAppointment(
+      UUID id, UUID userId, UpdateAppointmentRequestDTO request);
 
   /**
    * Cancels an appointment

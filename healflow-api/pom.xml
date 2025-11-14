@@ -27,9 +27,11 @@
     <url></url>
   </scm>
   <properties>
-    <java.version>24</java.version>
+    <java.version>25</java.version>
     <mapstruct.version>1.6.3</mapstruct.version>
     <record.builder.version>48</record.builder.version>
+    <openapi-generator-version>7.17.0</openapi-generator-version>
+    <medicines-api-url>http://localhost:4000/api-docs/json</medicines-api-url>
   </properties>
   <dependencies>
     <dependency>
@@ -107,6 +109,12 @@
       <version>${record.builder.version}</version>
       <scope>provided</scope>
     </dependency>
+    <!-- https://mvnrepository.com/artifact/org.openapitools/jackson-databind-nullable -->
+    <dependency>
+      <groupId>org.openapitools</groupId>
+      <artifactId>jackson-databind-nullable</artifactId>
+      <version>0.2.8</version>
+    </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-test</artifactId>
@@ -159,6 +167,42 @@
             </exclude>
           </excludes>
         </configuration>
+      </plugin>
+      <!-- OpenAPI Client Generator -->
+      <plugin>
+        <groupId>org.openapitools</groupId>
+        <artifactId>openapi-generator-maven-plugin</artifactId>
+        <version>${openapi-generator-version}</version>
+        <executions>
+          <execution>
+            <id>generate-medicines-client</id>
+            <goals>
+              <goal>generate</goal>
+            </goals>
+            <configuration>
+              <inputSpec>${medicines-api-url}</inputSpec>
+              <generatorName>java</generatorName>
+              <library>restclient</library>
+              <modelNameSuffix>DTO</modelNameSuffix>
+              <output>${project.build.directory}/generated-sources/openapi</output>
+              <configOptions>
+                <dateLibrary>java8</dateLibrary>
+                <useJakartaEe>true</useJakartaEe>
+                <supportUrlQuery>true</supportUrlQuery>
+                <hideGenerationTimestamp>true</hideGenerationTimestamp>
+                <java8>true</java8>
+                <useSpringBoot3>true</useSpringBoot3>
+                <useSingleRequestParameter>static</useSingleRequestParameter>
+              </configOptions>
+              <groupId>dev.jose.medicines</groupId>
+              <artifactId>medicines-api-client</artifactId>
+              <artifactVersion>1.0.0</artifactVersion>
+              <apiPackage>dev.jose.medicines.api</apiPackage>
+              <modelPackage>dev.jose.medicines.model</modelPackage>
+              <invokerPackage>dev.jose.medicines.client</invokerPackage>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>

@@ -7,7 +7,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { isSameDay } from "date-fns";
 import { Spinner } from "./ui/spinner";
-import { TimeSlot } from "@/api/schemas";
+import { TimeSlot } from "@/client";
 
 export default function Calendar20({
 	action,

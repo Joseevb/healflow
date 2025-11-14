@@ -1,6 +1,6 @@
 package dev.jose.healflow_api.services;
 
-import dev.jose.healflow_api.api.models.ProvisionUserRequestDto;
+import dev.jose.healflow_api.api.models.ProvisionUserRequestDTO;
 import dev.jose.healflow_api.mappers.UserMapper;
 import dev.jose.healflow_api.persistence.entities.UserEntity;
 import dev.jose.healflow_api.persistence.repositories.UserRepository;
@@ -15,7 +15,7 @@ public class UserProvisionServiceImpl implements UserProvisionService {
   private final UserRepository userRepository;
 
   @Override
-  public String provisionUser(ProvisionUserRequestDto request) {
+  public String provisionUser(ProvisionUserRequestDTO request) {
     if (userRepository.existsByEmail(request.email())
         || userRepository.existsByAuthId(request.userId())) {
       throw new IllegalArgumentException("User already exists");

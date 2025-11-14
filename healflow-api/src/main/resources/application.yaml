@@ -45,6 +45,8 @@ api:
   key-header: X-API-KEY
   key-path: /user-provisions/**
 
+medicines-api-url: ${MEDICINES_API_URL:http://localhost:4000}
+
 logging:
   level:
     org.springframework.web.servlet.DispatcherServlet: DEBUG

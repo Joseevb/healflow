@@ -1,7 +1,7 @@
 package dev.jose.healflow_api.api.docs;
 
-import dev.jose.healflow_api.api.models.DayScheduleResponseDto;
-import dev.jose.healflow_api.api.models.SpecialistResponseDto;
+import dev.jose.healflow_api.api.models.DayScheduleResponseDTO;
+import dev.jose.healflow_api.api.models.SpecialistResponseDTO;
 import dev.jose.healflow_api.api.models.errors.ApiErrorResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -38,7 +38,7 @@ public interface SpecialistsApi {
         content =
             @Content(
                 array =
-                    @ArraySchema(schema = @Schema(implementation = SpecialistResponseDto.class)))),
+                    @ArraySchema(schema = @Schema(implementation = SpecialistResponseDTO.class)))),
     @ApiResponse(
         responseCode = "401",
         description = "Unauthorized",
@@ -49,7 +49,7 @@ public interface SpecialistsApi {
         content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
   })
   @GetMapping
-  ResponseEntity<List<SpecialistResponseDto>> getAvailableSpecialists();
+  ResponseEntity<List<SpecialistResponseDTO>> getAvailableSpecialists();
 
   @Operation(
       operationId = "getSpecialistBookingData",
@@ -63,7 +63,7 @@ public interface SpecialistsApi {
         content =
             @Content(
                 array =
-                    @ArraySchema(schema = @Schema(implementation = DayScheduleResponseDto.class)))),
+                    @ArraySchema(schema = @Schema(implementation = DayScheduleResponseDTO.class)))),
     @ApiResponse(
         responseCode = "401",
         description = "Unauthorized",
@@ -78,7 +78,7 @@ public interface SpecialistsApi {
         content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
   })
   @GetMapping("/specialists/{specialistId}/booking-data")
-  ResponseEntity<List<DayScheduleResponseDto>> getSpecialistBookingData(
+  ResponseEntity<List<DayScheduleResponseDTO>> getSpecialistBookingData(
       @Parameter(description = "Specialist unique identifier") @PathVariable UUID specialistId,
       @Parameter(description = "Start date (ISO-8601 format)")
           @RequestParam

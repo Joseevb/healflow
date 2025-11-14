@@ -1,10 +1,10 @@
 package dev.jose.healflow_api.mappers;
 
-import dev.jose.healflow_api.api.models.AppointmentResponseDto;
-import dev.jose.healflow_api.api.models.ClientSummaryDto;
-import dev.jose.healflow_api.api.models.CreateAppointmentRequestDto;
-import dev.jose.healflow_api.api.models.SpecialistSummaryDto;
-import dev.jose.healflow_api.api.models.UpdateAppointmentRequestDto;
+import dev.jose.healflow_api.api.models.AppointmentResponseDTO;
+import dev.jose.healflow_api.api.models.ClientSummaryDTO;
+import dev.jose.healflow_api.api.models.CreateAppointmentRequestDTO;
+import dev.jose.healflow_api.api.models.SpecialistSummaryDTO;
+import dev.jose.healflow_api.api.models.UpdateAppointmentRequestDTO;
 import dev.jose.healflow_api.persistence.entities.AppointmentEntity;
 import dev.jose.healflow_api.persistence.entities.SpecialistEntity;
 import dev.jose.healflow_api.persistence.entities.UserEntity;
@@ -26,7 +26,7 @@ public interface AppointmentMapper {
 
   @Mapping(target = "client", source = "client")
   @Mapping(target = "specialist", source = "specialist")
-  AppointmentResponseDto toDto(AppointmentEntity entity);
+  AppointmentResponseDTO toDto(AppointmentEntity entity);
 
   @Mapping(target = "id", ignore = true)
   @Mapping(target = "client", source = "client")
@@ -36,7 +36,7 @@ public interface AppointmentMapper {
   @Mapping(target = "createdAt", ignore = true)
   @Mapping(target = "updatedAt", ignore = true)
   AppointmentEntity toEntity(
-      CreateAppointmentRequestDto dto, UserEntity client, SpecialistEntity specialist);
+      CreateAppointmentRequestDTO dto, UserEntity client, SpecialistEntity specialist);
 
   @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
   @Mapping(target = "id", ignore = true)
@@ -46,14 +46,14 @@ public interface AppointmentMapper {
   @Mapping(target = "updatedAt", ignore = true)
   @Mapping(target = "durationMinutes", ignore = true)
   AppointmentEntity updateEntity(
-      @MappingTarget AppointmentEntity entity, UpdateAppointmentRequestDto dto);
+      @MappingTarget AppointmentEntity entity, UpdateAppointmentRequestDTO dto);
 
   @Mapping(
       target = "name",
       expression = "java(client.getFirstName() + \" \" + client.getLastName())")
-  ClientSummaryDto toClientSummary(UserEntity client);
+  ClientSummaryDTO toClientSummary(UserEntity client);
 
   @Mapping(target = "name", source = "fullName")
   @Mapping(target = "specialty", source = "specialistType.name")
-  SpecialistSummaryDto toSpecialistSummary(SpecialistEntity specialist);
+  SpecialistSummaryDTO toSpecialistSummary(SpecialistEntity specialist);
 }

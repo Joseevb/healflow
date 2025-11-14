@@ -1,9 +1,9 @@
 "use client";
 
 import { Separator } from "@/components/ui/separator";
-import Header from "../components/header";
-import UpcomingAppointments from "../components/upcoming-appointments";
-import AppointmentHistory from "../components/appointment-history";
+import Header from "./components/header";
+import UpcomingAppointments from "./components/upcoming-appointments";
+import AppointmentHistory from "./components/appointment-history";
 import { Spinner } from "@/components/ui/spinner";
 import { AppointmentResponse } from "@/client";
 import { useQuery } from "@tanstack/react-query";

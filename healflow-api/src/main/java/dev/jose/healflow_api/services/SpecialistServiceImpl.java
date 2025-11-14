@@ -1,8 +1,8 @@
 package dev.jose.healflow_api.services;
 
-import dev.jose.healflow_api.api.models.DayScheduleResponseDto;
-import dev.jose.healflow_api.api.models.SpecialistResponseDto;
-import dev.jose.healflow_api.api.models.TimeSlotDto;
+import dev.jose.healflow_api.api.models.DayScheduleResponseDTO;
+import dev.jose.healflow_api.api.models.SpecialistResponseDTO;
+import dev.jose.healflow_api.api.models.TimeSlotDTO;
 import dev.jose.healflow_api.enumerations.AppointmentStatus;
 import dev.jose.healflow_api.exceptions.NotFoundException;
 import dev.jose.healflow_api.mappers.SpecialistMapper;
@@ -40,14 +40,14 @@ public class SpecialistServiceImpl implements SpecialistService {
 
   @Override
   @Transactional(readOnly = true)
-  public List<SpecialistResponseDto> getAvailableSpecialists() {
+  public List<SpecialistResponseDTO> getAvailableSpecialists() {
     log.debug("Fetching all available specialists");
     return specialistRepository.findByIsActiveTrue().stream().map(specialistMapper::toDto).toList();
   }
 
   @Override
   @Transactional(readOnly = true)
-  public List<DayScheduleResponseDto> getSpecialistBookingData(
+  public List<DayScheduleResponseDTO> getSpecialistBookingData(
       UUID specialistId, Instant startDate, Instant endDate) {
     log.debug(
         "Fetching booking data for specialist: {} from {} to {}", specialistId, startDate, endDate);
@@ -65,7 +65,7 @@ public class SpecialistServiceImpl implements SpecialistService {
     var availabilities = availabilityRepository.findBySpecialistAndIsAvailableTrue(specialist);
 
     // Build schedule
-    List<DayScheduleResponseDto> schedules = new ArrayList<>();
+    List<DayScheduleResponseDTO> schedules = new ArrayList<>();
     Instant current = startDate;
 
     while (current.isBefore(endDate)) {
@@ -83,9 +83,9 @@ public class SpecialistServiceImpl implements SpecialistService {
           availabilities.stream().filter(a -> a.getDayOfWeek() == dayOfWeek).toList();
 
       if (!dayAvailabilities.isEmpty()) {
-        List<TimeSlotDto> timeSlots =
+        List<TimeSlotDTO> timeSlots =
             generateTimeSlots(current, dayAvailabilities, appointments, specialist);
-        schedules.add(DayScheduleResponseDto.builder().date(current).timeslots(timeSlots).build());
+        schedules.add(DayScheduleResponseDTO.builder().date(current).timeslots(timeSlots).build());
       }
 
       current = current.plus(1, ChronoUnit.DAYS);
@@ -94,13 +94,13 @@ public class SpecialistServiceImpl implements SpecialistService {
     return schedules;
   }
 
-  private List<TimeSlotDto> generateTimeSlots(
+  private List<TimeSlotDTO> generateTimeSlots(
       Instant date,
       List<SpecialistAvailabilityEntity> availabilities,
       List<AppointmentEntity> appointments,
       SpecialistEntity specialist) {
 
-    List<TimeSlotDto> slots = new ArrayList<>();
+    List<TimeSlotDTO> slots = new ArrayList<>();
     LocalDate localDate = LocalDate.ofInstant(date, ZoneId.systemDefault());
 
     for (var availability : availabilities) {
@@ -118,16 +118,16 @@ public class SpecialistServiceImpl implements SpecialistService {
                 .filter(a -> a.getStatus() != AppointmentStatus.CANCELLED)
                 .findFirst();
 
-        TimeSlotDto slot;
+        TimeSlotDTO slot;
         if (bookedAppointment.isPresent()) {
           slot =
-              TimeSlotDto.builder()
+              TimeSlotDTO.builder()
                   .time(current.toString())
                   .status("booked")
                   .appointmentId(bookedAppointment.get().getId())
                   .build();
         } else {
-          slot = TimeSlotDto.builder().time(current.toString()).status("available").build();
+          slot = TimeSlotDTO.builder().time(current.toString()).status("available").build();
         }
 
         slots.add(slot);
