@@ -1,0 +1,11 @@
+p2p-scan
+run 3
+help
+list
+select 4
+set-friently-name 4 jose-arch
+set-friendly-name 4 jose-arch
+p2p-scan
+p2p-scan 4
+p2p-scan 4 start
+connect 4

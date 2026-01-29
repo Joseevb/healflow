@@ -14,7 +14,5 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 public interface SpecialistMapper extends BaseMapper {
 
   @Mapping(target = "name", source = "fullName")
-  @Mapping(target = "specialty", source = "specialistType.name")
-  @Mapping(target = "specialtyId", source = "specialistType.id")
   SpecialistResponseDTO toDto(SpecialistEntity entity);
 }

@@ -3,8 +3,8 @@ package dev.jose.healflow_api.api.docs;
 import dev.jose.healflow_api.api.models.AppointmentResponseDTO;
 import dev.jose.healflow_api.api.models.CreateAppointmentRequestDTO;
 import dev.jose.healflow_api.api.models.UpdateAppointmentRequestDTO;
-import dev.jose.healflow_api.api.models.errors.ApiErrorResponseDto;
-import dev.jose.healflow_api.api.models.errors.ValidationErrorResponseDto;
+import dev.jose.healflow_api.api.models.errors.ApiProblemDetail;
+import dev.jose.healflow_api.api.models.errors.ValidationProblemDetail;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -49,11 +49,11 @@ public interface AppointmentsApi {
     @ApiResponse(
         responseCode = "401",
         description = "Unauthorized",
-        content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
+        content = @Content(schema = @Schema(implementation = ApiProblemDetail.class))),
     @ApiResponse(
         responseCode = "500",
         description = "Internal server error",
-        content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
+        content = @Content(schema = @Schema(implementation = ApiProblemDetail.class)))
   })
   @GetMapping
   ResponseEntity<List<AppointmentResponseDTO>> getUserAppointments(
@@ -75,11 +75,11 @@ public interface AppointmentsApi {
     @ApiResponse(
         responseCode = "401",
         description = "Unauthorized",
-        content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
+        content = @Content(schema = @Schema(implementation = ApiProblemDetail.class))),
     @ApiResponse(
         responseCode = "500",
         description = "Internal server error",
-        content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
+        content = @Content(schema = @Schema(implementation = ApiProblemDetail.class)))
   })
   @GetMapping("/upcoming")
   ResponseEntity<List<AppointmentResponseDTO>> getUpcomingAppointments(
@@ -101,11 +101,11 @@ public interface AppointmentsApi {
     @ApiResponse(
         responseCode = "401",
         description = "Unauthorized",
-        content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
+        content = @Content(schema = @Schema(implementation = ApiProblemDetail.class))),
     @ApiResponse(
         responseCode = "500",
         description = "Internal server error",
-        content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
+        content = @Content(schema = @Schema(implementation = ApiProblemDetail.class)))
   })
   @GetMapping("/history")
   ResponseEntity<List<AppointmentResponseDTO>> getPastAppointments(
@@ -124,19 +124,19 @@ public interface AppointmentsApi {
     @ApiResponse(
         responseCode = "401",
         description = "Unauthorized",
-        content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
+        content = @Content(schema = @Schema(implementation = ApiProblemDetail.class))),
     @ApiResponse(
         responseCode = "403",
         description = "Forbidden - not your appointment",
-        content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
+        content = @Content(schema = @Schema(implementation = ApiProblemDetail.class))),
     @ApiResponse(
         responseCode = "404",
         description = "Appointment not found",
-        content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
+        content = @Content(schema = @Schema(implementation = ApiProblemDetail.class))),
     @ApiResponse(
         responseCode = "500",
         description = "Internal server error",
-        content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
+        content = @Content(schema = @Schema(implementation = ApiProblemDetail.class)))
   })
   @GetMapping("/{id}")
   ResponseEntity<AppointmentResponseDTO> getAppointmentById(
@@ -156,23 +156,23 @@ public interface AppointmentsApi {
     @ApiResponse(
         responseCode = "400",
         description = "Invalid request",
-        content = @Content(schema = @Schema(implementation = ValidationErrorResponseDto.class))),
+        content = @Content(schema = @Schema(implementation = ValidationProblemDetail.class))),
     @ApiResponse(
         responseCode = "401",
         description = "Unauthorized",
-        content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
+        content = @Content(schema = @Schema(implementation = ApiProblemDetail.class))),
     @ApiResponse(
         responseCode = "404",
         description = "Specialist not found",
-        content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
+        content = @Content(schema = @Schema(implementation = ApiProblemDetail.class))),
     @ApiResponse(
         responseCode = "409",
         description = "Time slot already booked",
-        content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
+        content = @Content(schema = @Schema(implementation = ApiProblemDetail.class))),
     @ApiResponse(
         responseCode = "500",
         description = "Internal server error",
-        content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
+        content = @Content(schema = @Schema(implementation = ApiProblemDetail.class)))
   })
   @PostMapping
   ResponseEntity<AppointmentResponseDTO> createAppointment(
@@ -193,27 +193,27 @@ public interface AppointmentsApi {
     @ApiResponse(
         responseCode = "400",
         description = "Invalid request",
-        content = @Content(schema = @Schema(implementation = ValidationErrorResponseDto.class))),
+        content = @Content(schema = @Schema(implementation = ValidationProblemDetail.class))),
     @ApiResponse(
         responseCode = "401",
         description = "Unauthorized",
-        content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
+        content = @Content(schema = @Schema(implementation = ApiProblemDetail.class))),
     @ApiResponse(
         responseCode = "403",
         description = "Forbidden - not your appointment",
-        content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
+        content = @Content(schema = @Schema(implementation = ApiProblemDetail.class))),
     @ApiResponse(
         responseCode = "404",
         description = "Appointment not found",
-        content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
+        content = @Content(schema = @Schema(implementation = ApiProblemDetail.class))),
     @ApiResponse(
         responseCode = "409",
         description = "New time slot already booked",
-        content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
+        content = @Content(schema = @Schema(implementation = ApiProblemDetail.class))),
     @ApiResponse(
         responseCode = "500",
         description = "Internal server error",
-        content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
+        content = @Content(schema = @Schema(implementation = ApiProblemDetail.class)))
   })
   @PutMapping("/{id}")
   ResponseEntity<AppointmentResponseDTO> updateAppointment(
@@ -231,23 +231,23 @@ public interface AppointmentsApi {
     @ApiResponse(
         responseCode = "400",
         description = "Invalid request",
-        content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
+        content = @Content(schema = @Schema(implementation = ApiProblemDetail.class))),
     @ApiResponse(
         responseCode = "401",
         description = "Unauthorized",
-        content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
+        content = @Content(schema = @Schema(implementation = ApiProblemDetail.class))),
     @ApiResponse(
         responseCode = "403",
         description = "Forbidden - not your appointment",
-        content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
+        content = @Content(schema = @Schema(implementation = ApiProblemDetail.class))),
     @ApiResponse(
         responseCode = "404",
         description = "Appointment not found",
-        content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
+        content = @Content(schema = @Schema(implementation = ApiProblemDetail.class))),
     @ApiResponse(
         responseCode = "500",
         description = "Internal server error",
-        content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
+        content = @Content(schema = @Schema(implementation = ApiProblemDetail.class)))
   })
   @DeleteMapping("/{id}")
   ResponseEntity<Void> cancelAppointment(

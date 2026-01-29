@@ -4,6 +4,7 @@ import dev.jose.healflow_api.api.models.DayScheduleResponseDTO;
 import dev.jose.healflow_api.api.models.SpecialistResponseDTO;
 import dev.jose.healflow_api.api.models.TimeSlotDTO;
 import dev.jose.healflow_api.enumerations.AppointmentStatus;
+import dev.jose.healflow_api.enumerations.SpecialistTypeEnum;
 import dev.jose.healflow_api.exceptions.NotFoundException;
 import dev.jose.healflow_api.mappers.SpecialistMapper;
 import dev.jose.healflow_api.persistence.entities.AppointmentEntity;
@@ -40,9 +41,13 @@ public class SpecialistServiceImpl implements SpecialistService {
 
   @Override
   @Transactional(readOnly = true)
-  public List<SpecialistResponseDTO> getAvailableSpecialists() {
-    log.debug("Fetching all available specialists");
-    return specialistRepository.findByIsActiveTrue().stream().map(specialistMapper::toDto).toList();
+  public List<SpecialistResponseDTO> getAvailableSpecialists(Optional<SpecialistTypeEnum> type) {
+    return type.map(specialistRepository::findActiveBySpecialistType)
+        .map(specialist -> specialist.stream().map(specialistMapper::toDto).toList())
+        .orElse(
+            specialistRepository.findByIsActiveTrue().stream()
+                .map(specialistMapper::toDto)
+                .toList());
   }
 
   @Override

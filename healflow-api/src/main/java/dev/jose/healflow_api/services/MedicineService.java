@@ -4,6 +4,8 @@ import dev.jose.medicines.model.FieldValuesResponseDTO;
 import dev.jose.medicines.model.MedicineDTO;
 import dev.jose.medicines.model.PaginatedMedicinesResponseDTO;
 import dev.jose.medicines.model.StatsResponseDTO;
+import java.util.Map;
+import org.springframework.lang.Nullable;
 
 public interface MedicineService {
   /**
@@ -12,9 +14,14 @@ public interface MedicineService {
    * @param search the search term to filter medicines by name or description (optional)
    * @param category the category to filter medicines by (optional)
    * @param page the page number for pagination (optional, starts from 0)
+   * @param fields search for specific fields (optional)
    * @return a paginated response containing the list of medicines matching the search criteria
    */
-  PaginatedMedicinesResponseDTO searchMedicines(String search, String category, Integer page);
+  PaginatedMedicinesResponseDTO searchMedicines(
+      @Nullable String search,
+      @Nullable String category,
+      @Nullable Integer page,
+      @Nullable Map<String, String> fields);
 
   /**
    * Retrieves a specific medicine by its unique identifier.
@@ -22,7 +29,7 @@ public interface MedicineService {
    * @param id the unique identifier of the medicine
    * @return the medicine details for the given ID
    */
-  MedicineDTO getMedicineById(String id);
+  MedicineDTO getMedicineById(Integer id);
 
   /**
    * Retrieves statistical information about medicines.

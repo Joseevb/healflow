@@ -95,34 +95,78 @@ export type SpecialistSummary = {
      * Specialist full name
      */
     name: string;
+    specialty: SpecialistTypeEnum;
+};
+
+/**
+ * Specialty
+ */
+export type SpecialistTypeEnum = 'CARDIOLOGY' | 'DERMATOLOGY' | 'GENERAL_PRACTICE' | 'DENTISTRY';
+
+/**
+ * RFC 7807 Problem Detail with validation error extensions
+ */
+export type ValidationProblemDetail = {
     /**
-     * Specialty
+     * A URI reference that identifies the problem type
      */
-    specialty: string;
-};
-
-/**
- * Validation error response
- */
-export type ValidationErrorResponse = {
-    timestamp?: string;
+    type?: string;
+    /**
+     * A short, human-readable summary of the problem type
+     */
+    title?: string;
+    /**
+     * The HTTP status code
+     */
     status?: number;
-    error?: string;
-    messages?: {
-        [key: string]: string;
+    /**
+     * A human-readable explanation specific to this occurrence of the problem
+     */
+    detail?: string;
+    /**
+     * A URI reference that identifies the specific occurrence of the problem
+     */
+    instance?: string;
+    /**
+     * List of invalid user IDs that failed validation
+     */
+    invalid_ids?: Array<string>;
+    properties?: {
+        [key: string]: {
+            [key: string]: unknown;
+        };
     };
-    path?: string;
 };
 
 /**
- * API error response
+ * RFC 7807 Problem Detail for HTTP APIs
  */
-export type ApiErrorResponse = {
-    timestamp?: string;
+export type ApiProblemDetail = {
+    /**
+     * A URI reference that identifies the problem type
+     */
+    type?: string;
+    /**
+     * A short, human-readable summary of the problem type
+     */
+    title?: string;
+    /**
+     * The HTTP status code
+     */
     status?: number;
-    error?: string;
-    message?: string;
-    path?: string;
+    /**
+     * A human-readable explanation specific to this occurrence of the problem
+     */
+    detail?: string;
+    /**
+     * A URI reference that identifies the specific occurrence of the problem
+     */
+    instance?: string;
+    properties?: {
+        [key: string]: {
+            [key: string]: unknown;
+        };
+    };
 };
 
 /**
@@ -137,6 +181,17 @@ export type ProvisionUserRequest = {
      * User email
      */
     email: string;
+    /**
+     * Primary specialist ID
+     */
+    specialist_id: string;
+};
+
+/**
+ * Schema to validate the existing user IDs on the Auth provider to ensure that they are in sync
+ */
+export type ValidateAuthUserIds = {
+    ids?: Array<string>;
 };
 
 /**
@@ -158,6 +213,17 @@ export type CreateAppointmentRequest = {
 };
 
 /**
+ * User medicines response
+ */
+export type UserMedicinesResponse = {
+    medicine_name?: string;
+    dosage?: string;
+    frequency?: string;
+    start_date?: string;
+    end_date?: string;
+};
+
+/**
  * Specialist information
  */
 export type SpecialistResponse = {
@@ -169,14 +235,7 @@ export type SpecialistResponse = {
      * Specialist full name
      */
     name: string;
-    /**
-     * Specialist type name
-     */
-    specialty: string;
-    /**
-     * Specialist type ID
-     */
-    specialty_id: string;
+    specialty: SpecialistTypeEnum;
     /**
      * Email address
      */
@@ -193,6 +252,13 @@ export type SpecialistResponse = {
      * Default consultation duration in minutes
      */
     consultation_duration_minutes: number;
+};
+
+/**
+ * Specialist type
+ */
+export type SpecialistTypeResponse = {
+    type?: SpecialistTypeEnum;
 };
 
 /**
@@ -253,23 +319,23 @@ export type CancelAppointmentErrors = {
     /**
      * Invalid request
      */
-    400: ApiErrorResponse;
+    400: ApiProblemDetail;
     /**
      * Unauthorized
      */
-    401: ApiErrorResponse;
+    401: ApiProblemDetail;
     /**
      * Forbidden - not your appointment
      */
-    403: ApiErrorResponse;
+    403: ApiProblemDetail;
     /**
      * Appointment not found
      */
-    404: ApiErrorResponse;
+    404: ApiProblemDetail;
     /**
      * Internal server error
      */
-    500: ApiErrorResponse;
+    500: ApiProblemDetail;
 };
 
 export type CancelAppointmentError = CancelAppointmentErrors[keyof CancelAppointmentErrors];
@@ -299,19 +365,19 @@ export type GetAppointmentByIdErrors = {
     /**
      * Unauthorized
      */
-    401: ApiErrorResponse;
+    401: ApiProblemDetail;
     /**
      * Forbidden - not your appointment
      */
-    403: ApiErrorResponse;
+    403: ApiProblemDetail;
     /**
      * Appointment not found
      */
-    404: ApiErrorResponse;
+    404: ApiProblemDetail;
     /**
      * Internal server error
      */
-    500: ApiErrorResponse;
+    500: ApiProblemDetail;
 };
 
 export type GetAppointmentByIdError = GetAppointmentByIdErrors[keyof GetAppointmentByIdErrors];
@@ -341,27 +407,27 @@ export type UpdateAppointmentErrors = {
     /**
      * Invalid request
      */
-    400: ValidationErrorResponse;
+    400: ValidationProblemDetail;
     /**
      * Unauthorized
      */
-    401: ApiErrorResponse;
+    401: ApiProblemDetail;
     /**
      * Forbidden - not your appointment
      */
-    403: ApiErrorResponse;
+    403: ApiProblemDetail;
     /**
      * Appointment not found
      */
-    404: ApiErrorResponse;
+    404: ApiProblemDetail;
     /**
      * New time slot already booked
      */
-    409: ApiErrorResponse;
+    409: ApiProblemDetail;
     /**
      * Internal server error
      */
-    500: ApiErrorResponse;
+    500: ApiProblemDetail;
 };
 
 export type UpdateAppointmentError = UpdateAppointmentErrors[keyof UpdateAppointmentErrors];
@@ -386,15 +452,15 @@ export type ProvisionUserErrors = {
     /**
      * Invalid request
      */
-    400: ValidationErrorResponse;
+    400: ValidationProblemDetail;
     /**
      * Unauthorized
      */
-    401: ApiErrorResponse;
+    401: ApiProblemDetail;
     /**
      * Forbidden
      */
-    403: ApiErrorResponse;
+    403: ApiProblemDetail;
 };
 
 export type ProvisionUserError = ProvisionUserErrors[keyof ProvisionUserErrors];
@@ -404,6 +470,37 @@ export type ProvisionUserResponses = {
      * User provisioned successfully
      */
     201: unknown;
+};
+
+export type ValidateUserData = {
+    body: ValidateAuthUserIds;
+    path?: never;
+    query?: never;
+    url: '/api/v1/user-provisions/validate';
+};
+
+export type ValidateUserErrors = {
+    /**
+     * One or more user IDs are invalid
+     */
+    400: ValidationProblemDetail;
+    /**
+     * Unauthorized
+     */
+    401: ApiProblemDetail;
+    /**
+     * Forbidden
+     */
+    403: ApiProblemDetail;
+};
+
+export type ValidateUserError = ValidateUserErrors[keyof ValidateUserErrors];
+
+export type ValidateUserResponses = {
+    /**
+     * All user IDs are valid
+     */
+    200: unknown;
 };
 
 export type GetUserAppointmentsData = {
@@ -417,11 +514,11 @@ export type GetUserAppointmentsErrors = {
     /**
      * Unauthorized
      */
-    401: ApiErrorResponse;
+    401: ApiProblemDetail;
     /**
      * Internal server error
      */
-    500: ApiErrorResponse;
+    500: ApiProblemDetail;
 };
 
 export type GetUserAppointmentsError = GetUserAppointmentsErrors[keyof GetUserAppointmentsErrors];
@@ -446,23 +543,23 @@ export type CreateAppointmentErrors = {
     /**
      * Invalid request
      */
-    400: ValidationErrorResponse;
+    400: ValidationProblemDetail;
     /**
      * Unauthorized
      */
-    401: ApiErrorResponse;
+    401: ApiProblemDetail;
     /**
      * Specialist not found
      */
-    404: ApiErrorResponse;
+    404: ApiProblemDetail;
     /**
      * Time slot already booked
      */
-    409: ApiErrorResponse;
+    409: ApiProblemDetail;
     /**
      * Internal server error
      */
-    500: ApiErrorResponse;
+    500: ApiProblemDetail;
 };
 
 export type CreateAppointmentError = CreateAppointmentErrors[keyof CreateAppointmentErrors];
@@ -508,10 +605,48 @@ export type GetScalarJsResponses = {
 
 export type GetScalarJsResponse = GetScalarJsResponses[keyof GetScalarJsResponses];
 
-export type GetAvailableSpecialistsData = {
+export type GetUserMedicinesData = {
     body?: never;
     path?: never;
     query?: never;
+    url: '/api/v1/user-medicines';
+};
+
+export type GetUserMedicinesErrors = {
+    /**
+     * Unauthorized
+     */
+    401: ApiProblemDetail;
+    /**
+     * User not found
+     */
+    404: ApiProblemDetail;
+    /**
+     * Internal server error
+     */
+    500: ApiProblemDetail;
+};
+
+export type GetUserMedicinesError = GetUserMedicinesErrors[keyof GetUserMedicinesErrors];
+
+export type GetUserMedicinesResponses = {
+    /**
+     * List of medicines
+     */
+    200: Array<UserMedicinesResponse>;
+};
+
+export type GetUserMedicinesResponse = GetUserMedicinesResponses[keyof GetUserMedicinesResponses];
+
+export type GetAvailableSpecialistsData = {
+    body?: never;
+    path?: never;
+    query?: {
+        /**
+         * Specialist type
+         */
+        type?: SpecialistTypeEnum;
+    };
     url: '/api/v1/specialists';
 };
 
@@ -519,11 +654,11 @@ export type GetAvailableSpecialistsErrors = {
     /**
      * Unauthorized
      */
-    401: ApiErrorResponse;
+    401: ApiProblemDetail;
     /**
      * Internal server error
      */
-    500: ApiErrorResponse;
+    500: ApiProblemDetail;
 };
 
 export type GetAvailableSpecialistsError = GetAvailableSpecialistsErrors[keyof GetAvailableSpecialistsErrors];
@@ -536,6 +671,31 @@ export type GetAvailableSpecialistsResponses = {
 };
 
 export type GetAvailableSpecialistsResponse = GetAvailableSpecialistsResponses[keyof GetAvailableSpecialistsResponses];
+
+export type GetSpecialistTypesData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/specialists/types';
+};
+
+export type GetSpecialistTypesErrors = {
+    /**
+     * Internal server error
+     */
+    500: ApiProblemDetail;
+};
+
+export type GetSpecialistTypesError = GetSpecialistTypesErrors[keyof GetSpecialistTypesErrors];
+
+export type GetSpecialistTypesResponses = {
+    /**
+     * List of specialist types
+     */
+    200: Array<SpecialistTypeResponse>;
+};
+
+export type GetSpecialistTypesResponse = GetSpecialistTypesResponses[keyof GetSpecialistTypesResponses];
 
 export type GetSpecialistBookingDataData = {
     body?: never;
@@ -562,15 +722,15 @@ export type GetSpecialistBookingDataErrors = {
     /**
      * Unauthorized
      */
-    401: ApiErrorResponse;
+    401: ApiProblemDetail;
     /**
      * Specialist not found
      */
-    404: ApiErrorResponse;
+    404: ApiProblemDetail;
     /**
      * Internal server error
      */
-    500: ApiErrorResponse;
+    500: ApiProblemDetail;
 };
 
 export type GetSpecialistBookingDataError = GetSpecialistBookingDataErrors[keyof GetSpecialistBookingDataErrors];
@@ -595,11 +755,11 @@ export type GetUpcomingAppointmentsErrors = {
     /**
      * Unauthorized
      */
-    401: ApiErrorResponse;
+    401: ApiProblemDetail;
     /**
      * Internal server error
      */
-    500: ApiErrorResponse;
+    500: ApiProblemDetail;
 };
 
 export type GetUpcomingAppointmentsError = GetUpcomingAppointmentsErrors[keyof GetUpcomingAppointmentsErrors];
@@ -624,11 +784,11 @@ export type GetPastAppointmentsErrors = {
     /**
      * Unauthorized
      */
-    401: ApiErrorResponse;
+    401: ApiProblemDetail;
     /**
      * Internal server error
      */
-    500: ApiErrorResponse;
+    500: ApiProblemDetail;
 };
 
 export type GetPastAppointmentsError = GetPastAppointmentsErrors[keyof GetPastAppointmentsErrors];

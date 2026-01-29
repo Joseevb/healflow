@@ -2,7 +2,7 @@
 
 import type { Client, Options as Options2, TDataShape } from './client';
 import { client } from './client.gen';
-import type { CancelAppointmentData, CancelAppointmentErrors, CancelAppointmentResponses, CreateAppointmentData, CreateAppointmentErrors, CreateAppointmentResponses, GetAppointmentByIdData, GetAppointmentByIdErrors, GetAppointmentByIdResponses, GetAvailableSpecialistsData, GetAvailableSpecialistsErrors, GetAvailableSpecialistsResponses, GetDocsData, GetDocsResponses, GetPastAppointmentsData, GetPastAppointmentsErrors, GetPastAppointmentsResponses, GetScalarJsData, GetScalarJsResponses, GetSpecialistBookingDataData, GetSpecialistBookingDataErrors, GetSpecialistBookingDataResponses, GetUpcomingAppointmentsData, GetUpcomingAppointmentsErrors, GetUpcomingAppointmentsResponses, GetUserAppointmentsData, GetUserAppointmentsErrors, GetUserAppointmentsResponses, HealthData, HealthResponses, LinksData, LinksResponses, ProvisionUserData, ProvisionUserErrors, ProvisionUserResponses, UpdateAppointmentData, UpdateAppointmentErrors, UpdateAppointmentResponses } from './types.gen';
+import type { CancelAppointmentData, CancelAppointmentErrors, CancelAppointmentResponses, CreateAppointmentData, CreateAppointmentErrors, CreateAppointmentResponses, GetAppointmentByIdData, GetAppointmentByIdErrors, GetAppointmentByIdResponses, GetAvailableSpecialistsData, GetAvailableSpecialistsErrors, GetAvailableSpecialistsResponses, GetDocsData, GetDocsResponses, GetPastAppointmentsData, GetPastAppointmentsErrors, GetPastAppointmentsResponses, GetScalarJsData, GetScalarJsResponses, GetSpecialistBookingDataData, GetSpecialistBookingDataErrors, GetSpecialistBookingDataResponses, GetSpecialistTypesData, GetSpecialistTypesErrors, GetSpecialistTypesResponses, GetUpcomingAppointmentsData, GetUpcomingAppointmentsErrors, GetUpcomingAppointmentsResponses, GetUserAppointmentsData, GetUserAppointmentsErrors, GetUserAppointmentsResponses, GetUserMedicinesData, GetUserMedicinesErrors, GetUserMedicinesResponses, HealthData, HealthResponses, LinksData, LinksResponses, ProvisionUserData, ProvisionUserErrors, ProvisionUserResponses, UpdateAppointmentData, UpdateAppointmentErrors, UpdateAppointmentResponses, ValidateUserData, ValidateUserErrors, ValidateUserResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean> = Options2<TData, ThrowOnError> & {
     /**
@@ -23,40 +23,28 @@ export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends 
  *
  * Cancels an existing appointment
  */
-export const cancelAppointment = <ThrowOnError extends boolean = false>(options: Options<CancelAppointmentData, ThrowOnError>) => {
-    return (options.client ?? client).delete<CancelAppointmentResponses, CancelAppointmentErrors, ThrowOnError>({
-        url: '/api/v1/appointments/{id}',
-        ...options
-    });
-};
+export const cancelAppointment = <ThrowOnError extends boolean = false>(options: Options<CancelAppointmentData, ThrowOnError>) => (options.client ?? client).delete<CancelAppointmentResponses, CancelAppointmentErrors, ThrowOnError>({ url: '/api/v1/appointments/{id}', ...options });
 
 /**
  * Get appointment by ID
  *
  * Returns a specific appointment by its unique identifier
  */
-export const getAppointmentById = <ThrowOnError extends boolean = false>(options: Options<GetAppointmentByIdData, ThrowOnError>) => {
-    return (options.client ?? client).get<GetAppointmentByIdResponses, GetAppointmentByIdErrors, ThrowOnError>({
-        url: '/api/v1/appointments/{id}',
-        ...options
-    });
-};
+export const getAppointmentById = <ThrowOnError extends boolean = false>(options: Options<GetAppointmentByIdData, ThrowOnError>) => (options.client ?? client).get<GetAppointmentByIdResponses, GetAppointmentByIdErrors, ThrowOnError>({ url: '/api/v1/appointments/{id}', ...options });
 
 /**
  * Update appointment
  *
  * Updates an existing appointment
  */
-export const updateAppointment = <ThrowOnError extends boolean = false>(options: Options<UpdateAppointmentData, ThrowOnError>) => {
-    return (options.client ?? client).put<UpdateAppointmentResponses, UpdateAppointmentErrors, ThrowOnError>({
-        url: '/api/v1/appointments/{id}',
-        ...options,
-        headers: {
-            'Content-Type': 'application/json',
-            ...options.headers
-        }
-    });
-};
+export const updateAppointment = <ThrowOnError extends boolean = false>(options: Options<UpdateAppointmentData, ThrowOnError>) => (options.client ?? client).put<UpdateAppointmentResponses, UpdateAppointmentErrors, ThrowOnError>({
+    url: '/api/v1/appointments/{id}',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
 
 /**
  * Provision a user
@@ -64,123 +52,108 @@ export const updateAppointment = <ThrowOnError extends boolean = false>(options:
  * Creates a new Domain User. This action is triggered by the authentication service when a user is created.
  *
  */
-export const provisionUser = <ThrowOnError extends boolean = false>(options: Options<ProvisionUserData, ThrowOnError>) => {
-    return (options.client ?? client).post<ProvisionUserResponses, ProvisionUserErrors, ThrowOnError>({
-        url: '/api/v1/user-provisions',
-        ...options,
-        headers: {
-            'Content-Type': 'application/json',
-            ...options.headers
-        }
-    });
-};
+export const provisionUser = <ThrowOnError extends boolean = false>(options: Options<ProvisionUserData, ThrowOnError>) => (options.client ?? client).post<ProvisionUserResponses, ProvisionUserErrors, ThrowOnError>({
+    url: '/api/v1/user-provisions',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Validate user IDs
+ *
+ * Validates that the provided user IDs exist in the system. This is used by the authentication
+ * service to ensure user IDs are in sync between systems.
+ *
+ */
+export const validateUser = <ThrowOnError extends boolean = false>(options: Options<ValidateUserData, ThrowOnError>) => (options.client ?? client).post<ValidateUserResponses, ValidateUserErrors, ThrowOnError>({
+    url: '/api/v1/user-provisions/validate',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
 
 /**
  * Get user appointments
  *
  * Returns all appointments for the authenticated user
  */
-export const getUserAppointments = <ThrowOnError extends boolean = false>(options?: Options<GetUserAppointmentsData, ThrowOnError>) => {
-    return (options?.client ?? client).get<GetUserAppointmentsResponses, GetUserAppointmentsErrors, ThrowOnError>({
-        url: '/api/v1/appointments',
-        ...options
-    });
-};
+export const getUserAppointments = <ThrowOnError extends boolean = false>(options?: Options<GetUserAppointmentsData, ThrowOnError>) => (options?.client ?? client).get<GetUserAppointmentsResponses, GetUserAppointmentsErrors, ThrowOnError>({ url: '/api/v1/appointments', ...options });
 
 /**
  * Create appointment
  *
  * Creates a new appointment with a specialist
  */
-export const createAppointment = <ThrowOnError extends boolean = false>(options: Options<CreateAppointmentData, ThrowOnError>) => {
-    return (options.client ?? client).post<CreateAppointmentResponses, CreateAppointmentErrors, ThrowOnError>({
-        url: '/api/v1/appointments',
-        ...options,
-        headers: {
-            'Content-Type': 'application/json',
-            ...options.headers
-        }
-    });
-};
+export const createAppointment = <ThrowOnError extends boolean = false>(options: Options<CreateAppointmentData, ThrowOnError>) => (options.client ?? client).post<CreateAppointmentResponses, CreateAppointmentErrors, ThrowOnError>({
+    url: '/api/v1/appointments',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
 
-export const getDocs = <ThrowOnError extends boolean = false>(options?: Options<GetDocsData, ThrowOnError>) => {
-    return (options?.client ?? client).get<GetDocsResponses, unknown, ThrowOnError>({
-        url: '/docs',
-        ...options
-    });
-};
+export const getDocs = <ThrowOnError extends boolean = false>(options?: Options<GetDocsData, ThrowOnError>) => (options?.client ?? client).get<GetDocsResponses, unknown, ThrowOnError>({ url: '/docs', ...options });
 
-export const getScalarJs = <ThrowOnError extends boolean = false>(options?: Options<GetScalarJsData, ThrowOnError>) => {
-    return (options?.client ?? client).get<GetScalarJsResponses, unknown, ThrowOnError>({
-        url: '/docs/scalar.js',
-        ...options
-    });
-};
+export const getScalarJs = <ThrowOnError extends boolean = false>(options?: Options<GetScalarJsData, ThrowOnError>) => (options?.client ?? client).get<GetScalarJsResponses, unknown, ThrowOnError>({ url: '/docs/scalar.js', ...options });
+
+/**
+ * Get user medicines
+ *
+ * Returns list of medicines for a user
+ */
+export const getUserMedicines = <ThrowOnError extends boolean = false>(options?: Options<GetUserMedicinesData, ThrowOnError>) => (options?.client ?? client).get<GetUserMedicinesResponses, GetUserMedicinesErrors, ThrowOnError>({ url: '/api/v1/user-medicines', ...options });
 
 /**
  * Get available specialists
  *
  * Returns list of all active specialists
  */
-export const getAvailableSpecialists = <ThrowOnError extends boolean = false>(options?: Options<GetAvailableSpecialistsData, ThrowOnError>) => {
-    return (options?.client ?? client).get<GetAvailableSpecialistsResponses, GetAvailableSpecialistsErrors, ThrowOnError>({
-        url: '/api/v1/specialists',
-        ...options
-    });
-};
+export const getAvailableSpecialists = <ThrowOnError extends boolean = false>(options?: Options<GetAvailableSpecialistsData, ThrowOnError>) => (options?.client ?? client).get<GetAvailableSpecialistsResponses, GetAvailableSpecialistsErrors, ThrowOnError>({
+    security: [{ name: 'X-API-KEY', type: 'apiKey' }],
+    url: '/api/v1/specialists',
+    ...options
+});
+
+/**
+ * Get specialist types
+ *
+ * Returns list of all available specialist types
+ */
+export const getSpecialistTypes = <ThrowOnError extends boolean = false>(options?: Options<GetSpecialistTypesData, ThrowOnError>) => (options?.client ?? client).get<GetSpecialistTypesResponses, GetSpecialistTypesErrors, ThrowOnError>({ url: '/api/v1/specialists/types', ...options });
 
 /**
  * Get specialist booking data
  *
  * Returns available time slots for a specialist within a date range
  */
-export const getSpecialistBookingData = <ThrowOnError extends boolean = false>(options: Options<GetSpecialistBookingDataData, ThrowOnError>) => {
-    return (options.client ?? client).get<GetSpecialistBookingDataResponses, GetSpecialistBookingDataErrors, ThrowOnError>({
-        url: '/api/v1/specialists/specialists/{specialistId}/booking-data',
-        ...options
-    });
-};
+export const getSpecialistBookingData = <ThrowOnError extends boolean = false>(options: Options<GetSpecialistBookingDataData, ThrowOnError>) => (options.client ?? client).get<GetSpecialistBookingDataResponses, GetSpecialistBookingDataErrors, ThrowOnError>({ url: '/api/v1/specialists/specialists/{specialistId}/booking-data', ...options });
 
 /**
  * Get upcoming appointments
  *
  * Returns upcoming appointments for the authenticated user
  */
-export const getUpcomingAppointments = <ThrowOnError extends boolean = false>(options?: Options<GetUpcomingAppointmentsData, ThrowOnError>) => {
-    return (options?.client ?? client).get<GetUpcomingAppointmentsResponses, GetUpcomingAppointmentsErrors, ThrowOnError>({
-        url: '/api/v1/appointments/upcoming',
-        ...options
-    });
-};
+export const getUpcomingAppointments = <ThrowOnError extends boolean = false>(options?: Options<GetUpcomingAppointmentsData, ThrowOnError>) => (options?.client ?? client).get<GetUpcomingAppointmentsResponses, GetUpcomingAppointmentsErrors, ThrowOnError>({ url: '/api/v1/appointments/upcoming', ...options });
 
 /**
  * Get past appointments
  *
  * Returns past appointments for the authenticated user
  */
-export const getPastAppointments = <ThrowOnError extends boolean = false>(options?: Options<GetPastAppointmentsData, ThrowOnError>) => {
-    return (options?.client ?? client).get<GetPastAppointmentsResponses, GetPastAppointmentsErrors, ThrowOnError>({
-        url: '/api/v1/appointments/history',
-        ...options
-    });
-};
+export const getPastAppointments = <ThrowOnError extends boolean = false>(options?: Options<GetPastAppointmentsData, ThrowOnError>) => (options?.client ?? client).get<GetPastAppointmentsResponses, GetPastAppointmentsErrors, ThrowOnError>({ url: '/api/v1/appointments/history', ...options });
 
 /**
  * Actuator root web endpoint
  */
-export const links = <ThrowOnError extends boolean = false>(options?: Options<LinksData, ThrowOnError>) => {
-    return (options?.client ?? client).get<LinksResponses, unknown, ThrowOnError>({
-        url: '/actuator',
-        ...options
-    });
-};
+export const links = <ThrowOnError extends boolean = false>(options?: Options<LinksData, ThrowOnError>) => (options?.client ?? client).get<LinksResponses, unknown, ThrowOnError>({ url: '/actuator', ...options });
 
 /**
  * Actuator web endpoint 'health'
  */
-export const health = <ThrowOnError extends boolean = false>(options?: Options<HealthData, ThrowOnError>) => {
-    return (options?.client ?? client).get<HealthResponses, unknown, ThrowOnError>({
-        url: '/actuator/health',
-        ...options
-    });
-};
+export const health = <ThrowOnError extends boolean = false>(options?: Options<HealthData, ThrowOnError>) => (options?.client ?? client).get<HealthResponses, unknown, ThrowOnError>({ url: '/actuator/health', ...options });

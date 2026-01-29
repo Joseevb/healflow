@@ -1,76 +1,107 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { db } from "@/db";
 import { admin, jwt, openAPI } from "better-auth/plugins";
 import { APIError } from "better-auth/api";
-import * as schema from "@/db/schemas/auth-schema";
-import { apiKeyConfig } from "./api-key.config";
-import { UserRegistrationService } from "@/services/user-registration.service";
 import { Effect } from "effect";
+import { apiKeyConfig } from "./api-key.config";
+
+import { db } from "@/db";
+import * as schema from "@/db/schemas/auth-schema";
+import { UserRegistrationService } from "@/services/user-registration.service";
+import { useSignUpSession } from "@/server/session";
 
 export const auth = betterAuth({
-	database: drizzleAdapter(db, {
-		provider: "pg",
-		schema: { ...schema },
-	}),
+  database: drizzleAdapter(db, {
+    provider: "sqlite",
+    schema: { ...schema },
+  }),
 
-	advanced: {
-		database: {
-			generateId: () => crypto.randomUUID(),
-		},
-	},
+  advanced: {
+    database: {
+      generateId: () => crypto.randomUUID(),
+    },
+  },
 
-	databaseHooks: {
-		user: {
-			create: {
-				before: async (user) => {
-					const service = new UserRegistrationService(apiKeyConfig);
+  databaseHooks: {
+    user: {
+      create: {
+        before: async (user, ctx) => {
+          const isSocialSignOn = ctx?.params?.id === "google";
+          user.id = user.id || crypto.randomUUID();
 
-					const provisionEffect = Effect.gen(function* () {
-						const userId = crypto.randomUUID();
-						user.id = userId;
-						yield* service.post({ user_id: userId, email: user.email });
-					}).pipe(
-						Effect.catchAll((err) => {
-							console.error("Provisioning failed, aborting user creation:", err);
-							return Effect.fail(
-								new APIError("INTERNAL_SERVER_ERROR", {
-									message: "Failed to provision user. Please try again.",
-								})
-							);
-						})
-					);
+          if (isSocialSignOn) {
+            return {
+              data: user,
+            };
+          }
 
-					await Effect.runPromise(provisionEffect);
+          const service = new UserRegistrationService(apiKeyConfig);
 
-					return { data: user };
-				},
-			},
-		},
-	},
+          const provisionEffect = Effect.gen(function* () {
+            user.id = user.id || crypto.randomUUID();
+            yield* service.post({
+              user_id: user.id,
+              email: user.email,
+              specialist_id: "TODO",
+            });
+          }).pipe(
+            Effect.catchAll((err) => {
+              console.error("Provisioning failed, aborting user creation:", err);
+              return Effect.fail(
+                new APIError("INTERNAL_SERVER_ERROR", {
+                  message: "Failed to provision user. Please try again.",
+                }),
+              );
+            }),
+          );
 
-	callbackURL: "/dashboard",
-	socialProviders: {
-		google: {
-			clientId: process.env.GOOGLE_CLIENT_ID as string,
-			clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
-		},
-	},
-	emailAndPassword: { enabled: true, requireEmailVerification: false },
-	plugins: [
-		jwt({
-			jwks: { keyPairConfig: { alg: "RS256" } },
-		}),
-		openAPI(),
-		admin(),
-	],
-	user: { modelName: "users" },
-	session: { modelName: "sessions" },
-	account: {
-		modelName: "accounts",
-		accountLinking: {
-			enabled: true,
-		},
-	},
-	verification: { modelName: "verifications" },
+          await Effect.runPromise(provisionEffect);
+
+          return { data: user };
+        },
+        after: async (user, ctx) => {
+          const isSocialSignOn = ctx?.params?.id === "google";
+
+          if (isSocialSignOn) {
+            const session = await useSignUpSession();
+
+            await session.update({
+              state: "social-sign-on" as const,
+              createdUserId: user.id,
+              accountData: {
+                email: user.email,
+                firstName: user.name.split(" ")[0] || "",
+                lastName: user.name.split(" ").slice(1).join(" ") || "",
+              },
+            });
+          }
+        },
+      },
+    },
+  },
+
+  callbackURL: "/dashboard",
+  socialProviders: {
+    google: {
+      clientId: process.env.GOOGLE_CLIENT_ID as string,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
+    },
+  },
+  emailAndPassword: { enabled: true, requireEmailVerification: false },
+  plugins: [
+    jwt({
+      jwks: { keyPairConfig: { alg: "RS256" } },
+    }),
+    openAPI(),
+    admin(),
+  ],
+  user: { modelName: "users" },
+  session: { modelName: "sessions" },
+  account: {
+    modelName: "accounts",
+    accountLinking: {
+      enabled: true,
+    },
+  },
+  verification: { modelName: "verifications" },
 });

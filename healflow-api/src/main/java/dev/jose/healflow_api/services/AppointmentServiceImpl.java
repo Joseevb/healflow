@@ -52,9 +52,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     List<AppointmentStatus> activeStatuses =
         List.of(AppointmentStatus.PENDING, AppointmentStatus.CONFIRMED);
 
-    return appointmentRepository
-        .findUpcomingByClientId(userId.toString(), now, activeStatuses)
-        .stream()
+    return appointmentRepository.findUpcomingByClientId(userId, now, activeStatuses).stream()
         .map(appointmentMapper::toDto)
         .toList();
   }
@@ -64,7 +62,7 @@ public class AppointmentServiceImpl implements AppointmentService {
   public List<AppointmentResponseDTO> getPastAppointments(UUID userId) {
     log.debug("Fetching past appointments for user: {}", userId);
     Instant now = Instant.now();
-    return appointmentRepository.findPastByAuthId(userId.toString(), now).stream()
+    return appointmentRepository.findPastByAuthId(userId, now).stream()
         .map(appointmentMapper::toDto)
         .toList();
   }
@@ -95,7 +93,7 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     UserEntity user =
         userRepository
-            .findByAuthId(userId.toString())
+            .findByAuthId(userId)
             .orElseThrow(() -> new NotFoundException("User", "id", userId));
 
     SpecialistEntity specialist =

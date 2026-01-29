@@ -1,5 +1,6 @@
 package dev.jose.healflow_api.api.models;
 
+import dev.jose.healflow_api.enumerations.SpecialistTypeEnum;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 import java.util.UUID;
@@ -18,13 +19,8 @@ public record SpecialistResponseDTO(
             example = "Dr. Sarah Johnson",
             requiredMode = RequiredMode.REQUIRED)
         String name,
-    @Schema(
-            description = "Specialist type name",
-            example = "Cardiology",
-            requiredMode = RequiredMode.REQUIRED)
-        String specialty,
-    @Schema(description = "Specialist type ID", requiredMode = RequiredMode.REQUIRED)
-        UUID specialtyId,
+    @Schema(description = "Specialist type", requiredMode = RequiredMode.REQUIRED)
+        SpecialistTypeEnum specialty,
     @Schema(
             description = "Email address",
             example = "sarah.johnson@hospital.com",

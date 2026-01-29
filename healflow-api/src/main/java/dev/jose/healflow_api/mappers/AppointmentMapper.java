@@ -54,6 +54,5 @@ public interface AppointmentMapper {
   ClientSummaryDTO toClientSummary(UserEntity client);
 
   @Mapping(target = "name", source = "fullName")
-  @Mapping(target = "specialty", source = "specialistType.name")
   SpecialistSummaryDTO toSpecialistSummary(SpecialistEntity specialist);
 }

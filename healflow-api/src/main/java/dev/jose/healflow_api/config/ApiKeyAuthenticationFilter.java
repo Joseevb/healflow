@@ -5,10 +5,10 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -21,7 +21,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @RequiredArgsConstructor
 public class ApiKeyAuthenticationFilter extends OncePerRequestFilter {
 
-  @Value("${api.key-header}")
+  @Value("${api.key-header:X-API-KEY}")
   private String HEADER_NAME;
 
   @Value("${api.key}")
@@ -30,14 +30,27 @@ public class ApiKeyAuthenticationFilter extends OncePerRequestFilter {
   @Value("${api.key-path}")
   private String apiKeyAllowedPath;
 
+  @Value("${api.prefix:/api}")
+  private String prefix;
+
+  @Value("${api.version:v1}")
+  private String version;
+
   private final AntPathMatcher pathMatcher = new AntPathMatcher();
 
-  @Lazy private final String basePath;
+  private String getFullBasePath() {
+    return prefix + "/" + version;
+  }
 
   @Override
   protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
     String path = request.getRequestURI();
-    return !pathMatcher.match(basePath + apiKeyAllowedPath, path);
+    String[] paths = apiKeyAllowedPath.split(",");
+    String basePath = getFullBasePath();
+
+    return Arrays.stream(paths)
+        .map(String::trim)
+        .noneMatch(p -> pathMatcher.match(basePath + p, path));
   }
 
   @Override

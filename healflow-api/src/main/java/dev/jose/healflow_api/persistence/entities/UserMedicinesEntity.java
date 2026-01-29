@@ -10,20 +10,13 @@ import jakarta.persistence.MapsId;
 import jakarta.persistence.Table;
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.Objects;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
-import org.hibernate.proxy.HibernateProxy;
 
-@Getter
-@Setter
-@ToString
+@Data
 @Entity
 @Table
 @Builder
@@ -57,25 +50,9 @@ public class UserMedicinesEntity {
   @Column(name = "end_date", nullable = false)
   private LocalDateTime endDate;
 
-  @Override
-  public final boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null) return false;
-    Class<?> oEffectiveClass =
-        o instanceof HibernateProxy proxy
-            ? proxy.getHibernateLazyInitializer().getPersistentClass()
-            : o.getClass();
-    Class<?> thisEffectiveClass =
-        this instanceof HibernateProxy proxy
-            ? proxy.getHibernateLazyInitializer().getPersistentClass()
-            : this.getClass();
-    if (thisEffectiveClass != oEffectiveClass) return false;
-    UserMedicinesEntity that = (UserMedicinesEntity) o;
-    return getId() != null && Objects.equals(getId(), that.getId());
-  }
+  @Column(name = "frequency", nullable = false)
+  private String frequency;
 
-  @Override
-  public final int hashCode() {
-    return Objects.hash(id);
-  }
+  @Column(name = "dosage", nullable = false)
+  private String dosage;
 }

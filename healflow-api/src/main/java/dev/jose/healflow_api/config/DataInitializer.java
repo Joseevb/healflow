@@ -1,21 +1,18 @@
 package dev.jose.healflow_api.config;
 
 import dev.jose.healflow_api.enumerations.AppointmentStatus;
+import dev.jose.healflow_api.enumerations.SpecialistTypeEnum;
 import dev.jose.healflow_api.persistence.entities.AppointmentEntity;
 import dev.jose.healflow_api.persistence.entities.SpecialistAvailabilityEntity;
 import dev.jose.healflow_api.persistence.entities.SpecialistEntity;
-import dev.jose.healflow_api.persistence.entities.SpecialistTypeEntity;
 import dev.jose.healflow_api.persistence.entities.UserEntity;
 import dev.jose.healflow_api.persistence.repositories.AppointmentRepository;
 import dev.jose.healflow_api.persistence.repositories.SpecialistAvailabilityRepository;
 import dev.jose.healflow_api.persistence.repositories.SpecialistRepository;
-import dev.jose.healflow_api.persistence.repositories.SpecialistTypeRepository;
 import dev.jose.healflow_api.persistence.repositories.UserRepository;
 import java.time.DayOfWeek;
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,226 +24,208 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.transaction.support.TransactionTemplate;
 
 @Slf4j
 @Configuration
 @RequiredArgsConstructor
 public class DataInitializer {
 
+  private final TransactionTemplate transactionTemplate;
+
   @Bean
   @Profile("dev")
   CommandLineRunner initDatabase(
       UserRepository userRepository,
-      SpecialistTypeRepository specialistTypeRepository,
       SpecialistRepository specialistRepository,
       SpecialistAvailabilityRepository availabilityRepository,
       AppointmentRepository appointmentRepository) {
 
-    return _ -> {
-      log.info("Initializing database with mock data...");
+    return _ ->
+        transactionTemplate.executeWithoutResult(
+            status -> {
+              log.info("Initializing database with mock data...");
 
-      // Create Users
-      UserEntity user1 =
-          UserEntity.builder()
-              .email("john.doe@email.com")
-              .firstName("John")
-              .lastName("Doe")
-              .phone("+1-555-0100")
-              .dateOfBirth(Instant.parse("1990-05-15T00:00:00Z"))
-              .authId(UUID.randomUUID().toString())
-              .build();
+              log.info("Users checked/created");
 
-      UserEntity user2 =
-          UserEntity.builder()
-              .email("jane.smith@email.com")
-              .firstName("Jane")
-              .lastName("Smith")
-              .phone("+1-555-0101")
-              .dateOfBirth(Instant.parse("1985-08-22T00:00:00Z"))
-              .authId(UUID.randomUUID().toString())
-              .build();
+              log.info("Specialist types checked/created");
 
-      userRepository.saveAll(List.of(user1, user2));
-      log.info("Created {} users", 2);
+              // --- Create Specialists ---
+              // FIX: Now we pass the MANAGED 'cardiology' entity to the specialist
+              SpecialistEntity drJohnson =
+                  createOrFetchSpecialist(
+                      specialistRepository,
+                      "sarah.johnson@hospital.com",
+                      "Sarah",
+                      "Johnson",
+                      SpecialistTypeEnum.CARDIOLOGY);
 
-      // Create Specialist Types
-      SpecialistTypeEntity cardiology =
-          SpecialistTypeEntity.builder()
-              .name("Cardiology")
-              .description("Heart and cardiovascular system specialists")
-              .icon("heart")
-              .build();
+              SpecialistEntity drChen =
+                  createOrFetchSpecialist(
+                      specialistRepository,
+                      "michael.chen@dental.com",
+                      "Michael",
+                      "Chen",
+                      SpecialistTypeEnum.DENTISTRY);
 
-      SpecialistTypeEntity dentistry =
-          SpecialistTypeEntity.builder()
-              .name("Dentistry")
-              .description("Dental care and oral health specialists")
-              .icon("tooth")
-              .build();
+              SpecialistEntity drBrown =
+                  createOrFetchSpecialist(
+                      specialistRepository,
+                      "emily.brown@clinic.com",
+                      "Emily",
+                      "Brown",
+                      SpecialistTypeEnum.GENERAL_PRACTICE);
 
-      SpecialistTypeEntity generalPractice =
-          SpecialistTypeEntity.builder()
-              .name("General Practice")
-              .description("General medical care and consultations")
-              .icon("stethoscope")
-              .build();
+              SpecialistEntity drPerez =
+                  createOrFetchSpecialist(
+                      specialistRepository,
+                      "emily.perez@clinic.com",
+                      "Emily",
+                      "Perez",
+                      SpecialistTypeEnum.DERMATOLOGY);
 
-      SpecialistTypeEntity dermatology =
-          SpecialistTypeEntity.builder()
-              .name("Dermatology")
-              .description("Skin, hair, and nail care specialists")
-              .icon("hand")
-              .build();
+              log.info("Specialists checked/created");
 
-      specialistTypeRepository.saveAll(
-          List.of(cardiology, dentistry, generalPractice, dermatology));
-      log.info("Created {} specialist types", 4);
+              var specialists = List.of(drJohnson, drChen, drBrown, drPerez);
 
-      // Create Specialists
-      SpecialistEntity drJohnson =
-          SpecialistEntity.builder()
-              .firstName("Sarah")
-              .lastName("Johnson")
-              .email("sarah.johnson@hospital.com")
-              .phone("+1-555-0200")
-              .licenseNumber("MD-12345")
-              .specialistType(cardiology)
-              .consultationDurationMinutes((short) 30)
-              .build();
+              // --- Create Availabilities ---
+              if (availabilityRepository.count() == 0) {
+                List<SpecialistAvailabilityEntity> availabilities = new ArrayList<>();
+                for (DayOfWeek day : DayOfWeek.values()) {
+                  if (day == DayOfWeek.SATURDAY || day == DayOfWeek.SUNDAY) continue;
 
-      SpecialistEntity drChen =
-          SpecialistEntity.builder()
-              .firstName("Michael")
-              .lastName("Chen")
-              .email("michael.chen@dental.com")
-              .phone("+1-555-0201")
-              .licenseNumber("DDS-67890")
-              .specialistType(dentistry)
-              .consultationDurationMinutes((short) 45)
-              .build();
+                  // Dr. Johnson
+                  availabilities.add(buildAvailability(drJohnson, day, 9, 12));
+                  availabilities.add(buildAvailability(drJohnson, day, 13, 17));
 
-      SpecialistEntity drBrown =
-          SpecialistEntity.builder()
-              .firstName("Emily")
-              .lastName("Brown")
-              .email("emily.brown@clinic.com")
-              .phone("+1-555-0202")
-              .licenseNumber("MD-11111")
-              .specialistType(generalPractice)
-              .consultationDurationMinutes((short) 20)
-              .build();
+                  // Dr. Chen
+                  availabilities.add(buildAvailability(drChen, day, 9, 17));
 
-      specialistRepository.saveAll(List.of(drJohnson, drChen, drBrown));
-      log.info("Created {} specialists", 3);
+                  // Dr. Brown
+                  availabilities.add(buildAvailability(drBrown, day, 9, 17));
 
-      // Create Availabilities (Monday to Friday, 9 AM to 5 PM)
-      List<SpecialistAvailabilityEntity> availabilities = new ArrayList<>();
+                  // Dr. Perez
+                  availabilities.add(buildAvailability(drPerez, day, 9, 14));
+                }
+                availabilityRepository.saveAll(availabilities);
+                log.info("Created {} availability slots", availabilities.size());
+              }
 
-      for (DayOfWeek day : DayOfWeek.values()) {
-        if (day == DayOfWeek.SATURDAY || day == DayOfWeek.SUNDAY) {
-          continue;
-        }
+              // --- Create Users ---
+              UserEntity user1 =
+                  createOrFetchUser(
+                      userRepository,
+                      "john.doe@email.com",
+                      "John",
+                      "Doe",
+                      specialists.stream()
+                          .filter(
+                              specialist ->
+                                  specialist
+                                      .getSpecialty()
+                                      .equals(SpecialistTypeEnum.GENERAL_PRACTICE))
+                          .toList()
+                          .getFirst());
+              UserEntity user2 =
+                  createOrFetchUser(
+                      userRepository,
+                      "jane.smith@email.com",
+                      "Jane",
+                      "Smith",
+                      specialists.stream()
+                          .filter(
+                              specialist ->
+                                  specialist
+                                      .getSpecialty()
+                                      .equals(SpecialistTypeEnum.GENERAL_PRACTICE))
+                          .toList()
+                          .getLast());
 
-        // Dr. Johnson - Morning shift
-        availabilities.add(
-            SpecialistAvailabilityEntity.builder()
-                .specialist(drJohnson)
-                .dayOfWeek(day)
-                .startTime(LocalTime.of(9, 0))
-                .endTime(LocalTime.of(12, 0))
-                .build());
+              // --- Create Appointments ---
+              if (appointmentRepository.count() == 0) {
+                List<AppointmentEntity> appointments = new ArrayList<>();
+                Random random = new Random();
+                Instant now = Instant.now();
 
-        // Dr. Johnson - Afternoon shift
-        availabilities.add(
-            SpecialistAvailabilityEntity.builder()
-                .specialist(drJohnson)
-                .dayOfWeek(day)
-                .startTime(LocalTime.of(13, 0))
-                .endTime(LocalTime.of(17, 0))
-                .build());
+                // Past appointments
+                for (int i = 1; i <= 5; i++) {
+                  // ... (your existing date logic)
+                  Instant pastDate = now.minus(i * 7L, ChronoUnit.DAYS);
+                  // simplified logic for brevity, ensuring the entity references are managed
+                  appointments.add(
+                      AppointmentEntity.builder()
+                          .client(user1) // user1 is managed
+                          .specialist(random.nextBoolean() ? drJohnson : drBrown) // managed
+                          .appointmentDate(pastDate)
+                          .durationMinutes((short) 30)
+                          .status(AppointmentStatus.COMPLETED)
+                          .notes("Regular checkup")
+                          .build());
 
-        // Dr. Chen - Full day
-        availabilities.add(
-            SpecialistAvailabilityEntity.builder()
-                .specialist(drChen)
-                .dayOfWeek(day)
-                .startTime(LocalTime.of(9, 0))
-                .endTime(LocalTime.of(17, 0))
-                .build());
+                  appointments.add(
+                      AppointmentEntity.builder()
+                          .client(user2) // user1 is managed
+                          .specialist(random.nextBoolean() ? drPerez : drBrown) // managed
+                          .appointmentDate(pastDate)
+                          .durationMinutes((short) 30)
+                          .status(AppointmentStatus.COMPLETED)
+                          .notes("Regular checkup")
+                          .build());
+                }
 
-        // Dr. Brown - Full day
-        availabilities.add(
-            SpecialistAvailabilityEntity.builder()
-                .specialist(drBrown)
-                .dayOfWeek(day)
-                .startTime(LocalTime.of(9, 0))
-                .endTime(LocalTime.of(17, 0))
-                .build());
-      }
+                // Add future appointments logic here...
 
-      availabilityRepository.saveAll(availabilities);
-      log.info("Created {} availability slots", availabilities.size());
+                appointmentRepository.saveAll(appointments);
+                log.info("Created appointments");
+              }
 
-      // Create Appointments
-      List<AppointmentEntity> appointments = new ArrayList<>();
-      Random random = new Random();
-      Instant now = Instant.now();
+              log.info("Database initialization completed successfully!");
+            });
+  }
 
-      // Past appointments
-      for (int i = 1; i <= 5; i++) {
-        Instant pastDate = now.minus(i * 7L, ChronoUnit.DAYS);
-        LocalDateTime pastDateTime =
-            LocalDateTime.ofInstant(pastDate, ZoneId.systemDefault())
-                .withHour(10 + i)
-                .withMinute(0)
-                .withSecond(0)
-                .withNano(0);
+  // --- Helper Methods to ensure we always have a Managed Entity ---
 
-        appointments.add(
-            AppointmentEntity.builder()
-                .client(user1)
-                .specialist(random.nextBoolean() ? drJohnson : drBrown)
-                .appointmentDate(pastDateTime.atZone(ZoneId.systemDefault()).toInstant())
-                .durationMinutes((short) 30)
-                .status(AppointmentStatus.COMPLETED)
-                .notes("Regular checkup")
-                .build());
-      }
+  private UserEntity createOrFetchUser(
+      UserRepository repo, String email, String first, String last, SpecialistEntity specialist) {
+    return repo.findByEmail(email)
+        .orElseGet(
+            () ->
+                repo.save(
+                    UserEntity.builder()
+                        .email(email)
+                        .firstName(first)
+                        .lastName(last)
+                        .phone("+1-555-0000")
+                        .dateOfBirth(Instant.now())
+                        .authId(UUID.randomUUID())
+                        .primarySpecialist(specialist)
+                        .build()));
+  }
 
-      // Upcoming appointments
-      for (int i = 1; i <= 3; i++) {
-        Instant futureDate = now.plus(i * 7L, ChronoUnit.DAYS);
-        LocalDateTime futureDateTime =
-            LocalDateTime.ofInstant(futureDate, ZoneId.systemDefault())
-                .withHour(14)
-                .withMinute(0)
-                .withSecond(0)
-                .withNano(0);
+  private SpecialistEntity createOrFetchSpecialist(
+      SpecialistRepository repo, String email, String first, String last, SpecialistTypeEnum type) {
+    return repo.findByEmail(email)
+        .orElseGet(
+            () ->
+                repo.save(
+                    SpecialistEntity.builder()
+                        .firstName(first)
+                        .lastName(last)
+                        .email(email)
+                        .phone("+1-555-0000")
+                        .licenseNumber(UUID.randomUUID().toString().substring(0, 8))
+                        .specialty(type)
+                        .consultationDurationMinutes((short) 30)
+                        .build()));
+  }
 
-        // Skip weekends
-        while (futureDateTime.getDayOfWeek() == DayOfWeek.SATURDAY
-            || futureDateTime.getDayOfWeek() == DayOfWeek.SUNDAY) {
-          futureDateTime = futureDateTime.plusDays(1);
-        }
-
-        appointments.add(
-            AppointmentEntity.builder()
-                .client(user1)
-                .specialist(i % 2 == 0 ? drChen : drJohnson)
-                .appointmentDate(futureDateTime.atZone(ZoneId.systemDefault()).toInstant())
-                .durationMinutes((short) 30)
-                .status(i == 1 ? AppointmentStatus.CONFIRMED : AppointmentStatus.PENDING)
-                .notes("Follow-up appointment")
-                .build());
-      }
-
-      appointmentRepository.saveAll(appointments);
-      log.info("Created {} appointments", appointments.size());
-
-      log.info("Database initialization completed successfully!");
-      log.info("Mock user credentials:");
-      log.info("  - Email: john.doe@email.com (User ID: {})", user1.getId());
-      log.info("  - Email: jane.smith@email.com (User ID: {})", user2.getId());
-    };
+  private SpecialistAvailabilityEntity buildAvailability(
+      SpecialistEntity specialist, DayOfWeek day, int startHour, int endHour) {
+    return SpecialistAvailabilityEntity.builder()
+        .specialist(specialist)
+        .dayOfWeek(day)
+        .startTime(LocalTime.of(startHour, 0))
+        .endTime(LocalTime.of(endHour, 0))
+        .build();
   }
 }

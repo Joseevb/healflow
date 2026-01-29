@@ -2,7 +2,7 @@
 	"name": "medicine-api",
 	"module": "index.ts",
 	"scripts": {
-		"start": "bun run ./src/index.ts"
+		"start": "bun run index.ts"
 	},
 	"type": "module",
 	"private": true,

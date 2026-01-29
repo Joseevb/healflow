@@ -1,40 +1,37 @@
-"use client";
-
-import * as React from "react";
 import { Moon, Sun } from "lucide-react";
-import { useTheme } from "next-themes";
 
+import type { VariantProps } from "class-variance-authority";
+import type { buttonVariants } from "@/components/ui/button";
+import { useTheme } from "@/components/providers/theme-provider";
 import { Button } from "@/components/ui/button";
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { cn } from "@/lib/utils";
 
-export const ModeToggle = () => {
-	const { setTheme } = useTheme();
+export function ModeToggle({
+  type = "default",
+  variant = "outline",
+}: {
+  type?: "default" | "large";
+  variant?: VariantProps<typeof buttonVariants>["variant"];
+}) {
+  const { setTheme, theme: currentTheme } = useTheme();
 
-	return (
-		<DropdownMenu>
-			<DropdownMenuTrigger asChild>
-				<Button variant="outline" size="icon">
-					<Sun className="h-[1.2rem] w-[1.2rem] scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" />
-					<Moon className="absolute h-[1.2rem] w-[1.2rem] scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0" />
-					<span className="sr-only">Toggle theme</span>
-				</Button>
-			</DropdownMenuTrigger>
-			<DropdownMenuContent align="end">
-				<DropdownMenuItem onClick={() => setTheme("light")}>
-					Light
-				</DropdownMenuItem>
-				<DropdownMenuItem onClick={() => setTheme("dark")}>
-					Dark
-				</DropdownMenuItem>
-				<DropdownMenuItem onClick={() => setTheme("system")}>
-					System
-				</DropdownMenuItem>
-			</DropdownMenuContent>
-		</DropdownMenu>
-	);
-};
+  const handleThemeChange = (theme: "light" | "dark" | "system") => (e: React.MouseEvent) =>
+    setTheme(theme, e);
+
+  const isLarge = type === "large";
+
+  return (
+    <Button
+      variant={variant}
+      size={isLarge ? "default" : "icon"}
+      className={cn(isLarge && "gap-2")}
+      onClick={handleThemeChange(currentTheme === "light" ? "dark" : "light")}
+    >
+      <div className="relative flex h-[1.2rem] w-[1.2rem] shrink-0 items-center justify-center">
+        <Sun className="absolute rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+        <Moon className="absolute rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+      </div>
+      <span className={cn(!isLarge && "sr-only")}>Toggle theme</span>
+    </Button>
+  );
+}

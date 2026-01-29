@@ -2,8 +2,10 @@ package dev.jose.healflow_api.services;
 
 import dev.jose.healflow_api.api.models.DayScheduleResponseDTO;
 import dev.jose.healflow_api.api.models.SpecialistResponseDTO;
+import dev.jose.healflow_api.enumerations.SpecialistTypeEnum;
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface SpecialistService {
@@ -13,7 +15,7 @@ public interface SpecialistService {
    *
    * @return List of active specialists
    */
-  List<SpecialistResponseDTO> getAvailableSpecialists();
+  List<SpecialistResponseDTO> getAvailableSpecialists(Optional<SpecialistTypeEnum> type);
 
   /**
    * Returns booking data for a specific specialist

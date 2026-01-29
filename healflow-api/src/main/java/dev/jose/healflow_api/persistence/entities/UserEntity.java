@@ -7,6 +7,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Index;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.time.Instant;
@@ -57,7 +59,7 @@ public class UserEntity {
   private Boolean isActive = true;
 
   @Column(name = "auth_id", nullable = false, unique = true, length = 255)
-  private String authId;
+  private UUID authId;
 
   @CreationTimestamp
   @Column(name = "created_at", nullable = false, updatable = false)
@@ -70,4 +72,8 @@ public class UserEntity {
   @OneToMany(mappedBy = "client", cascade = CascadeType.ALL, orphanRemoval = true)
   @Builder.Default
   private List<AppointmentEntity> appointments = new ArrayList<>();
+
+  @ManyToOne(optional = false)
+  @JoinColumn(name = "primary_specialist_id", nullable = false)
+  private SpecialistEntity primarySpecialist;
 }
