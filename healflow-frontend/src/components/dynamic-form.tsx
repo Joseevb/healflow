@@ -21,7 +21,7 @@ import { withForm } from "@/hooks/form-context";
 const getOrientationClasses = (orientation: Orientation = "vertical") => {
   switch (orientation) {
     case "horizontal":
-      return "grid grid-cols-2 gap-4 items-end";
+      return "grid grid-cols-[repeat(auto-fit,minmax(0,1fr))] gap-4 items-end";
     case "responsive":
       return "grid grid-cols-1 md:grid-cols-2 gap-4";
     case "vertical":
@@ -232,8 +232,6 @@ export function FormBuilder<TData extends Record<string, unknown>>({
 }
 
 export const dynamicFormFactory = <TFormData extends Record<string, unknown>>({
-  title,
-  description,
   fieldConfigs,
   defaultValues,
 }: {

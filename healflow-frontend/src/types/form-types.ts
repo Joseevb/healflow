@@ -58,7 +58,7 @@ type BaseFieldConfig = {
   set?: SetConfig;
 };
 
-type TextInputType = "text" | "email" | "password" | "number" | "tel" | "url";
+type TextInputType = "text" | "email" | "password" | "number" | "tel" | "url" | "file";
 
 /**
  * Configuration for standard HTML input types.

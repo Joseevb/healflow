@@ -73,6 +73,14 @@ public class UserEntity {
   @Builder.Default
   private List<AppointmentEntity> appointments = new ArrayList<>();
 
+  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+  @Builder.Default
+  private List<HealthMetricEntity> healthMetrics = new ArrayList<>();
+
+  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+  @Builder.Default
+  private List<HealthScoreEntity> healthScores = new ArrayList<>();
+
   @ManyToOne(optional = false)
   @JoinColumn(name = "primary_specialist_id", nullable = false)
   private SpecialistEntity primarySpecialist;

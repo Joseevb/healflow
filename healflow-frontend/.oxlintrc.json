@@ -17,7 +17,8 @@
     "**/vite.config.*.timestamp-*.*",
     "prettier.config.js",
     "eslint.config.js",
-    "src/client/**"
+    "src/client/**",
+    "src/components/ui/**"
   ],
   "overrides": [
     {

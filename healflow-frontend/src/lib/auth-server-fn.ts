@@ -10,6 +10,7 @@ import { authMiddleware } from "@/lib/auth-middleware";
 import { signUpSession } from "@/schemas/sign-up-session.schema";
 import { useSignUpSession } from "@/server/session";
 import { UserRegistrationService } from "@/services/user-registration.service";
+import { validateUser } from "@/client";
 
 export const getUserId = createServerFn({ method: "GET" })
   .middleware([authMiddleware])
@@ -97,9 +98,105 @@ export const createUser = createServerFn({ method: "POST" })
 
           const userId = createdUserId!;
 
-          const { error } = await attempt(async () => {
+          console.log("[Social Sign-On] Starting user validation and provisioning for:", userId);
+
+          // Check if user already exists in the database
+          const { data: validationResult, error: validationError } = await attempt(async () => {
+            const apiKey = await Effect.runPromise(apiKeyConfig.getKey());
+            const headerName = await Effect.runPromise(apiKeyConfig.getHeaderName());
+
+            console.log("[Social Sign-On] Calling validateUser API");
+
+            return await validateUser({
+              body: { ids: [userId] },
+              headers: {
+                [headerName]: apiKey,
+              },
+            });
+          });
+
+          // Log the validation response for debugging
+          console.log("[Social Sign-On] Validation check result:", {
+            userId,
+            status: validationResult?.response.status,
+            hasValidationError: !!validationError,
+            validationError: validationError?.message || null,
+            hasApiError: !!validationResult?.error,
+            apiError: validationResult?.error || null,
+          });
+
+          // Determine if we should provision based on validation result
+          let shouldProvision = false;
+
+          // If validation call itself failed (auth error, network error, etc.), treat as new user
+          if (validationError) {
+            console.warn(
+              "[Social Sign-On] Validation API call failed, assuming new user and proceeding with provisioning:",
+              validationError.message,
+            );
+            shouldProvision = true;
+          }
+          // If validation succeeds (status 200), user already exists - skip provisioning
+          else if (validationResult.response.status === 200) {
+            console.log(
+              "[Social Sign-On] User already exists in database, skipping provisioning:",
+              userId,
+            );
+            shouldProvision = false;
+          }
+          // If validation returns 400, user doesn't exist - provision
+          else if (validationResult.response.status === 400) {
+            console.log(
+              "[Social Sign-On] User doesn't exist in database (400), proceeding with provisioning:",
+              userId,
+            );
+            shouldProvision = true;
+          }
+          // Handle authentication/authorization errors
+          else if (
+            validationResult.response.status === 401 ||
+            validationResult.response.status === 403
+          ) {
+            console.error(
+              "[Social Sign-On] Authentication/Authorization error during validation:",
+              {
+                status: validationResult.response.status,
+                error: validationResult.error,
+              },
+            );
+            console.log("[Social Sign-On] Proceeding with provisioning attempt despite auth error");
+            shouldProvision = true;
+          }
+          // Handle other unexpected statuses
+          else {
+            console.error("[Social Sign-On] Unexpected validation response:", {
+              status: validationResult.response.status,
+              error: validationResult.error,
+            });
+            console.log("[Social Sign-On] Proceeding with provisioning as fallback");
+            shouldProvision = true;
+          }
+
+          // If user already exists, skip provisioning
+          if (!shouldProvision) {
+            console.log("[Social Sign-On] Skipping provisioning, redirecting to dashboard");
+
+            await session.update({
+              paymentInfo: data.paymentInfo,
+              state: "success",
+            });
+
+            await session.clear();
+            throw redirect({
+              to: "/dashboard",
+            });
+          }
+
+          // User doesn't exist or validation failed, proceed with provisioning
+          console.log("[Social Sign-On] Starting provisioning for user:", userId);
+
+          const { error: provisionError } = await attempt(async () => {
             const service = new UserRegistrationService(apiKeyConfig);
-            // TODO: add payment and user data
             await Effect.runPromise(
               service.post({
                 user_id: userId,
@@ -109,8 +206,17 @@ export const createUser = createServerFn({ method: "POST" })
             );
           });
 
-          if (error) {
-            console.error("Provisioning failed for social user, rolling back:", error);
+          console.log("[Social Sign-On] Provision result:", {
+            userId,
+            success: !provisionError,
+            error: provisionError?.message || null,
+          });
+
+          if (provisionError) {
+            console.error(
+              "[Social Sign-On] Provisioning failed, rolling back user:",
+              provisionError,
+            );
             const headers = getRequestHeaders();
 
             await attempt(async () => {
@@ -125,6 +231,8 @@ export const createUser = createServerFn({ method: "POST" })
               to: "/auth/sign-up",
             });
           }
+
+          console.log("[Social Sign-On] Provisioning successful, redirecting to dashboard");
 
           await session.update({
             paymentInfo: data.paymentInfo,

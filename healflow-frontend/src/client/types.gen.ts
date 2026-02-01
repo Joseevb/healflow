@@ -5,6 +5,273 @@ export type ClientOptions = {
 };
 
 /**
+ * Request to update user profile
+ */
+export type UpdateUserProfileRequest = {
+    /**
+     * User first name
+     */
+    first_name?: string;
+    /**
+     * User last name
+     */
+    last_name?: string;
+    /**
+     * User phone number
+     */
+    phone?: string;
+    /**
+     * User date of birth
+     */
+    date_of_birth?: string;
+};
+
+/**
+ * Summary of specialist information
+ */
+export type SpecialistSummary = {
+    /**
+     * Specialist unique identifier
+     */
+    id: string;
+    /**
+     * Specialist full name
+     */
+    name: string;
+    specialty: SpecialistTypeEnum;
+};
+
+/**
+ * Specialty
+ */
+export type SpecialistTypeEnum = 'CARDIOLOGY' | 'DERMATOLOGY' | 'GENERAL_PRACTICE' | 'DENTISTRY';
+
+/**
+ * User profile information
+ */
+export type UserProfileResponse = {
+    /**
+     * User unique identifier
+     */
+    id?: string;
+    /**
+     * User email
+     */
+    email?: string;
+    /**
+     * User first name
+     */
+    first_name?: string;
+    /**
+     * User last name
+     */
+    last_name?: string;
+    /**
+     * User phone number
+     */
+    phone?: string;
+    /**
+     * User date of birth
+     */
+    date_of_birth?: string;
+    primary_specialist?: SpecialistSummary;
+    /**
+     * Whether profile is complete
+     */
+    is_profile_complete?: boolean;
+};
+
+/**
+ * RFC 7807 Problem Detail with validation error extensions
+ */
+export type ValidationProblemDetail = {
+    /**
+     * A URI reference that identifies the problem type
+     */
+    type?: string;
+    /**
+     * A short, human-readable summary of the problem type
+     */
+    title?: string;
+    /**
+     * The HTTP status code
+     */
+    status?: number;
+    /**
+     * A human-readable explanation specific to this occurrence of the problem
+     */
+    detail?: string;
+    /**
+     * A URI reference that identifies the specific occurrence of the problem
+     */
+    instance?: string;
+    /**
+     * List of invalid user IDs that failed validation
+     */
+    invalid_ids?: Array<string>;
+    properties?: {
+        [key: string]: {
+            [key: string]: unknown;
+        };
+    };
+};
+
+/**
+ * RFC 7807 Problem Detail for HTTP APIs
+ */
+export type ApiProblemDetail = {
+    /**
+     * A URI reference that identifies the problem type
+     */
+    type?: string;
+    /**
+     * A short, human-readable summary of the problem type
+     */
+    title?: string;
+    /**
+     * The HTTP status code
+     */
+    status?: number;
+    /**
+     * A human-readable explanation specific to this occurrence of the problem
+     */
+    detail?: string;
+    /**
+     * A URI reference that identifies the specific occurrence of the problem
+     */
+    instance?: string;
+    properties?: {
+        [key: string]: {
+            [key: string]: unknown;
+        };
+    };
+};
+
+/**
+ * Update user medicine request
+ */
+export type UpdateUserMedicineRequest = {
+    /**
+     * Medicine dosage
+     */
+    dosage: string;
+    /**
+     * Medicine frequency
+     */
+    frequency: string;
+    /**
+     * Start date of medication
+     */
+    start_date: string;
+    /**
+     * End date of medication
+     */
+    end_date: string;
+};
+
+/**
+ * User medicines response
+ */
+export type UserMedicinesResponse = {
+    /**
+     * User ID
+     */
+    user_id?: string;
+    /**
+     * Medicine ID
+     */
+    medicine_id?: number;
+    /**
+     * Medicine name
+     */
+    medicine_name?: string;
+    /**
+     * Medicine dosage
+     */
+    dosage?: string;
+    /**
+     * Medicine frequency
+     */
+    frequency?: string;
+    /**
+     * Start date of medication
+     */
+    start_date?: string;
+    /**
+     * End date of medication
+     */
+    end_date?: string;
+};
+
+/**
+ * Request to update a health metric
+ */
+export type UpdateHealthMetricRequest = {
+    /**
+     * Updated metric value
+     */
+    value?: number;
+    /**
+     * Updated unit of measurement
+     */
+    unit?: string;
+    /**
+     * Updated recorded date
+     */
+    recorded_at?: string;
+    /**
+     * Updated notes
+     */
+    notes?: string;
+};
+
+/**
+ * Health metric details
+ */
+export type HealthMetricResponse = {
+    /**
+     * Health metric unique identifier
+     */
+    id: string;
+    /**
+     * Type of health metric
+     */
+    metric_type: 'BLOOD_PRESSURE_SYSTOLIC' | 'BLOOD_PRESSURE_DIASTOLIC' | 'HEART_RATE' | 'OXYGEN_SATURATION' | 'WEIGHT' | 'HEIGHT' | 'BMI' | 'BLOOD_GLUCOSE' | 'HBA1C' | 'CHOLESTEROL_TOTAL' | 'CHOLESTEROL_LDL' | 'CHOLESTEROL_HDL' | 'TRIGLYCERIDES' | 'BODY_TEMPERATURE' | 'RESPIRATORY_RATE' | 'SLEEP_HOURS' | 'EXERCISE_MINUTES' | 'WATER_INTAKE' | 'STEPS';
+    /**
+     * Metric value
+     */
+    value: number;
+    /**
+     * Unit of measurement
+     */
+    unit: string;
+    /**
+     * When the metric was recorded
+     */
+    recorded_at: string;
+    /**
+     * Additional notes about the measurement
+     */
+    notes?: string;
+    /**
+     * Source of the measurement
+     */
+    source?: string;
+    /**
+     * ID of specialist who recorded this metric
+     */
+    recorded_by_specialist_id?: string;
+    /**
+     * Creation timestamp
+     */
+    created_at: string;
+    /**
+     * Last update timestamp
+     */
+    updated_at: string;
+};
+
+/**
  * Appointment status
  */
 export type AppointmentStatus = 'PENDING' | 'CONFIRMED' | 'COMPLETED' | 'CANCELLED' | 'NO_SHOW';
@@ -84,92 +351,6 @@ export type ClientSummary = {
 };
 
 /**
- * Summary of specialist information
- */
-export type SpecialistSummary = {
-    /**
-     * Specialist unique identifier
-     */
-    id: string;
-    /**
-     * Specialist full name
-     */
-    name: string;
-    specialty: SpecialistTypeEnum;
-};
-
-/**
- * Specialty
- */
-export type SpecialistTypeEnum = 'CARDIOLOGY' | 'DERMATOLOGY' | 'GENERAL_PRACTICE' | 'DENTISTRY';
-
-/**
- * RFC 7807 Problem Detail with validation error extensions
- */
-export type ValidationProblemDetail = {
-    /**
-     * A URI reference that identifies the problem type
-     */
-    type?: string;
-    /**
-     * A short, human-readable summary of the problem type
-     */
-    title?: string;
-    /**
-     * The HTTP status code
-     */
-    status?: number;
-    /**
-     * A human-readable explanation specific to this occurrence of the problem
-     */
-    detail?: string;
-    /**
-     * A URI reference that identifies the specific occurrence of the problem
-     */
-    instance?: string;
-    /**
-     * List of invalid user IDs that failed validation
-     */
-    invalid_ids?: Array<string>;
-    properties?: {
-        [key: string]: {
-            [key: string]: unknown;
-        };
-    };
-};
-
-/**
- * RFC 7807 Problem Detail for HTTP APIs
- */
-export type ApiProblemDetail = {
-    /**
-     * A URI reference that identifies the problem type
-     */
-    type?: string;
-    /**
-     * A short, human-readable summary of the problem type
-     */
-    title?: string;
-    /**
-     * The HTTP status code
-     */
-    status?: number;
-    /**
-     * A human-readable explanation specific to this occurrence of the problem
-     */
-    detail?: string;
-    /**
-     * A URI reference that identifies the specific occurrence of the problem
-     */
-    instance?: string;
-    properties?: {
-        [key: string]: {
-            [key: string]: unknown;
-        };
-    };
-};
-
-/**
  * Request to provision a user
  */
 export type ProvisionUserRequest = {
@@ -184,7 +365,19 @@ export type ProvisionUserRequest = {
     /**
      * Primary specialist ID
      */
-    specialist_id: string;
+    specialist_id?: string;
+    /**
+     * User first name
+     */
+    first_name?: string;
+    /**
+     * User last name
+     */
+    last_name?: string;
+    /**
+     * User phone number
+     */
+    phone?: string;
 };
 
 /**
@@ -192,6 +385,152 @@ export type ProvisionUserRequest = {
  */
 export type ValidateAuthUserIds = {
     ids?: Array<string>;
+};
+
+/**
+ * Add medicine to user request
+ */
+export type AddMedicineToUserRequest = {
+    user_id?: string;
+    medicine_id?: number;
+    dosage?: string;
+    frequency?: string;
+    start_date?: string;
+    end_date?: string;
+};
+
+/**
+ * Request to create a health metric
+ */
+export type CreateHealthMetricRequest = {
+    /**
+     * Type of health metric
+     */
+    metric_type: 'BLOOD_PRESSURE_SYSTOLIC' | 'BLOOD_PRESSURE_DIASTOLIC' | 'HEART_RATE' | 'OXYGEN_SATURATION' | 'WEIGHT' | 'HEIGHT' | 'BMI' | 'BLOOD_GLUCOSE' | 'HBA1C' | 'CHOLESTEROL_TOTAL' | 'CHOLESTEROL_LDL' | 'CHOLESTEROL_HDL' | 'TRIGLYCERIDES' | 'BODY_TEMPERATURE' | 'RESPIRATORY_RATE' | 'SLEEP_HOURS' | 'EXERCISE_MINUTES' | 'WATER_INTAKE' | 'STEPS';
+    /**
+     * Metric value
+     */
+    value: number;
+    /**
+     * Unit of measurement
+     */
+    unit: string;
+    /**
+     * When the metric was recorded
+     */
+    recorded_at: string;
+    /**
+     * Additional notes about the measurement
+     */
+    notes?: string;
+    /**
+     * Source of the measurement
+     */
+    source?: string;
+};
+
+/**
+ * Summary of a health metric type
+ */
+export type HealthMetricSummary = {
+    /**
+     * Type of health metric
+     */
+    metric_type: 'BLOOD_PRESSURE_SYSTOLIC' | 'BLOOD_PRESSURE_DIASTOLIC' | 'HEART_RATE' | 'OXYGEN_SATURATION' | 'WEIGHT' | 'HEIGHT' | 'BMI' | 'BLOOD_GLUCOSE' | 'HBA1C' | 'CHOLESTEROL_TOTAL' | 'CHOLESTEROL_LDL' | 'CHOLESTEROL_HDL' | 'TRIGLYCERIDES' | 'BODY_TEMPERATURE' | 'RESPIRATORY_RATE' | 'SLEEP_HOURS' | 'EXERCISE_MINUTES' | 'WATER_INTAKE' | 'STEPS';
+    /**
+     * Latest recorded value
+     */
+    latest_value: number;
+    /**
+     * Unit of measurement
+     */
+    unit: string;
+    /**
+     * When the metric was last recorded
+     */
+    recorded_at: string;
+    /**
+     * Trend analysis
+     */
+    trend?: 'improving' | 'stable' | 'declining' | 'insufficient_data';
+};
+
+/**
+ * User health score with detailed breakdown
+ */
+export type HealthScoreResponse = {
+    /**
+     * Health score unique identifier
+     */
+    id: string;
+    /**
+     * Overall health score (0-100)
+     */
+    overall_score: number;
+    /**
+     * Cardiovascular health subscore (0-100)
+     */
+    cardiovascular_score?: number;
+    /**
+     * Metabolic health subscore (0-100)
+     */
+    metabolic_score?: number;
+    /**
+     * Lifestyle habits subscore (0-100)
+     */
+    lifestyle_score?: number;
+    /**
+     * Vital signs subscore (0-100)
+     */
+    vital_signs_score?: number;
+    /**
+     * When the score was calculated
+     */
+    calculated_at: string;
+    /**
+     * Number of data points used in calculation
+     */
+    data_points_count: number;
+    /**
+     * Time period in days for data analysis
+     */
+    period_days: number;
+    /**
+     * Summary of recent health metrics
+     */
+    recent_metrics?: Array<HealthMetricSummary>;
+    /**
+     * Health recommendations based on the score
+     */
+    recommendations?: Array<Recommendation>;
+};
+
+/**
+ * Health recommendation based on metrics
+ */
+export type Recommendation = {
+    /**
+     * Recommendation category
+     */
+    category: string;
+    /**
+     * Recommendation message
+     */
+    message: string;
+    /**
+     * Priority level
+     */
+    priority: 'low' | 'medium' | 'high';
+};
+
+/**
+ * Request to create multiple health metrics at once
+ */
+export type BatchCreateHealthMetricsRequest = {
+    /**
+     * List of health metrics to create
+     */
+    metrics: Array<CreateHealthMetricRequest>;
 };
 
 /**
@@ -213,14 +552,13 @@ export type CreateAppointmentRequest = {
 };
 
 /**
- * User medicines response
+ * User medicine count response
  */
-export type UserMedicinesResponse = {
-    medicine_name?: string;
-    dosage?: string;
-    frequency?: string;
-    start_date?: string;
-    end_date?: string;
+export type UserMedicineCountResponse = {
+    /**
+     * Total count of medicines for the user
+     */
+    count?: number;
 };
 
 /**
@@ -297,6 +635,348 @@ export type Link = {
     href?: string;
     templated?: boolean;
 };
+
+export type GetUserProfileData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/user-profile';
+};
+
+export type GetUserProfileErrors = {
+    /**
+     * Unauthorized
+     */
+    401: ApiProblemDetail;
+    /**
+     * User not found
+     */
+    404: ApiProblemDetail;
+    /**
+     * Internal server error
+     */
+    500: ApiProblemDetail;
+};
+
+export type GetUserProfileError = GetUserProfileErrors[keyof GetUserProfileErrors];
+
+export type GetUserProfileResponses = {
+    /**
+     * User profile
+     */
+    200: UserProfileResponse;
+};
+
+export type GetUserProfileResponse = GetUserProfileResponses[keyof GetUserProfileResponses];
+
+export type UpdateUserProfileData = {
+    body: UpdateUserProfileRequest;
+    path?: never;
+    query?: never;
+    url: '/api/v1/user-profile';
+};
+
+export type UpdateUserProfileErrors = {
+    /**
+     * Invalid request
+     */
+    400: ValidationProblemDetail;
+    /**
+     * Unauthorized
+     */
+    401: ApiProblemDetail;
+    /**
+     * User not found
+     */
+    404: ApiProblemDetail;
+    /**
+     * Internal server error
+     */
+    500: ApiProblemDetail;
+};
+
+export type UpdateUserProfileError = UpdateUserProfileErrors[keyof UpdateUserProfileErrors];
+
+export type UpdateUserProfileResponses = {
+    /**
+     * Profile updated successfully
+     */
+    200: UserProfileResponse;
+};
+
+export type UpdateUserProfileResponse = UpdateUserProfileResponses[keyof UpdateUserProfileResponses];
+
+export type DeleteUserMedicineData = {
+    body?: never;
+    path: {
+        /**
+         * User ID
+         */
+        userId: string;
+        /**
+         * Medicine ID
+         */
+        medicineId: number;
+    };
+    query?: never;
+    url: '/api/v1/user-medicines/{userId}/{medicineId}';
+};
+
+export type DeleteUserMedicineErrors = {
+    /**
+     * Unauthorized
+     */
+    401: ApiProblemDetail;
+    /**
+     * Forbidden - User doesn't own this medicine
+     */
+    403: ApiProblemDetail;
+    /**
+     * Medicine not found
+     */
+    404: ApiProblemDetail;
+    /**
+     * Internal server error
+     */
+    500: ApiProblemDetail;
+};
+
+export type DeleteUserMedicineError = DeleteUserMedicineErrors[keyof DeleteUserMedicineErrors];
+
+export type DeleteUserMedicineResponses = {
+    /**
+     * Medicine deleted successfully
+     */
+    204: void;
+};
+
+export type DeleteUserMedicineResponse = DeleteUserMedicineResponses[keyof DeleteUserMedicineResponses];
+
+export type GetUserMedicineByIdData = {
+    body?: never;
+    path: {
+        /**
+         * User ID
+         */
+        userId: string;
+        /**
+         * Medicine ID
+         */
+        medicineId: number;
+    };
+    query?: never;
+    url: '/api/v1/user-medicines/{userId}/{medicineId}';
+};
+
+export type GetUserMedicineByIdErrors = {
+    /**
+     * Unauthorized
+     */
+    401: ApiProblemDetail;
+    /**
+     * Forbidden - User doesn't own this medicine
+     */
+    403: ApiProblemDetail;
+    /**
+     * Medicine not found
+     */
+    404: ApiProblemDetail;
+    /**
+     * Internal server error
+     */
+    500: ApiProblemDetail;
+};
+
+export type GetUserMedicineByIdError = GetUserMedicineByIdErrors[keyof GetUserMedicineByIdErrors];
+
+export type GetUserMedicineByIdResponses = {
+    /**
+     * Medicine details
+     */
+    200: UserMedicinesResponse;
+};
+
+export type GetUserMedicineByIdResponse = GetUserMedicineByIdResponses[keyof GetUserMedicineByIdResponses];
+
+export type UpdateUserMedicineData = {
+    body: UpdateUserMedicineRequest;
+    path: {
+        /**
+         * User ID
+         */
+        userId: string;
+        /**
+         * Medicine ID
+         */
+        medicineId: number;
+    };
+    query?: never;
+    url: '/api/v1/user-medicines/{userId}/{medicineId}';
+};
+
+export type UpdateUserMedicineErrors = {
+    /**
+     * Invalid input
+     */
+    400: ValidationProblemDetail;
+    /**
+     * Unauthorized
+     */
+    401: ApiProblemDetail;
+    /**
+     * Forbidden - User doesn't own this medicine
+     */
+    403: ApiProblemDetail;
+    /**
+     * Medicine not found
+     */
+    404: ApiProblemDetail;
+    /**
+     * Internal server error
+     */
+    500: ApiProblemDetail;
+};
+
+export type UpdateUserMedicineError = UpdateUserMedicineErrors[keyof UpdateUserMedicineErrors];
+
+export type UpdateUserMedicineResponses = {
+    /**
+     * Medicine updated successfully
+     */
+    200: UserMedicinesResponse;
+};
+
+export type UpdateUserMedicineResponse = UpdateUserMedicineResponses[keyof UpdateUserMedicineResponses];
+
+export type DeleteHealthMetricData = {
+    body?: never;
+    path: {
+        /**
+         * Health metric unique identifier
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/health-metrics/{id}';
+};
+
+export type DeleteHealthMetricErrors = {
+    /**
+     * Unauthorized
+     */
+    401: ApiProblemDetail;
+    /**
+     * Forbidden - not your metric
+     */
+    403: ApiProblemDetail;
+    /**
+     * Health metric not found
+     */
+    404: ApiProblemDetail;
+    /**
+     * Internal server error
+     */
+    500: ApiProblemDetail;
+};
+
+export type DeleteHealthMetricError = DeleteHealthMetricErrors[keyof DeleteHealthMetricErrors];
+
+export type DeleteHealthMetricResponses = {
+    /**
+     * Health metric deleted successfully
+     */
+    204: void;
+};
+
+export type DeleteHealthMetricResponse = DeleteHealthMetricResponses[keyof DeleteHealthMetricResponses];
+
+export type GetHealthMetricByIdData = {
+    body?: never;
+    path: {
+        /**
+         * Health metric unique identifier
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/health-metrics/{id}';
+};
+
+export type GetHealthMetricByIdErrors = {
+    /**
+     * Unauthorized
+     */
+    401: ApiProblemDetail;
+    /**
+     * Forbidden - not your metric
+     */
+    403: ApiProblemDetail;
+    /**
+     * Health metric not found
+     */
+    404: ApiProblemDetail;
+    /**
+     * Internal server error
+     */
+    500: ApiProblemDetail;
+};
+
+export type GetHealthMetricByIdError = GetHealthMetricByIdErrors[keyof GetHealthMetricByIdErrors];
+
+export type GetHealthMetricByIdResponses = {
+    /**
+     * Health metric details
+     */
+    200: HealthMetricResponse;
+};
+
+export type GetHealthMetricByIdResponse = GetHealthMetricByIdResponses[keyof GetHealthMetricByIdResponses];
+
+export type UpdateHealthMetricData = {
+    body: UpdateHealthMetricRequest;
+    path: {
+        /**
+         * Health metric unique identifier
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/health-metrics/{id}';
+};
+
+export type UpdateHealthMetricErrors = {
+    /**
+     * Invalid request
+     */
+    400: ValidationProblemDetail;
+    /**
+     * Unauthorized
+     */
+    401: ApiProblemDetail;
+    /**
+     * Forbidden - not your metric
+     */
+    403: ApiProblemDetail;
+    /**
+     * Health metric not found
+     */
+    404: ApiProblemDetail;
+    /**
+     * Internal server error
+     */
+    500: ApiProblemDetail;
+};
+
+export type UpdateHealthMetricError = UpdateHealthMetricErrors[keyof UpdateHealthMetricErrors];
+
+export type UpdateHealthMetricResponses = {
+    /**
+     * Health metric updated successfully
+     */
+    200: HealthMetricResponse;
+};
+
+export type UpdateHealthMetricResponse = UpdateHealthMetricResponses[keyof UpdateHealthMetricResponses];
 
 export type CancelAppointmentData = {
     body?: never;
@@ -503,6 +1183,204 @@ export type ValidateUserResponses = {
     200: unknown;
 };
 
+export type GetUserMedicinesData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/user-medicines';
+};
+
+export type GetUserMedicinesErrors = {
+    /**
+     * Unauthorized
+     */
+    401: ApiProblemDetail;
+    /**
+     * User not found
+     */
+    404: ApiProblemDetail;
+    /**
+     * Internal server error
+     */
+    500: ApiProblemDetail;
+};
+
+export type GetUserMedicinesError = GetUserMedicinesErrors[keyof GetUserMedicinesErrors];
+
+export type GetUserMedicinesResponses = {
+    /**
+     * List of medicines
+     */
+    200: Array<UserMedicinesResponse>;
+};
+
+export type GetUserMedicinesResponse = GetUserMedicinesResponses[keyof GetUserMedicinesResponses];
+
+export type AddMedicineToUserData = {
+    body: AddMedicineToUserRequest;
+    path?: never;
+    query?: never;
+    url: '/api/v1/user-medicines';
+};
+
+export type AddMedicineToUserErrors = {
+    /**
+     * Invalid input
+     */
+    400: ValidationProblemDetail;
+    /**
+     * Unauthorized
+     */
+    401: ApiProblemDetail;
+    /**
+     * User or medicine not found
+     */
+    404: ApiProblemDetail;
+    /**
+     * Internal server error
+     */
+    500: ApiProblemDetail;
+};
+
+export type AddMedicineToUserError = AddMedicineToUserErrors[keyof AddMedicineToUserErrors];
+
+export type AddMedicineToUserResponses = {
+    /**
+     * Medicine added successfully
+     */
+    201: UserMedicinesResponse;
+};
+
+export type AddMedicineToUserResponse = AddMedicineToUserResponses[keyof AddMedicineToUserResponses];
+
+export type GetUserHealthMetricsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/health-metrics';
+};
+
+export type GetUserHealthMetricsErrors = {
+    /**
+     * Unauthorized
+     */
+    401: ApiProblemDetail;
+    /**
+     * Internal server error
+     */
+    500: ApiProblemDetail;
+};
+
+export type GetUserHealthMetricsError = GetUserHealthMetricsErrors[keyof GetUserHealthMetricsErrors];
+
+export type GetUserHealthMetricsResponses = {
+    /**
+     * List of user health metrics
+     */
+    200: Array<HealthMetricResponse>;
+};
+
+export type GetUserHealthMetricsResponse = GetUserHealthMetricsResponses[keyof GetUserHealthMetricsResponses];
+
+export type CreateHealthMetricData = {
+    body: CreateHealthMetricRequest;
+    path?: never;
+    query?: never;
+    url: '/api/v1/health-metrics';
+};
+
+export type CreateHealthMetricErrors = {
+    /**
+     * Invalid request
+     */
+    400: ValidationProblemDetail;
+    /**
+     * Unauthorized
+     */
+    401: ApiProblemDetail;
+    /**
+     * Internal server error
+     */
+    500: ApiProblemDetail;
+};
+
+export type CreateHealthMetricError = CreateHealthMetricErrors[keyof CreateHealthMetricErrors];
+
+export type CreateHealthMetricResponses = {
+    /**
+     * Health metric created successfully
+     */
+    201: HealthMetricResponse;
+};
+
+export type CreateHealthMetricResponse = CreateHealthMetricResponses[keyof CreateHealthMetricResponses];
+
+export type CalculateHealthScoreData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/health-metrics/score/calculate';
+};
+
+export type CalculateHealthScoreErrors = {
+    /**
+     * Unauthorized
+     */
+    401: ApiProblemDetail;
+    /**
+     * Insufficient data to calculate score
+     */
+    404: ApiProblemDetail;
+    /**
+     * Internal server error
+     */
+    500: ApiProblemDetail;
+};
+
+export type CalculateHealthScoreError = CalculateHealthScoreErrors[keyof CalculateHealthScoreErrors];
+
+export type CalculateHealthScoreResponses = {
+    /**
+     * Health score calculated successfully
+     */
+    201: HealthScoreResponse;
+};
+
+export type CalculateHealthScoreResponse = CalculateHealthScoreResponses[keyof CalculateHealthScoreResponses];
+
+export type CreateHealthMetricsBatchData = {
+    body: BatchCreateHealthMetricsRequest;
+    path?: never;
+    query?: never;
+    url: '/api/v1/health-metrics/batch';
+};
+
+export type CreateHealthMetricsBatchErrors = {
+    /**
+     * Invalid request
+     */
+    400: ValidationProblemDetail;
+    /**
+     * Unauthorized
+     */
+    401: ApiProblemDetail;
+    /**
+     * Internal server error
+     */
+    500: ApiProblemDetail;
+};
+
+export type CreateHealthMetricsBatchError = CreateHealthMetricsBatchErrors[keyof CreateHealthMetricsBatchErrors];
+
+export type CreateHealthMetricsBatchResponses = {
+    /**
+     * Health metrics created successfully
+     */
+    201: Array<HealthMetricResponse>;
+};
+
+export type CreateHealthMetricsBatchResponse = CreateHealthMetricsBatchResponses[keyof CreateHealthMetricsBatchResponses];
+
 export type GetUserAppointmentsData = {
     body?: never;
     path?: never;
@@ -605,38 +1483,34 @@ export type GetScalarJsResponses = {
 
 export type GetScalarJsResponse = GetScalarJsResponses[keyof GetScalarJsResponses];
 
-export type GetUserMedicinesData = {
+export type GetUserMedicineCountData = {
     body?: never;
     path?: never;
     query?: never;
-    url: '/api/v1/user-medicines';
+    url: '/api/v1/user-medicines/count';
 };
 
-export type GetUserMedicinesErrors = {
+export type GetUserMedicineCountErrors = {
     /**
      * Unauthorized
      */
     401: ApiProblemDetail;
-    /**
-     * User not found
-     */
-    404: ApiProblemDetail;
     /**
      * Internal server error
      */
     500: ApiProblemDetail;
 };
 
-export type GetUserMedicinesError = GetUserMedicinesErrors[keyof GetUserMedicinesErrors];
+export type GetUserMedicineCountError = GetUserMedicineCountErrors[keyof GetUserMedicineCountErrors];
 
-export type GetUserMedicinesResponses = {
+export type GetUserMedicineCountResponses = {
     /**
-     * List of medicines
+     * Medicine count
      */
-    200: Array<UserMedicinesResponse>;
+    200: UserMedicineCountResponse;
 };
 
-export type GetUserMedicinesResponse = GetUserMedicinesResponses[keyof GetUserMedicinesResponses];
+export type GetUserMedicineCountResponse = GetUserMedicineCountResponses[keyof GetUserMedicineCountResponses];
 
 export type GetAvailableSpecialistsData = {
     body?: never;
@@ -743,6 +1617,177 @@ export type GetSpecialistBookingDataResponses = {
 };
 
 export type GetSpecialistBookingDataResponse = GetSpecialistBookingDataResponses[keyof GetSpecialistBookingDataResponses];
+
+export type GetLatestHealthScoreData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/health-metrics/score';
+};
+
+export type GetLatestHealthScoreErrors = {
+    /**
+     * Unauthorized
+     */
+    401: ApiProblemDetail;
+    /**
+     * No health score found
+     */
+    404: ApiProblemDetail;
+    /**
+     * Internal server error
+     */
+    500: ApiProblemDetail;
+};
+
+export type GetLatestHealthScoreError = GetLatestHealthScoreErrors[keyof GetLatestHealthScoreErrors];
+
+export type GetLatestHealthScoreResponses = {
+    /**
+     * Current health score
+     */
+    200: HealthScoreResponse;
+};
+
+export type GetLatestHealthScoreResponse = GetLatestHealthScoreResponses[keyof GetLatestHealthScoreResponses];
+
+export type GetHealthScoreHistoryData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/health-metrics/score/history';
+};
+
+export type GetHealthScoreHistoryErrors = {
+    /**
+     * Unauthorized
+     */
+    401: ApiProblemDetail;
+    /**
+     * Internal server error
+     */
+    500: ApiProblemDetail;
+};
+
+export type GetHealthScoreHistoryError = GetHealthScoreHistoryErrors[keyof GetHealthScoreHistoryErrors];
+
+export type GetHealthScoreHistoryResponses = {
+    /**
+     * List of historical health scores
+     */
+    200: Array<HealthScoreResponse>;
+};
+
+export type GetHealthScoreHistoryResponse = GetHealthScoreHistoryResponses[keyof GetHealthScoreHistoryResponses];
+
+export type GetRecentHealthMetricsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/health-metrics/recent';
+};
+
+export type GetRecentHealthMetricsErrors = {
+    /**
+     * Unauthorized
+     */
+    401: ApiProblemDetail;
+    /**
+     * Internal server error
+     */
+    500: ApiProblemDetail;
+};
+
+export type GetRecentHealthMetricsError = GetRecentHealthMetricsErrors[keyof GetRecentHealthMetricsErrors];
+
+export type GetRecentHealthMetricsResponses = {
+    /**
+     * List of recent health metrics
+     */
+    200: Array<HealthMetricResponse>;
+};
+
+export type GetRecentHealthMetricsResponse = GetRecentHealthMetricsResponses[keyof GetRecentHealthMetricsResponses];
+
+export type GetLatestMetricByTypeData = {
+    body?: never;
+    path: {
+        /**
+         * Type of health metric
+         */
+        metricType: 'BLOOD_PRESSURE_SYSTOLIC' | 'BLOOD_PRESSURE_DIASTOLIC' | 'HEART_RATE' | 'OXYGEN_SATURATION' | 'WEIGHT' | 'HEIGHT' | 'BMI' | 'BLOOD_GLUCOSE' | 'HBA1C' | 'CHOLESTEROL_TOTAL' | 'CHOLESTEROL_LDL' | 'CHOLESTEROL_HDL' | 'TRIGLYCERIDES' | 'BODY_TEMPERATURE' | 'RESPIRATORY_RATE' | 'SLEEP_HOURS' | 'EXERCISE_MINUTES' | 'WATER_INTAKE' | 'STEPS';
+    };
+    query?: never;
+    url: '/api/v1/health-metrics/latest/{metricType}';
+};
+
+export type GetLatestMetricByTypeErrors = {
+    /**
+     * Unauthorized
+     */
+    401: ApiProblemDetail;
+    /**
+     * No metric found of this type
+     */
+    404: ApiProblemDetail;
+    /**
+     * Internal server error
+     */
+    500: ApiProblemDetail;
+};
+
+export type GetLatestMetricByTypeError = GetLatestMetricByTypeErrors[keyof GetLatestMetricByTypeErrors];
+
+export type GetLatestMetricByTypeResponses = {
+    /**
+     * Latest health metric of specified type
+     */
+    200: HealthMetricResponse;
+};
+
+export type GetLatestMetricByTypeResponse = GetLatestMetricByTypeResponses[keyof GetLatestMetricByTypeResponses];
+
+export type GetFilteredHealthMetricsData = {
+    body?: never;
+    path?: never;
+    query?: {
+        /**
+         * Filter by metric type
+         */
+        metricType?: 'BLOOD_PRESSURE_SYSTOLIC' | 'BLOOD_PRESSURE_DIASTOLIC' | 'HEART_RATE' | 'OXYGEN_SATURATION' | 'WEIGHT' | 'HEIGHT' | 'BMI' | 'BLOOD_GLUCOSE' | 'HBA1C' | 'CHOLESTEROL_TOTAL' | 'CHOLESTEROL_LDL' | 'CHOLESTEROL_HDL' | 'TRIGLYCERIDES' | 'BODY_TEMPERATURE' | 'RESPIRATORY_RATE' | 'SLEEP_HOURS' | 'EXERCISE_MINUTES' | 'WATER_INTAKE' | 'STEPS';
+        /**
+         * Start date for date range filter
+         */
+        startDate?: string;
+        /**
+         * End date for date range filter
+         */
+        endDate?: string;
+    };
+    url: '/api/v1/health-metrics/filter';
+};
+
+export type GetFilteredHealthMetricsErrors = {
+    /**
+     * Unauthorized
+     */
+    401: ApiProblemDetail;
+    /**
+     * Internal server error
+     */
+    500: ApiProblemDetail;
+};
+
+export type GetFilteredHealthMetricsError = GetFilteredHealthMetricsErrors[keyof GetFilteredHealthMetricsErrors];
+
+export type GetFilteredHealthMetricsResponses = {
+    /**
+     * List of filtered health metrics
+     */
+    200: Array<HealthMetricResponse>;
+};
+
+export type GetFilteredHealthMetricsResponse = GetFilteredHealthMetricsResponses[keyof GetFilteredHealthMetricsResponses];
 
 export type GetUpcomingAppointmentsData = {
     body?: never;

@@ -63,15 +63,26 @@ client.interceptors.request.use(async (request) => {
 })
 
 client.interceptors.response.use(async (response, request) => {
-  if (response.status === 401) {
-    console.error('❌ 401 Unauthorized response for:', request.url)
-    console.error('→ User authentication required - clearing token cache')
-    // Clear the token cache so it can be refreshed
-    tokenPromise = null
-  }
-
   if (!response.ok) {
+    // Single, accurate error log with actual status code
     console.error(`❌ HTTP ${response.status} error for:`, request.url)
+
+    // Track error for analytics
+    console.count(`API_ERROR_${response.status}`)
+
+    // Special handling for 401 - authentication issues
+    if (response.status === 401) {
+      console.error('→ User authentication required - clearing token cache')
+      console.count('AUTH_TOKEN_EXPIRED')
+      tokenPromise = null
+    }
+
+    // Track 404 errors separately for missing data
+    if (response.status === 404) {
+      console.count(`NOT_FOUND_${new URL(request.url).pathname}`)
+    }
+
+    // Log response body for detailed debugging
     try {
       const text = await response.clone().text()
       if (text) {
@@ -87,6 +98,10 @@ client.interceptors.response.use(async (response, request) => {
 
 client.interceptors.error.use((error) => {
   console.error('❌ Client error:', error)
+
+  // Track client errors for analytics
+  console.count('CLIENT_ERROR')
+
   // Clear token cache on errors to allow retry
   tokenPromise = null
   return error

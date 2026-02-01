@@ -23,11 +23,6 @@ import {
 import { FieldSelect } from "@/components/ui/field-select";
 import { Spinner } from "@/components/ui/spinner";
 
-// TODO: use this to have multiple appointment dialog types
-interface BookAppointmentDialogProps {
-  type: "appointment" | "medication";
-}
-
 export default function BookAppointmentDialog() {
   const [selectedSpecialistId, setSelectedSpecialist] = useState<string | null>(null);
   const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
@@ -110,7 +105,7 @@ export default function BookAppointmentDialog() {
           Book Appointment
         </Button>
       </DialogTrigger>
-      <DialogContent className="min-w-fit p-6">
+      <DialogContent className="min-w-2xl p-6">
         <DialogHeader className="px-6 pt-6">
           <DialogTitle>Book Appointment</DialogTitle>
           <DialogDescription>Please select a date for the appointment</DialogDescription>

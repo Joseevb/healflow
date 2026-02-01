@@ -3,27 +3,8 @@
 import { type DefaultError, queryOptions, type UseMutationOptions } from '@tanstack/react-query';
 
 import { client } from '../client.gen';
-import { cancelAppointment, createAppointment, getAppointmentById, getAvailableSpecialists, getDocs, getPastAppointments, getScalarJs, getSpecialistBookingData, getSpecialistTypes, getUpcomingAppointments, getUserAppointments, getUserMedicines, health, links, type Options, provisionUser, updateAppointment, validateUser } from '../sdk.gen';
-import type { CancelAppointmentData, CancelAppointmentError, CancelAppointmentResponse, CreateAppointmentData, CreateAppointmentError, CreateAppointmentResponse, GetAppointmentByIdData, GetAppointmentByIdError, GetAppointmentByIdResponse, GetAvailableSpecialistsData, GetAvailableSpecialistsError, GetAvailableSpecialistsResponse, GetDocsData, GetDocsResponse, GetPastAppointmentsData, GetPastAppointmentsError, GetPastAppointmentsResponse, GetScalarJsData, GetScalarJsResponse, GetSpecialistBookingDataData, GetSpecialistBookingDataError, GetSpecialistBookingDataResponse, GetSpecialistTypesData, GetSpecialistTypesError, GetSpecialistTypesResponse, GetUpcomingAppointmentsData, GetUpcomingAppointmentsError, GetUpcomingAppointmentsResponse, GetUserAppointmentsData, GetUserAppointmentsError, GetUserAppointmentsResponse, GetUserMedicinesData, GetUserMedicinesError, GetUserMedicinesResponse, HealthData, HealthResponse, LinksData, LinksResponse, ProvisionUserData, ProvisionUserError, UpdateAppointmentData, UpdateAppointmentError, UpdateAppointmentResponse, ValidateUserData, ValidateUserError } from '../types.gen';
-
-/**
- * Cancel appointment
- *
- * Cancels an existing appointment
- */
-export const cancelAppointmentMutation = (options?: Partial<Options<CancelAppointmentData>>): UseMutationOptions<CancelAppointmentResponse, CancelAppointmentError, Options<CancelAppointmentData>> => {
-    const mutationOptions: UseMutationOptions<CancelAppointmentResponse, CancelAppointmentError, Options<CancelAppointmentData>> = {
-        mutationFn: async (fnOptions) => {
-            const { data } = await cancelAppointment({
-                ...options,
-                ...fnOptions,
-                throwOnError: true
-            });
-            return data;
-        }
-    };
-    return mutationOptions;
-};
+import { addMedicineToUser, calculateHealthScore, cancelAppointment, createAppointment, createHealthMetric, createHealthMetricsBatch, deleteHealthMetric, deleteUserMedicine, getAppointmentById, getAvailableSpecialists, getDocs, getFilteredHealthMetrics, getHealthMetricById, getHealthScoreHistory, getLatestHealthScore, getLatestMetricByType, getPastAppointments, getRecentHealthMetrics, getScalarJs, getSpecialistBookingData, getSpecialistTypes, getUpcomingAppointments, getUserAppointments, getUserHealthMetrics, getUserMedicineById, getUserMedicineCount, getUserMedicines, getUserProfile, health, links, type Options, provisionUser, updateAppointment, updateHealthMetric, updateUserMedicine, updateUserProfile, validateUser } from '../sdk.gen';
+import type { AddMedicineToUserData, AddMedicineToUserError, AddMedicineToUserResponse, CalculateHealthScoreData, CalculateHealthScoreError, CalculateHealthScoreResponse, CancelAppointmentData, CancelAppointmentError, CancelAppointmentResponse, CreateAppointmentData, CreateAppointmentError, CreateAppointmentResponse, CreateHealthMetricData, CreateHealthMetricError, CreateHealthMetricResponse, CreateHealthMetricsBatchData, CreateHealthMetricsBatchError, CreateHealthMetricsBatchResponse, DeleteHealthMetricData, DeleteHealthMetricError, DeleteHealthMetricResponse, DeleteUserMedicineData, DeleteUserMedicineError, DeleteUserMedicineResponse, GetAppointmentByIdData, GetAppointmentByIdError, GetAppointmentByIdResponse, GetAvailableSpecialistsData, GetAvailableSpecialistsError, GetAvailableSpecialistsResponse, GetDocsData, GetDocsResponse, GetFilteredHealthMetricsData, GetFilteredHealthMetricsError, GetFilteredHealthMetricsResponse, GetHealthMetricByIdData, GetHealthMetricByIdError, GetHealthMetricByIdResponse, GetHealthScoreHistoryData, GetHealthScoreHistoryError, GetHealthScoreHistoryResponse, GetLatestHealthScoreData, GetLatestHealthScoreError, GetLatestHealthScoreResponse, GetLatestMetricByTypeData, GetLatestMetricByTypeError, GetLatestMetricByTypeResponse, GetPastAppointmentsData, GetPastAppointmentsError, GetPastAppointmentsResponse, GetRecentHealthMetricsData, GetRecentHealthMetricsError, GetRecentHealthMetricsResponse, GetScalarJsData, GetScalarJsResponse, GetSpecialistBookingDataData, GetSpecialistBookingDataError, GetSpecialistBookingDataResponse, GetSpecialistTypesData, GetSpecialistTypesError, GetSpecialistTypesResponse, GetUpcomingAppointmentsData, GetUpcomingAppointmentsError, GetUpcomingAppointmentsResponse, GetUserAppointmentsData, GetUserAppointmentsError, GetUserAppointmentsResponse, GetUserHealthMetricsData, GetUserHealthMetricsError, GetUserHealthMetricsResponse, GetUserMedicineByIdData, GetUserMedicineByIdError, GetUserMedicineByIdResponse, GetUserMedicineCountData, GetUserMedicineCountError, GetUserMedicineCountResponse, GetUserMedicinesData, GetUserMedicinesError, GetUserMedicinesResponse, GetUserProfileData, GetUserProfileError, GetUserProfileResponse, HealthData, HealthResponse, LinksData, LinksResponse, ProvisionUserData, ProvisionUserError, UpdateAppointmentData, UpdateAppointmentError, UpdateAppointmentResponse, UpdateHealthMetricData, UpdateHealthMetricError, UpdateHealthMetricResponse, UpdateUserMedicineData, UpdateUserMedicineError, UpdateUserMedicineResponse, UpdateUserProfileData, UpdateUserProfileError, UpdateUserProfileResponse, ValidateUserData, ValidateUserError } from '../types.gen';
 
 export type QueryKey<TOptions extends Options> = [
     Pick<TOptions, 'baseUrl' | 'body' | 'headers' | 'path' | 'query'> & {
@@ -56,6 +37,180 @@ const createQueryKey = <TOptions extends Options>(id: string, options?: TOptions
         params.query = options.query;
     }
     return [params];
+};
+
+export const getUserProfileQueryKey = (options?: Options<GetUserProfileData>) => createQueryKey('getUserProfile', options);
+
+/**
+ * Get user profile
+ *
+ * Returns the authenticated user's profile information
+ */
+export const getUserProfileOptions = (options?: Options<GetUserProfileData>) => queryOptions<GetUserProfileResponse, GetUserProfileError, GetUserProfileResponse, ReturnType<typeof getUserProfileQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await getUserProfile({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: getUserProfileQueryKey(options)
+});
+
+/**
+ * Update user profile
+ *
+ * Updates the authenticated user's profile information
+ */
+export const updateUserProfileMutation = (options?: Partial<Options<UpdateUserProfileData>>): UseMutationOptions<UpdateUserProfileResponse, UpdateUserProfileError, Options<UpdateUserProfileData>> => {
+    const mutationOptions: UseMutationOptions<UpdateUserProfileResponse, UpdateUserProfileError, Options<UpdateUserProfileData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await updateUserProfile({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+/**
+ * Delete user medicine
+ *
+ * Removes a medicine from the authenticated user's prescription
+ */
+export const deleteUserMedicineMutation = (options?: Partial<Options<DeleteUserMedicineData>>): UseMutationOptions<DeleteUserMedicineResponse, DeleteUserMedicineError, Options<DeleteUserMedicineData>> => {
+    const mutationOptions: UseMutationOptions<DeleteUserMedicineResponse, DeleteUserMedicineError, Options<DeleteUserMedicineData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await deleteUserMedicine({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+export const getUserMedicineByIdQueryKey = (options: Options<GetUserMedicineByIdData>) => createQueryKey('getUserMedicineById', options);
+
+/**
+ * Get user medicine by ID
+ *
+ * Returns a specific medicine for the authenticated user
+ */
+export const getUserMedicineByIdOptions = (options: Options<GetUserMedicineByIdData>) => queryOptions<GetUserMedicineByIdResponse, GetUserMedicineByIdError, GetUserMedicineByIdResponse, ReturnType<typeof getUserMedicineByIdQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await getUserMedicineById({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: getUserMedicineByIdQueryKey(options)
+});
+
+/**
+ * Update user medicine
+ *
+ * Updates an existing medicine prescription for the authenticated user
+ */
+export const updateUserMedicineMutation = (options?: Partial<Options<UpdateUserMedicineData>>): UseMutationOptions<UpdateUserMedicineResponse, UpdateUserMedicineError, Options<UpdateUserMedicineData>> => {
+    const mutationOptions: UseMutationOptions<UpdateUserMedicineResponse, UpdateUserMedicineError, Options<UpdateUserMedicineData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await updateUserMedicine({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+/**
+ * Delete health metric
+ *
+ * Deletes an existing health metric
+ */
+export const deleteHealthMetricMutation = (options?: Partial<Options<DeleteHealthMetricData>>): UseMutationOptions<DeleteHealthMetricResponse, DeleteHealthMetricError, Options<DeleteHealthMetricData>> => {
+    const mutationOptions: UseMutationOptions<DeleteHealthMetricResponse, DeleteHealthMetricError, Options<DeleteHealthMetricData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await deleteHealthMetric({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+export const getHealthMetricByIdQueryKey = (options: Options<GetHealthMetricByIdData>) => createQueryKey('getHealthMetricById', options);
+
+/**
+ * Get health metric by ID
+ *
+ * Returns a specific health metric by its unique identifier
+ */
+export const getHealthMetricByIdOptions = (options: Options<GetHealthMetricByIdData>) => queryOptions<GetHealthMetricByIdResponse, GetHealthMetricByIdError, GetHealthMetricByIdResponse, ReturnType<typeof getHealthMetricByIdQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await getHealthMetricById({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: getHealthMetricByIdQueryKey(options)
+});
+
+/**
+ * Update health metric
+ *
+ * Updates an existing health metric
+ */
+export const updateHealthMetricMutation = (options?: Partial<Options<UpdateHealthMetricData>>): UseMutationOptions<UpdateHealthMetricResponse, UpdateHealthMetricError, Options<UpdateHealthMetricData>> => {
+    const mutationOptions: UseMutationOptions<UpdateHealthMetricResponse, UpdateHealthMetricError, Options<UpdateHealthMetricData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await updateHealthMetric({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+/**
+ * Cancel appointment
+ *
+ * Cancels an existing appointment
+ */
+export const cancelAppointmentMutation = (options?: Partial<Options<CancelAppointmentData>>): UseMutationOptions<CancelAppointmentResponse, CancelAppointmentError, Options<CancelAppointmentData>> => {
+    const mutationOptions: UseMutationOptions<CancelAppointmentResponse, CancelAppointmentError, Options<CancelAppointmentData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await cancelAppointment({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
 };
 
 export const getAppointmentByIdQueryKey = (options: Options<GetAppointmentByIdData>) => createQueryKey('getAppointmentById', options);
@@ -138,6 +293,122 @@ export const validateUserMutation = (options?: Partial<Options<ValidateUserData>
     return mutationOptions;
 };
 
+export const getUserMedicinesQueryKey = (options?: Options<GetUserMedicinesData>) => createQueryKey('getUserMedicines', options);
+
+/**
+ * Get user medicines
+ *
+ * Returns list of medicines for a user
+ */
+export const getUserMedicinesOptions = (options?: Options<GetUserMedicinesData>) => queryOptions<GetUserMedicinesResponse, GetUserMedicinesError, GetUserMedicinesResponse, ReturnType<typeof getUserMedicinesQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await getUserMedicines({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: getUserMedicinesQueryKey(options)
+});
+
+/**
+ * Add medicine to user
+ *
+ * Adds a new medicine to the authenticated user's prescription
+ */
+export const addMedicineToUserMutation = (options?: Partial<Options<AddMedicineToUserData>>): UseMutationOptions<AddMedicineToUserResponse, AddMedicineToUserError, Options<AddMedicineToUserData>> => {
+    const mutationOptions: UseMutationOptions<AddMedicineToUserResponse, AddMedicineToUserError, Options<AddMedicineToUserData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await addMedicineToUser({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+export const getUserHealthMetricsQueryKey = (options?: Options<GetUserHealthMetricsData>) => createQueryKey('getUserHealthMetrics', options);
+
+/**
+ * Get user health metrics
+ *
+ * Returns all health metrics for the authenticated user
+ */
+export const getUserHealthMetricsOptions = (options?: Options<GetUserHealthMetricsData>) => queryOptions<GetUserHealthMetricsResponse, GetUserHealthMetricsError, GetUserHealthMetricsResponse, ReturnType<typeof getUserHealthMetricsQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await getUserHealthMetrics({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: getUserHealthMetricsQueryKey(options)
+});
+
+/**
+ * Create health metric
+ *
+ * Creates a new health metric entry
+ */
+export const createHealthMetricMutation = (options?: Partial<Options<CreateHealthMetricData>>): UseMutationOptions<CreateHealthMetricResponse, CreateHealthMetricError, Options<CreateHealthMetricData>> => {
+    const mutationOptions: UseMutationOptions<CreateHealthMetricResponse, CreateHealthMetricError, Options<CreateHealthMetricData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await createHealthMetric({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+/**
+ * Calculate health score
+ *
+ * Calculates a new health score based on recent metrics
+ */
+export const calculateHealthScoreMutation = (options?: Partial<Options<CalculateHealthScoreData>>): UseMutationOptions<CalculateHealthScoreResponse, CalculateHealthScoreError, Options<CalculateHealthScoreData>> => {
+    const mutationOptions: UseMutationOptions<CalculateHealthScoreResponse, CalculateHealthScoreError, Options<CalculateHealthScoreData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await calculateHealthScore({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+/**
+ * Create multiple health metrics
+ *
+ * Creates multiple health metric entries at once
+ */
+export const createHealthMetricsBatchMutation = (options?: Partial<Options<CreateHealthMetricsBatchData>>): UseMutationOptions<CreateHealthMetricsBatchResponse, CreateHealthMetricsBatchError, Options<CreateHealthMetricsBatchData>> => {
+    const mutationOptions: UseMutationOptions<CreateHealthMetricsBatchResponse, CreateHealthMetricsBatchError, Options<CreateHealthMetricsBatchData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await createHealthMetricsBatch({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
 export const getUserAppointmentsQueryKey = (options?: Options<GetUserAppointmentsData>) => createQueryKey('getUserAppointments', options);
 
 /**
@@ -207,16 +478,16 @@ export const getScalarJsOptions = (options?: Options<GetScalarJsData>) => queryO
     queryKey: getScalarJsQueryKey(options)
 });
 
-export const getUserMedicinesQueryKey = (options?: Options<GetUserMedicinesData>) => createQueryKey('getUserMedicines', options);
+export const getUserMedicineCountQueryKey = (options?: Options<GetUserMedicineCountData>) => createQueryKey('getUserMedicineCount', options);
 
 /**
- * Get user medicines
+ * Get user medicine count
  *
- * Returns list of medicines for a user
+ * Returns the count of medicines for the authenticated user
  */
-export const getUserMedicinesOptions = (options?: Options<GetUserMedicinesData>) => queryOptions<GetUserMedicinesResponse, GetUserMedicinesError, GetUserMedicinesResponse, ReturnType<typeof getUserMedicinesQueryKey>>({
+export const getUserMedicineCountOptions = (options?: Options<GetUserMedicineCountData>) => queryOptions<GetUserMedicineCountResponse, GetUserMedicineCountError, GetUserMedicineCountResponse, ReturnType<typeof getUserMedicineCountQueryKey>>({
     queryFn: async ({ queryKey, signal }) => {
-        const { data } = await getUserMedicines({
+        const { data } = await getUserMedicineCount({
             ...options,
             ...queryKey[0],
             signal,
@@ -224,7 +495,7 @@ export const getUserMedicinesOptions = (options?: Options<GetUserMedicinesData>)
         });
         return data;
     },
-    queryKey: getUserMedicinesQueryKey(options)
+    queryKey: getUserMedicineCountQueryKey(options)
 });
 
 export const getAvailableSpecialistsQueryKey = (options?: Options<GetAvailableSpecialistsData>) => createQueryKey('getAvailableSpecialists', options);
@@ -285,6 +556,106 @@ export const getSpecialistBookingDataOptions = (options: Options<GetSpecialistBo
         return data;
     },
     queryKey: getSpecialistBookingDataQueryKey(options)
+});
+
+export const getLatestHealthScoreQueryKey = (options?: Options<GetLatestHealthScoreData>) => createQueryKey('getLatestHealthScore', options);
+
+/**
+ * Get current health score
+ *
+ * Returns the most recent health score for the user
+ */
+export const getLatestHealthScoreOptions = (options?: Options<GetLatestHealthScoreData>) => queryOptions<GetLatestHealthScoreResponse, GetLatestHealthScoreError, GetLatestHealthScoreResponse, ReturnType<typeof getLatestHealthScoreQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await getLatestHealthScore({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: getLatestHealthScoreQueryKey(options)
+});
+
+export const getHealthScoreHistoryQueryKey = (options?: Options<GetHealthScoreHistoryData>) => createQueryKey('getHealthScoreHistory', options);
+
+/**
+ * Get health score history
+ *
+ * Returns historical health scores for the user
+ */
+export const getHealthScoreHistoryOptions = (options?: Options<GetHealthScoreHistoryData>) => queryOptions<GetHealthScoreHistoryResponse, GetHealthScoreHistoryError, GetHealthScoreHistoryResponse, ReturnType<typeof getHealthScoreHistoryQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await getHealthScoreHistory({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: getHealthScoreHistoryQueryKey(options)
+});
+
+export const getRecentHealthMetricsQueryKey = (options?: Options<GetRecentHealthMetricsData>) => createQueryKey('getRecentHealthMetrics', options);
+
+/**
+ * Get recent health metrics
+ *
+ * Returns health metrics from the last 90 days
+ */
+export const getRecentHealthMetricsOptions = (options?: Options<GetRecentHealthMetricsData>) => queryOptions<GetRecentHealthMetricsResponse, GetRecentHealthMetricsError, GetRecentHealthMetricsResponse, ReturnType<typeof getRecentHealthMetricsQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await getRecentHealthMetrics({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: getRecentHealthMetricsQueryKey(options)
+});
+
+export const getLatestMetricByTypeQueryKey = (options: Options<GetLatestMetricByTypeData>) => createQueryKey('getLatestMetricByType', options);
+
+/**
+ * Get latest metric by type
+ *
+ * Returns the most recent health metric of a specific type
+ */
+export const getLatestMetricByTypeOptions = (options: Options<GetLatestMetricByTypeData>) => queryOptions<GetLatestMetricByTypeResponse, GetLatestMetricByTypeError, GetLatestMetricByTypeResponse, ReturnType<typeof getLatestMetricByTypeQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await getLatestMetricByType({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: getLatestMetricByTypeQueryKey(options)
+});
+
+export const getFilteredHealthMetricsQueryKey = (options?: Options<GetFilteredHealthMetricsData>) => createQueryKey('getFilteredHealthMetrics', options);
+
+/**
+ * Get filtered health metrics
+ *
+ * Returns filtered health metrics for the authenticated user
+ */
+export const getFilteredHealthMetricsOptions = (options?: Options<GetFilteredHealthMetricsData>) => queryOptions<GetFilteredHealthMetricsResponse, GetFilteredHealthMetricsError, GetFilteredHealthMetricsResponse, ReturnType<typeof getFilteredHealthMetricsQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await getFilteredHealthMetrics({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: getFilteredHealthMetricsQueryKey(options)
 });
 
 export const getUpcomingAppointmentsQueryKey = (options?: Options<GetUpcomingAppointmentsData>) => createQueryKey('getUpcomingAppointments', options);

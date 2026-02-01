@@ -2,7 +2,7 @@
 
 import type { Client, Options as Options2, TDataShape } from './client';
 import { client } from './client.gen';
-import type { CancelAppointmentData, CancelAppointmentErrors, CancelAppointmentResponses, CreateAppointmentData, CreateAppointmentErrors, CreateAppointmentResponses, GetAppointmentByIdData, GetAppointmentByIdErrors, GetAppointmentByIdResponses, GetAvailableSpecialistsData, GetAvailableSpecialistsErrors, GetAvailableSpecialistsResponses, GetDocsData, GetDocsResponses, GetPastAppointmentsData, GetPastAppointmentsErrors, GetPastAppointmentsResponses, GetScalarJsData, GetScalarJsResponses, GetSpecialistBookingDataData, GetSpecialistBookingDataErrors, GetSpecialistBookingDataResponses, GetSpecialistTypesData, GetSpecialistTypesErrors, GetSpecialistTypesResponses, GetUpcomingAppointmentsData, GetUpcomingAppointmentsErrors, GetUpcomingAppointmentsResponses, GetUserAppointmentsData, GetUserAppointmentsErrors, GetUserAppointmentsResponses, GetUserMedicinesData, GetUserMedicinesErrors, GetUserMedicinesResponses, HealthData, HealthResponses, LinksData, LinksResponses, ProvisionUserData, ProvisionUserErrors, ProvisionUserResponses, UpdateAppointmentData, UpdateAppointmentErrors, UpdateAppointmentResponses, ValidateUserData, ValidateUserErrors, ValidateUserResponses } from './types.gen';
+import type { AddMedicineToUserData, AddMedicineToUserErrors, AddMedicineToUserResponses, CalculateHealthScoreData, CalculateHealthScoreErrors, CalculateHealthScoreResponses, CancelAppointmentData, CancelAppointmentErrors, CancelAppointmentResponses, CreateAppointmentData, CreateAppointmentErrors, CreateAppointmentResponses, CreateHealthMetricData, CreateHealthMetricErrors, CreateHealthMetricResponses, CreateHealthMetricsBatchData, CreateHealthMetricsBatchErrors, CreateHealthMetricsBatchResponses, DeleteHealthMetricData, DeleteHealthMetricErrors, DeleteHealthMetricResponses, DeleteUserMedicineData, DeleteUserMedicineErrors, DeleteUserMedicineResponses, GetAppointmentByIdData, GetAppointmentByIdErrors, GetAppointmentByIdResponses, GetAvailableSpecialistsData, GetAvailableSpecialistsErrors, GetAvailableSpecialistsResponses, GetDocsData, GetDocsResponses, GetFilteredHealthMetricsData, GetFilteredHealthMetricsErrors, GetFilteredHealthMetricsResponses, GetHealthMetricByIdData, GetHealthMetricByIdErrors, GetHealthMetricByIdResponses, GetHealthScoreHistoryData, GetHealthScoreHistoryErrors, GetHealthScoreHistoryResponses, GetLatestHealthScoreData, GetLatestHealthScoreErrors, GetLatestHealthScoreResponses, GetLatestMetricByTypeData, GetLatestMetricByTypeErrors, GetLatestMetricByTypeResponses, GetPastAppointmentsData, GetPastAppointmentsErrors, GetPastAppointmentsResponses, GetRecentHealthMetricsData, GetRecentHealthMetricsErrors, GetRecentHealthMetricsResponses, GetScalarJsData, GetScalarJsResponses, GetSpecialistBookingDataData, GetSpecialistBookingDataErrors, GetSpecialistBookingDataResponses, GetSpecialistTypesData, GetSpecialistTypesErrors, GetSpecialistTypesResponses, GetUpcomingAppointmentsData, GetUpcomingAppointmentsErrors, GetUpcomingAppointmentsResponses, GetUserAppointmentsData, GetUserAppointmentsErrors, GetUserAppointmentsResponses, GetUserHealthMetricsData, GetUserHealthMetricsErrors, GetUserHealthMetricsResponses, GetUserMedicineByIdData, GetUserMedicineByIdErrors, GetUserMedicineByIdResponses, GetUserMedicineCountData, GetUserMedicineCountErrors, GetUserMedicineCountResponses, GetUserMedicinesData, GetUserMedicinesErrors, GetUserMedicinesResponses, GetUserProfileData, GetUserProfileErrors, GetUserProfileResponses, HealthData, HealthResponses, LinksData, LinksResponses, ProvisionUserData, ProvisionUserErrors, ProvisionUserResponses, UpdateAppointmentData, UpdateAppointmentErrors, UpdateAppointmentResponses, UpdateHealthMetricData, UpdateHealthMetricErrors, UpdateHealthMetricResponses, UpdateUserMedicineData, UpdateUserMedicineErrors, UpdateUserMedicineResponses, UpdateUserProfileData, UpdateUserProfileErrors, UpdateUserProfileResponses, ValidateUserData, ValidateUserErrors, ValidateUserResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean> = Options2<TData, ThrowOnError> & {
     /**
@@ -17,6 +17,83 @@ export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends 
      */
     meta?: Record<string, unknown>;
 };
+
+/**
+ * Get user profile
+ *
+ * Returns the authenticated user's profile information
+ */
+export const getUserProfile = <ThrowOnError extends boolean = false>(options?: Options<GetUserProfileData, ThrowOnError>) => (options?.client ?? client).get<GetUserProfileResponses, GetUserProfileErrors, ThrowOnError>({ url: '/api/v1/user-profile', ...options });
+
+/**
+ * Update user profile
+ *
+ * Updates the authenticated user's profile information
+ */
+export const updateUserProfile = <ThrowOnError extends boolean = false>(options: Options<UpdateUserProfileData, ThrowOnError>) => (options.client ?? client).put<UpdateUserProfileResponses, UpdateUserProfileErrors, ThrowOnError>({
+    url: '/api/v1/user-profile',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Delete user medicine
+ *
+ * Removes a medicine from the authenticated user's prescription
+ */
+export const deleteUserMedicine = <ThrowOnError extends boolean = false>(options: Options<DeleteUserMedicineData, ThrowOnError>) => (options.client ?? client).delete<DeleteUserMedicineResponses, DeleteUserMedicineErrors, ThrowOnError>({ url: '/api/v1/user-medicines/{userId}/{medicineId}', ...options });
+
+/**
+ * Get user medicine by ID
+ *
+ * Returns a specific medicine for the authenticated user
+ */
+export const getUserMedicineById = <ThrowOnError extends boolean = false>(options: Options<GetUserMedicineByIdData, ThrowOnError>) => (options.client ?? client).get<GetUserMedicineByIdResponses, GetUserMedicineByIdErrors, ThrowOnError>({ url: '/api/v1/user-medicines/{userId}/{medicineId}', ...options });
+
+/**
+ * Update user medicine
+ *
+ * Updates an existing medicine prescription for the authenticated user
+ */
+export const updateUserMedicine = <ThrowOnError extends boolean = false>(options: Options<UpdateUserMedicineData, ThrowOnError>) => (options.client ?? client).put<UpdateUserMedicineResponses, UpdateUserMedicineErrors, ThrowOnError>({
+    url: '/api/v1/user-medicines/{userId}/{medicineId}',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Delete health metric
+ *
+ * Deletes an existing health metric
+ */
+export const deleteHealthMetric = <ThrowOnError extends boolean = false>(options: Options<DeleteHealthMetricData, ThrowOnError>) => (options.client ?? client).delete<DeleteHealthMetricResponses, DeleteHealthMetricErrors, ThrowOnError>({ url: '/api/v1/health-metrics/{id}', ...options });
+
+/**
+ * Get health metric by ID
+ *
+ * Returns a specific health metric by its unique identifier
+ */
+export const getHealthMetricById = <ThrowOnError extends boolean = false>(options: Options<GetHealthMetricByIdData, ThrowOnError>) => (options.client ?? client).get<GetHealthMetricByIdResponses, GetHealthMetricByIdErrors, ThrowOnError>({ url: '/api/v1/health-metrics/{id}', ...options });
+
+/**
+ * Update health metric
+ *
+ * Updates an existing health metric
+ */
+export const updateHealthMetric = <ThrowOnError extends boolean = false>(options: Options<UpdateHealthMetricData, ThrowOnError>) => (options.client ?? client).put<UpdateHealthMetricResponses, UpdateHealthMetricErrors, ThrowOnError>({
+    url: '/api/v1/health-metrics/{id}',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
 
 /**
  * Cancel appointment
@@ -78,6 +155,69 @@ export const validateUser = <ThrowOnError extends boolean = false>(options: Opti
 });
 
 /**
+ * Get user medicines
+ *
+ * Returns list of medicines for a user
+ */
+export const getUserMedicines = <ThrowOnError extends boolean = false>(options?: Options<GetUserMedicinesData, ThrowOnError>) => (options?.client ?? client).get<GetUserMedicinesResponses, GetUserMedicinesErrors, ThrowOnError>({ url: '/api/v1/user-medicines', ...options });
+
+/**
+ * Add medicine to user
+ *
+ * Adds a new medicine to the authenticated user's prescription
+ */
+export const addMedicineToUser = <ThrowOnError extends boolean = false>(options: Options<AddMedicineToUserData, ThrowOnError>) => (options.client ?? client).post<AddMedicineToUserResponses, AddMedicineToUserErrors, ThrowOnError>({
+    url: '/api/v1/user-medicines',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Get user health metrics
+ *
+ * Returns all health metrics for the authenticated user
+ */
+export const getUserHealthMetrics = <ThrowOnError extends boolean = false>(options?: Options<GetUserHealthMetricsData, ThrowOnError>) => (options?.client ?? client).get<GetUserHealthMetricsResponses, GetUserHealthMetricsErrors, ThrowOnError>({ url: '/api/v1/health-metrics', ...options });
+
+/**
+ * Create health metric
+ *
+ * Creates a new health metric entry
+ */
+export const createHealthMetric = <ThrowOnError extends boolean = false>(options: Options<CreateHealthMetricData, ThrowOnError>) => (options.client ?? client).post<CreateHealthMetricResponses, CreateHealthMetricErrors, ThrowOnError>({
+    url: '/api/v1/health-metrics',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Calculate health score
+ *
+ * Calculates a new health score based on recent metrics
+ */
+export const calculateHealthScore = <ThrowOnError extends boolean = false>(options?: Options<CalculateHealthScoreData, ThrowOnError>) => (options?.client ?? client).post<CalculateHealthScoreResponses, CalculateHealthScoreErrors, ThrowOnError>({ url: '/api/v1/health-metrics/score/calculate', ...options });
+
+/**
+ * Create multiple health metrics
+ *
+ * Creates multiple health metric entries at once
+ */
+export const createHealthMetricsBatch = <ThrowOnError extends boolean = false>(options: Options<CreateHealthMetricsBatchData, ThrowOnError>) => (options.client ?? client).post<CreateHealthMetricsBatchResponses, CreateHealthMetricsBatchErrors, ThrowOnError>({
+    url: '/api/v1/health-metrics/batch',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
  * Get user appointments
  *
  * Returns all appointments for the authenticated user
@@ -103,11 +243,11 @@ export const getDocs = <ThrowOnError extends boolean = false>(options?: Options<
 export const getScalarJs = <ThrowOnError extends boolean = false>(options?: Options<GetScalarJsData, ThrowOnError>) => (options?.client ?? client).get<GetScalarJsResponses, unknown, ThrowOnError>({ url: '/docs/scalar.js', ...options });
 
 /**
- * Get user medicines
+ * Get user medicine count
  *
- * Returns list of medicines for a user
+ * Returns the count of medicines for the authenticated user
  */
-export const getUserMedicines = <ThrowOnError extends boolean = false>(options?: Options<GetUserMedicinesData, ThrowOnError>) => (options?.client ?? client).get<GetUserMedicinesResponses, GetUserMedicinesErrors, ThrowOnError>({ url: '/api/v1/user-medicines', ...options });
+export const getUserMedicineCount = <ThrowOnError extends boolean = false>(options?: Options<GetUserMedicineCountData, ThrowOnError>) => (options?.client ?? client).get<GetUserMedicineCountResponses, GetUserMedicineCountErrors, ThrowOnError>({ url: '/api/v1/user-medicines/count', ...options });
 
 /**
  * Get available specialists
@@ -133,6 +273,41 @@ export const getSpecialistTypes = <ThrowOnError extends boolean = false>(options
  * Returns available time slots for a specialist within a date range
  */
 export const getSpecialistBookingData = <ThrowOnError extends boolean = false>(options: Options<GetSpecialistBookingDataData, ThrowOnError>) => (options.client ?? client).get<GetSpecialistBookingDataResponses, GetSpecialistBookingDataErrors, ThrowOnError>({ url: '/api/v1/specialists/specialists/{specialistId}/booking-data', ...options });
+
+/**
+ * Get current health score
+ *
+ * Returns the most recent health score for the user
+ */
+export const getLatestHealthScore = <ThrowOnError extends boolean = false>(options?: Options<GetLatestHealthScoreData, ThrowOnError>) => (options?.client ?? client).get<GetLatestHealthScoreResponses, GetLatestHealthScoreErrors, ThrowOnError>({ url: '/api/v1/health-metrics/score', ...options });
+
+/**
+ * Get health score history
+ *
+ * Returns historical health scores for the user
+ */
+export const getHealthScoreHistory = <ThrowOnError extends boolean = false>(options?: Options<GetHealthScoreHistoryData, ThrowOnError>) => (options?.client ?? client).get<GetHealthScoreHistoryResponses, GetHealthScoreHistoryErrors, ThrowOnError>({ url: '/api/v1/health-metrics/score/history', ...options });
+
+/**
+ * Get recent health metrics
+ *
+ * Returns health metrics from the last 90 days
+ */
+export const getRecentHealthMetrics = <ThrowOnError extends boolean = false>(options?: Options<GetRecentHealthMetricsData, ThrowOnError>) => (options?.client ?? client).get<GetRecentHealthMetricsResponses, GetRecentHealthMetricsErrors, ThrowOnError>({ url: '/api/v1/health-metrics/recent', ...options });
+
+/**
+ * Get latest metric by type
+ *
+ * Returns the most recent health metric of a specific type
+ */
+export const getLatestMetricByType = <ThrowOnError extends boolean = false>(options: Options<GetLatestMetricByTypeData, ThrowOnError>) => (options.client ?? client).get<GetLatestMetricByTypeResponses, GetLatestMetricByTypeErrors, ThrowOnError>({ url: '/api/v1/health-metrics/latest/{metricType}', ...options });
+
+/**
+ * Get filtered health metrics
+ *
+ * Returns filtered health metrics for the authenticated user
+ */
+export const getFilteredHealthMetrics = <ThrowOnError extends boolean = false>(options?: Options<GetFilteredHealthMetricsData, ThrowOnError>) => (options?.client ?? client).get<GetFilteredHealthMetricsResponses, GetFilteredHealthMetricsErrors, ThrowOnError>({ url: '/api/v1/health-metrics/filter', ...options });
 
 /**
  * Get upcoming appointments

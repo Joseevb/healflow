@@ -14,6 +14,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
 import { Route as AuthIndexRouteImport } from './routes/auth/index'
+import { Route as ProfileCompleteRouteImport } from './routes/profile/complete'
 import { Route as DashboardMedicationsRouteImport } from './routes/dashboard/medications'
 import { Route as DashboardAppointmentsRouteImport } from './routes/dashboard/appointments'
 import { Route as AuthSocialCallbackRouteImport } from './routes/auth/social-callback'
@@ -46,6 +47,11 @@ const AuthIndexRoute = AuthIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AuthRoute,
+} as any)
+const ProfileCompleteRoute = ProfileCompleteRouteImport.update({
+  id: '/profile/complete',
+  path: '/profile/complete',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardMedicationsRoute = DashboardMedicationsRouteImport.update({
   id: '/medications',
@@ -90,6 +96,7 @@ export interface FileRoutesByFullPath {
   '/auth/social-callback': typeof AuthSocialCallbackRoute
   '/dashboard/appointments': typeof DashboardAppointmentsRoute
   '/dashboard/medications': typeof DashboardMedicationsRoute
+  '/profile/complete': typeof ProfileCompleteRoute
   '/auth/': typeof AuthIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -102,6 +109,7 @@ export interface FileRoutesByTo {
   '/auth/social-callback': typeof AuthSocialCallbackRoute
   '/dashboard/appointments': typeof DashboardAppointmentsRoute
   '/dashboard/medications': typeof DashboardMedicationsRoute
+  '/profile/complete': typeof ProfileCompleteRoute
   '/auth': typeof AuthIndexRoute
   '/dashboard': typeof DashboardIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -117,6 +125,7 @@ export interface FileRoutesById {
   '/auth/social-callback': typeof AuthSocialCallbackRoute
   '/dashboard/appointments': typeof DashboardAppointmentsRoute
   '/dashboard/medications': typeof DashboardMedicationsRoute
+  '/profile/complete': typeof ProfileCompleteRoute
   '/auth/': typeof AuthIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -133,6 +142,7 @@ export interface FileRouteTypes {
     | '/auth/social-callback'
     | '/dashboard/appointments'
     | '/dashboard/medications'
+    | '/profile/complete'
     | '/auth/'
     | '/dashboard/'
     | '/api/auth/$'
@@ -145,6 +155,7 @@ export interface FileRouteTypes {
     | '/auth/social-callback'
     | '/dashboard/appointments'
     | '/dashboard/medications'
+    | '/profile/complete'
     | '/auth'
     | '/dashboard'
     | '/api/auth/$'
@@ -159,6 +170,7 @@ export interface FileRouteTypes {
     | '/auth/social-callback'
     | '/dashboard/appointments'
     | '/dashboard/medications'
+    | '/profile/complete'
     | '/auth/'
     | '/dashboard/'
     | '/api/auth/$'
@@ -171,6 +183,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthRoute: typeof AuthRouteWithChildren
   DashboardRoute: typeof DashboardRouteWithChildren
+  ProfileCompleteRoute: typeof ProfileCompleteRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
 }
 
@@ -210,6 +223,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/auth/'
       preLoaderRoute: typeof AuthIndexRouteImport
       parentRoute: typeof AuthRoute
+    }
+    '/profile/complete': {
+      id: '/profile/complete'
+      path: '/profile/complete'
+      fullPath: '/profile/complete'
+      preLoaderRoute: typeof ProfileCompleteRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/dashboard/medications': {
       id: '/dashboard/medications'
@@ -301,6 +321,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRoute: AuthRouteWithChildren,
   DashboardRoute: DashboardRouteWithChildren,
+  ProfileCompleteRoute: ProfileCompleteRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
 }
 export const routeTree = rootRouteImport

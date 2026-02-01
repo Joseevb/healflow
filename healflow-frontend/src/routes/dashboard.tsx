@@ -1,12 +1,30 @@
-import { Outlet, createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
-import { Activity, Calendar, FileText, Home, LogOut, Pill, Settings, User } from "lucide-react";
-import type { SidebarItems } from "@/components/app-sidebar";
-import type { RoutePath } from "@/types/routes";
-import { SidebarInset, SidebarProvider } from "@/components/animate-ui/components/radix/sidebar";
-import { AppSidebar } from "@/components/app-sidebar";
-import { signOut } from "@/lib/auth-client";
-import { getServerSession } from "@/server/auth";
-import { Button } from "@/components/ui/button";
+import {
+  Outlet,
+  createFileRoute,
+  redirect,
+  useNavigate,
+} from '@tanstack/react-router'
+import {
+  Activity,
+  Calendar,
+  FileText,
+  Home,
+  LogOut,
+  Pill,
+  Settings,
+  User,
+} from 'lucide-react'
+import type { SidebarItems } from '@/components/app-sidebar'
+import type { RoutePath } from '@/types/routes'
+import {
+  SidebarInset,
+  SidebarProvider,
+} from '@/components/animate-ui/components/radix/sidebar'
+import { AppSidebar } from '@/components/app-sidebar'
+import { signOut } from '@/lib/auth-client'
+import { getServerSession } from '@/server/auth'
+import { Button } from '@/components/ui/button'
+import { ProfileCompletionBanner } from '@/components/profile-completion-banner'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,62 +32,57 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from '@/components/ui/dropdown-menu'
 
-export const Route = createFileRoute("/dashboard")({
+export const Route = createFileRoute('/dashboard')({
   beforeLoad: async () => {
-    const session = await getServerSession();
+    const session = await getServerSession()
 
     if (!session?.session) {
-      console.warn("No active session found, redirecting to auth");
+      console.warn('No active session found, redirecting to auth')
       throw redirect({
-        to: "/auth",
-      });
+        to: '/auth',
+      })
     }
 
     return {
       hideHeader: true,
       session,
-    };
+    }
   },
   component: DashboardLayout,
-});
+})
 
 const sidebarItems = (_baseUrl: RoutePath): SidebarItems => [
   {
-    title: "Dashboard",
+    title: 'Dashboard',
     icon: Home,
-    url: "/dashboard",
+    url: '/dashboard',
   },
   {
-    title: "Appointments",
+    title: 'Appointments',
     icon: Calendar,
-    url: "/dashboard/appointments",
+    url: '/dashboard/appointments',
   },
   {
-    title: "Medications",
+    title: 'Medications',
     icon: Pill,
-    url: "/dashboard/medications",
+    url: '/dashboard/medications',
   },
   {
-    title: "Health Metrics",
+    title: 'Health Metrics',
     icon: Activity,
-    url: "/dashboard" as RoutePath,
+    url: '/dashboard' as RoutePath,
   },
   {
-    title: "Medical Records",
+    title: 'Medical Records',
     icon: FileText,
-    url: "/dashboard" as RoutePath,
+    url: '/dashboard' as RoutePath,
   },
-  {
-    title: "Settings",
-    icon: Settings,
-    url: "/dashboard" as RoutePath,
-  },
-];
+]
 
 function UserMenu() {
-  const navigate = useNavigate();
+  const navigate = useNavigate()
 
   return (
     <DropdownMenu>
@@ -83,7 +96,9 @@ function UserMenu() {
           </div>
           <div className="flex flex-col items-start text-sm">
             <span className="font-medium">John Doe</span>
-            <span className="text-xs text-muted-foreground">john.doe@example.com</span>
+            <span className="text-xs text-muted-foreground">
+              john.doe@example.com
+            </span>
           </div>
         </Button>
       </DropdownMenuTrigger>
@@ -101,8 +116,8 @@ function UserMenu() {
         <DropdownMenuSeparator />
         <DropdownMenuItem
           onClick={async () => {
-            await signOut();
-            await navigate({ to: "/" });
+            await signOut()
+            await navigate({ to: '/' })
           }}
           className="text-red-600 dark:text-red-400"
         >
@@ -111,7 +126,7 @@ function UserMenu() {
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
-  );
+  )
 }
 
 function DashboardLayout() {
@@ -126,10 +141,11 @@ function DashboardLayout() {
         />
         <SidebarInset className="bg-slate-50 dark:bg-slate-900">
           <div className="container mx-auto px-4 py-8 max-w-7xl">
+            <ProfileCompletionBanner />
             <Outlet />
           </div>
         </SidebarInset>
       </div>
     </SidebarProvider>
-  );
+  )
 }

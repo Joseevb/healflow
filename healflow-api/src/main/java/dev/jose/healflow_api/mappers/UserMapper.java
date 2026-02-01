@@ -22,6 +22,8 @@ public interface UserMapper extends BaseMapper {
   UserMedicinesEntity toUserMedicinesEntity(
       AddMedicineToUserRequestDTO request, MedicineDTO medicine, UserEntity user);
 
+  @Mapping(target = "userId", source = "entity.id.userId")
+  @Mapping(target = "medicineId", source = "entity.id.medicineId")
   @Mapping(target = "medicineName", source = "medicine.nameOfMedicine")
   UserMedicinesResponseDTO toUserMedicinesResponseDTO(
       UserMedicinesEntity entity, MedicineDTO medicine);
