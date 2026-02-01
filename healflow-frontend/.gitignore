@@ -14,3 +14,4 @@ todos.json
 mcp-todos.json
 *.sqlite
 drizzle/
+client/
