@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Plus } from "lucide-react";
+import { AlertCircle, Plus } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import type { ApiProblemDetail } from "@/client";
@@ -10,6 +10,7 @@ import {
   getSpecialistBookingDataOptions,
   getUpcomingAppointmentsOptions,
 } from "@/client/@tanstack/react-query.gen";
+import { getUserProfile } from "@/client/sdk.gen";
 import Calendar from "@/components/calendar";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,6 +21,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { FieldSelect } from "@/components/ui/field-select";
 import { Spinner } from "@/components/ui/spinner";
 
@@ -29,6 +31,14 @@ export default function BookAppointmentDialog() {
   const [dialogOpen, setDialogOpen] = useState(false);
 
   const queryClient = useQueryClient();
+
+  // Check if profile is complete
+  const { data: profile, isLoading: isLoadingProfile } = useQuery({
+    queryKey: ["user-profile"],
+    queryFn: () => getUserProfile(),
+  });
+
+  const isProfileComplete = profile?.data?.is_profile_complete ?? false;
 
   const {
     data: specialistsResponse,
@@ -99,12 +109,31 @@ export default function BookAppointmentDialog() {
 
   return (
     <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-      <DialogTrigger asChild>
-        <Button>
-          <Plus className="size-4" />
-          Book Appointment
-        </Button>
-      </DialogTrigger>
+      <TooltipProvider>
+        <Tooltip delayDuration={0}>
+          <TooltipTrigger asChild>
+            <span>
+              <DialogTrigger asChild>
+                <Button disabled={!isProfileComplete || isLoadingProfile}>
+                  <Plus className="size-4" />
+                  Book Appointment
+                </Button>
+              </DialogTrigger>
+            </span>
+          </TooltipTrigger>
+          {!isProfileComplete && !isLoadingProfile && (
+            <TooltipContent side="bottom" className="max-w-xs">
+              <div className="flex items-start gap-2">
+                <AlertCircle className="size-4 mt-0.5 flex-shrink-0" />
+                <p className="text-sm">
+                  Please complete your profile to book appointments. Click the banner above to get
+                  started.
+                </p>
+              </div>
+            </TooltipContent>
+          )}
+        </Tooltip>
+      </TooltipProvider>
       <DialogContent className="min-w-2xl p-6">
         <DialogHeader className="px-6 pt-6">
           <DialogTitle>Book Appointment</DialogTitle>
