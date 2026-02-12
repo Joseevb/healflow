@@ -1,0 +1,39 @@
+services:
+  hospital_db:
+    container_name: hospital_db
+    image: "postgres:latest"
+    environment:
+      - "POSTGRES_DB=hospital_db"
+      - "POSTGRES_PASSWORD=admin"
+      - "POSTGRES_USER=admin"
+    ports:
+      - "5432:5432"
+    volumes:
+      - hospital_db_data:/var/lib/postgresql/data
+
+  auth_db:
+    container_name: auth_db
+    image: "postgres:latest"
+    environment:
+      - "POSTGRES_DB=auth_db"
+      - "POSTGRES_PASSWORD=admin"
+      - "POSTGRES_USER=admin"
+    ports:
+      - "5431:5432"
+    volumes:
+      - auth_db_data:/var/lib/postgresql/data
+
+  # frontend:
+  #   build:
+  #     context: ./healflow-frontend/
+  #     dockerfile: Dockerfile
+  #   container_name: frontend
+  #   ports:
+  #     - "3000:3000"
+  #   environment:
+  #     - NODE_ENV=production
+  #   restart: unless-stopped
+
+volumes:
+  hospital_db_data:
+  auth_db_data:

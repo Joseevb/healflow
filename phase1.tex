@@ -1,0 +1,72 @@
+\documentclass[11pt]{article}
+
+% Language setting
+% Replace `english' with e.g. `spanish' to change the document language
+\usepackage[english]{babel}
+
+% Set page size and margins
+% Replace `letterpaper' with `a4paper' for UK/EU standard size
+\usepackage[a4paper,top=2cm,bottom=2cm,left=2cm,right=2cm,marginparwidth=1.75cm]{geometry}
+
+\usepackage{fontspec}
+\setmainfont{Arial}
+
+% Useful packages
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage[colorlinks=true, allcolors=blue]{hyperref}
+
+\title{Project: Java and Web Development\\Hospital Appointment Management System}
+\author{Jose Esteban Vasquez Barboza}
+\usepackage[yyyymmdd]{datetime}
+\renewcommand{\dateseparator}{--}
+
+\begin{document}
+    \maketitle
+
+    \newpage
+
+    \section{Use cases}
+
+    The project will be a web application designed to manage the appointments of a Hospital. The purpose is to manage the registration of Clients and Doctors in to the system, as well as the scheduling of appointments.\\ \\
+    The target user group is both private and public hospitals and clinics.\\ \\
+    The actors and use cases of the system are: \\ 
+
+\textbf{Client}: the client of the application, who will make the appointments. Its use cases are as follows:
+    \begin{itemize}
+        \item Register in the system.
+        \item Log in to the system.
+        \item Update user data.
+        \item View available dates/hours for appointments.
+        \item Schedule an appointment for an available date/hour.
+        \item Modify scheduled appointments.
+        \item Cancel scheduled appointments. \end{itemize}
+
+\textbf{Doctor}:  its use cases are as follows:
+    \begin{itemize}
+        \item View all patients who have had appointments.
+        \item View patient appointment history. \end{itemize}
+    
+\textbf{Admin}: its use cases are as follows:
+    \begin{itemize}
+        \item Accepts user registration in the system.
+        \item Registers new doctors in the system.
+        \item Modifies user's/doctor's data.
+        \item Deletes users/doctors from the system.
+    \end{itemize}
+
+    \section{Technologies}
+    The following technologies will be used:
+    \begin{itemize}
+        \item \textbf{Backend}: Java, Spring Boot.
+    \end{itemize}
+    \begin{itemize}
+        \item \textbf{Frontend}: JavaScript, TypeScript, React, Vite, and Tailwind CSS.
+    \end{itemize}
+    \begin{itemize}
+        \item \textbf{Database}: MariaDB.
+    \end{itemize}
+
+
+
+\end{document}
