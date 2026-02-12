@@ -1,6 +1,6 @@
 package dev.jose.healflow_api.mappers;
 
-import dev.jose.healflow_api.api.models.SpecialistResponseDto;
+import dev.jose.healflow_api.api.models.SpecialistResponseDTO;
 import dev.jose.healflow_api.persistence.entities.SpecialistEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -14,7 +14,5 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 public interface SpecialistMapper extends BaseMapper {
 
   @Mapping(target = "name", source = "fullName")
-  @Mapping(target = "specialty", source = "specialistType.name")
-  @Mapping(target = "specialtyId", source = "specialistType.id")
-  SpecialistResponseDto toDto(SpecialistEntity entity);
+  SpecialistResponseDTO toDto(SpecialistEntity entity);
 }

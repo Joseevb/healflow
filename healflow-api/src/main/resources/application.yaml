@@ -2,6 +2,10 @@ spring:
   application:
     name: healflow-api
 
+  mvc:
+    problemdetails:
+      enabled: true
+
   datasource:
     url: jdbc:postgresql://${DATABASE_HOST:localhost}:${DATABASE_PORT:5432}/${DATABASE_NAME:hospital_db}
     username: ${DATABASE_USERNAME:admin}
@@ -13,14 +17,13 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
 
   security:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: ${JWT_ISSUER_URI:http://localhost:3000}
-          jwk-set-uri: ${JWT_JWK_SET_URI:http://localhost:3000/api/auth/jwks}
+          jwk-set-uri: ${JWT_JWK_SET_URI:http://192.168.1.139:3000/api/auth/jwks}
 
   jackson:
     property-naming-strategy: SNAKE_CASE
@@ -41,9 +44,11 @@ api:
   prefix: /api
   version: v1
   allowedOrigins: ${FRONTEND_URL:http://localhost:3000}
-  key: ${API_SERVICE_KEY:C+QN7dUftY30Oh8SYXvmCiRvO/I+DwwTQUh22/A9QqE=} # TODO: REMOVE
+  key: ${API_SERVICE_KEY}
   key-header: X-API-KEY
-  key-path: /user-provisions/**
+  key-path: /user-provisions/**,/specialists/**
+
+medicines-api-url: ${MEDICINES_API_URL:http://localhost:4000}
 
 logging:
   level:

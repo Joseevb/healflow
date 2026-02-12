@@ -1,8 +1,8 @@
 package dev.jose.healflow_api.services;
 
-import dev.jose.healflow_api.api.models.AppointmentResponseDto;
-import dev.jose.healflow_api.api.models.CreateAppointmentRequestDto;
-import dev.jose.healflow_api.api.models.UpdateAppointmentRequestDto;
+import dev.jose.healflow_api.api.models.AppointmentResponseDTO;
+import dev.jose.healflow_api.api.models.CreateAppointmentRequestDTO;
+import dev.jose.healflow_api.api.models.UpdateAppointmentRequestDTO;
 import dev.jose.healflow_api.enumerations.AppointmentStatus;
 import dev.jose.healflow_api.exceptions.ConflictException;
 import dev.jose.healflow_api.exceptions.ForbiddenException;
@@ -37,7 +37,7 @@ public class AppointmentServiceImpl implements AppointmentService {
 
   @Override
   @Transactional(readOnly = true)
-  public List<AppointmentResponseDto> getUserAppointments(UUID userId) {
+  public List<AppointmentResponseDTO> getUserAppointments(UUID userId) {
     log.info("Fetching all appointments for user: {}", userId);
     return appointmentRepository.findByClientIdOrderByAppointmentDateDesc(userId).stream()
         .map(appointmentMapper::toDto)
@@ -46,32 +46,30 @@ public class AppointmentServiceImpl implements AppointmentService {
 
   @Override
   @Transactional(readOnly = true)
-  public List<AppointmentResponseDto> getUpcomingAppointments(UUID userId) {
+  public List<AppointmentResponseDTO> getUpcomingAppointments(UUID userId) {
     log.debug("Fetching upcoming appointments for user: {}", userId);
     Instant now = Instant.now();
     List<AppointmentStatus> activeStatuses =
         List.of(AppointmentStatus.PENDING, AppointmentStatus.CONFIRMED);
 
-    return appointmentRepository
-        .findUpcomingByClientId(userId.toString(), now, activeStatuses)
-        .stream()
+    return appointmentRepository.findUpcomingByClientId(userId, now, activeStatuses).stream()
         .map(appointmentMapper::toDto)
         .toList();
   }
 
   @Override
   @Transactional(readOnly = true)
-  public List<AppointmentResponseDto> getPastAppointments(UUID userId) {
+  public List<AppointmentResponseDTO> getPastAppointments(UUID userId) {
     log.debug("Fetching past appointments for user: {}", userId);
     Instant now = Instant.now();
-    return appointmentRepository.findPastByAuthId(userId.toString(), now).stream()
+    return appointmentRepository.findPastByAuthId(userId, now).stream()
         .map(appointmentMapper::toDto)
         .toList();
   }
 
   @Override
   @Transactional(readOnly = true)
-  public AppointmentResponseDto getAppointmentById(UUID id, UUID userId) {
+  public AppointmentResponseDTO getAppointmentById(UUID id, UUID userId) {
     log.debug("Fetching appointment: {} for user: {}", id, userId);
 
     AppointmentEntity appointment =
@@ -88,14 +86,14 @@ public class AppointmentServiceImpl implements AppointmentService {
 
   @Override
   @Transactional
-  public AppointmentResponseDto createAppointment(
-      UUID userId, CreateAppointmentRequestDto request) {
+  public AppointmentResponseDTO createAppointment(
+      UUID userId, CreateAppointmentRequestDTO request) {
     log.info(
         "Creating appointment for user: {} with specialist: {}", userId, request.specialistId());
 
     UserEntity user =
         userRepository
-            .findByAuthId(userId.toString())
+            .findByAuthId(userId)
             .orElseThrow(() -> new NotFoundException("User", "id", userId));
 
     SpecialistEntity specialist =
@@ -125,8 +123,8 @@ public class AppointmentServiceImpl implements AppointmentService {
 
   @Override
   @Transactional
-  public AppointmentResponseDto updateAppointment(
-      UUID id, UUID userId, UpdateAppointmentRequestDto request) {
+  public AppointmentResponseDTO updateAppointment(
+      UUID id, UUID userId, UpdateAppointmentRequestDTO request) {
     log.info("Updating appointment: {} for user: {}", id, userId);
 
     AppointmentEntity appointment =

@@ -22,7 +22,7 @@ public interface AppointmentRepository extends JpaRepository<AppointmentEntity, 
           + "AND a.appointmentDate >= :now AND a.status IN :statuses "
           + "ORDER BY a.appointmentDate ASC")
   List<AppointmentEntity> findUpcomingByClientId(
-      @Param("clientId") String clientId,
+      @Param("clientId") UUID clientId,
       @Param("now") Instant now,
       @Param("statuses") List<AppointmentStatus> statuses);
 
@@ -30,8 +30,7 @@ public interface AppointmentRepository extends JpaRepository<AppointmentEntity, 
       "SELECT a FROM AppointmentEntity a WHERE a.client.authId = :authId "
           + "AND a.appointmentDate < :now "
           + "ORDER BY a.appointmentDate DESC")
-  List<AppointmentEntity> findPastByAuthId(
-      @Param("authId") String authId, @Param("now") Instant now);
+  List<AppointmentEntity> findPastByAuthId(@Param("authId") UUID authId, @Param("now") Instant now);
 
   @Query(
       "SELECT a FROM AppointmentEntity a WHERE a.specialist.id = :specialistId "

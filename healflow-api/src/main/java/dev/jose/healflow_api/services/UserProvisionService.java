@@ -1,6 +1,7 @@
 package dev.jose.healflow_api.services;
 
-import dev.jose.healflow_api.api.models.ProvisionUserRequestDto;
+import dev.jose.healflow_api.api.models.ProvisionUserRequestDTO;
+import dev.jose.healflow_api.api.models.ValidateAuthUserIdsDTO;
 
 public interface UserProvisionService {
 
@@ -9,5 +10,7 @@ public interface UserProvisionService {
    *
    * @param request the request containing the user's information
    */
-  String provisionUser(ProvisionUserRequestDto request);
+  String provisionUser(ProvisionUserRequestDTO request);
+
+  void validateUserIds(ValidateAuthUserIdsDTO userIds);
 }

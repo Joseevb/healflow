@@ -1,8 +1,9 @@
 package dev.jose.healflow_api.api.docs;
 
-import dev.jose.healflow_api.api.models.ProvisionUserRequestDto;
-import dev.jose.healflow_api.api.models.errors.ApiErrorResponseDto;
-import dev.jose.healflow_api.api.models.errors.ValidationErrorResponseDto;
+import dev.jose.healflow_api.api.models.ProvisionUserRequestDTO;
+import dev.jose.healflow_api.api.models.ValidateAuthUserIdsDTO;
+import dev.jose.healflow_api.api.models.errors.ApiProblemDetail;
+import dev.jose.healflow_api.api.models.errors.ValidationProblemDetail;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -35,17 +36,44 @@ public interface UserProvisionsApi {
     @ApiResponse(
         responseCode = "400",
         description = "Invalid request",
-        content = @Content(schema = @Schema(implementation = ValidationErrorResponseDto.class))),
+        content = @Content(schema = @Schema(implementation = ValidationProblemDetail.class))),
     @ApiResponse(
         responseCode = "401",
         description = "Unauthorized",
-        content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
+        content = @Content(schema = @Schema(implementation = ApiProblemDetail.class))),
     @ApiResponse(
         responseCode = "403",
         description = "Forbidden",
-        content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
+        content = @Content(schema = @Schema(implementation = ApiProblemDetail.class))),
   })
   @PostMapping
   ResponseEntity<Void> provisionUser(
-      @RequestBody ProvisionUserRequestDto body, UriComponentsBuilder uriBuilder);
+      @RequestBody ProvisionUserRequestDTO body, UriComponentsBuilder uriBuilder);
+
+  @Operation(
+      operationId = "validateUser",
+      summary = "Validate user IDs",
+      description =
+          """
+          Validates that the provided user IDs exist in the system. This is used by the authentication
+          service to ensure user IDs are in sync between systems.
+          """,
+      security = {@SecurityRequirement(name = "API Key Auth")})
+  @ApiResponses({
+    @ApiResponse(responseCode = "200", description = "All user IDs are valid"),
+    @ApiResponse(
+        responseCode = "400",
+        description = "One or more user IDs are invalid",
+        content = @Content(schema = @Schema(implementation = ValidationProblemDetail.class))),
+    @ApiResponse(
+        responseCode = "401",
+        description = "Unauthorized",
+        content = @Content(schema = @Schema(implementation = ApiProblemDetail.class))),
+    @ApiResponse(
+        responseCode = "403",
+        description = "Forbidden",
+        content = @Content(schema = @Schema(implementation = ApiProblemDetail.class))),
+  })
+  @PostMapping("/validate")
+  ResponseEntity<Void> validateUser(@RequestBody ValidateAuthUserIdsDTO body);
 }

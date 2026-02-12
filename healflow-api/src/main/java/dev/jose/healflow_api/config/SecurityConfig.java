@@ -2,6 +2,7 @@ package dev.jose.healflow_api.config;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
+import java.util.Arrays;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -19,37 +20,47 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Slf4j
-@Profile("!no-sec")
+@Profile("!no-sec & !dev")
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
 
-  @Value("${api.allowedOrigins}")
-  private String allowedOrigins;
+  private static final String allowedOrigins = "localhost:3000";
 
-  private static final String[] PUBLIC_RESOURCES = {"/v3/api-docs/**", "/actuator/**", "/docs/**"};
+  private static final String[] PUBLIC_RESOURCES = {
+    "/v3/api-docs/**", "/actuator/**", "/docs/**", "/h2-console"
+  };
+
+  private static final String[] GET_ALLOWED_RESOURCES = {
+    "/specialists/types",
+  };
 
   @Bean
   SecurityFilterChain filterChain(
       HttpSecurity http,
       @Value("${api.allowedOrigins}") String allowedOrigins,
-      JwtAuthenticationFilter authFilter,
       ApiKeyAuthenticationFilter apiKeyFilter)
       throws Exception {
-
     return http.cors(cors -> cors.configurationSource(corsConfigurationSource()))
         .csrf(AbstractHttpConfigurer::disable)
+        .headers(AbstractHttpConfigurer::disable)
         .authorizeHttpRequests(
             authorize ->
                 authorize
                     .requestMatchers(PUBLIC_RESOURCES)
                     .permitAll()
+                    .requestMatchers(
+                        HttpMethod.GET,
+                        Arrays.asList(GET_ALLOWED_RESOURCES).stream()
+                            .map("/api/v1"::concat)
+                            .toArray(String[]::new))
+                    .permitAll()
                     .anyRequest()
                     .authenticated())
-        .oauth2ResourceServer((oauth2) -> oauth2.jwt(withDefaults()))
+        .oauth2ResourceServer(oauth2 -> oauth2.jwt(withDefaults()))
         .addFilterBefore(apiKeyFilter, BearerTokenAuthenticationFilter.class)
-        .addFilterAfter(authFilter, BearerTokenAuthenticationFilter.class)
+        .addFilterAfter(new JwtAuthenticationFilter(), BearerTokenAuthenticationFilter.class)
         .build();
   }
 
