@@ -1,4 +1,5 @@
-import { ArrowRight, Calendar, Clock, User } from "lucide-react";
+import { ArrowRight, Calendar, Clock } from "lucide-react";
+import { SpecialistImage } from "./specialist-image";
 import type { AppointmentResponse } from "@/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -65,7 +66,10 @@ export default function UpcomingAppointments({
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex items-start gap-4">
                     <div className="p-3 bg-blue-100 dark:bg-blue-900/20 rounded-xl transition-transform duration-300 group-hover:scale-110">
-                      <User className="size-5 text-blue-600" />
+                      <SpecialistImage
+                        profilePictureName={appointment.specialist.profile_picture_name}
+                        name={appointment.specialist.name}
+                      />{" "}
                     </div>
                     <div className="space-y-1">
                       <CardTitle className="text-lg font-semibold">

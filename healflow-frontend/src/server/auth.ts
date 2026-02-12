@@ -3,16 +3,77 @@ import { getRequestHeaders } from "@tanstack/react-start/server";
 import { Effect } from "effect";
 
 import { useSignUpSession } from "./session";
-import { getSession } from "@/lib/auth-client";
+import { auth } from "@/lib/auth";
 import { apiKeyConfig } from "@/lib/api-key.config";
 import { UserSyncService } from "@/services/user-sync.service";
+import { validateUser } from "@/client/sdk.gen";
+import { attempt } from "@/lib/attempt";
 
+/**
+ * Checks if the current user is new (not yet provisioned in backend).
+ * For social sign-on users, validates against the backend API.
+ */
 export const checkIsNewUser = createServerFn({ method: "GET" }).handler(async () => {
+  const headers = getRequestHeaders();
   const session = await useSignUpSession();
-  const sessionData = session.data;
 
-  // Check if there's a sign-up session with social-sign-on state
-  const isNewUser = sessionData.state === "social-sign-on" && !!sessionData.createdUserId;
+  // Get current session to check user ID
+  const authSession = await auth.api.getSession({ headers });
+
+  // authSession is null if no session, otherwise has user
+  if (authSession === null) {
+    // No authenticated user
+    return { isNewUser: false };
+  }
+
+  const userId = authSession.user.id;
+  const userName = authSession.user.name || "";
+  const userEmail = authSession.user.email;
+
+  // Check if user exists in the backend API
+  const { data: validationResult, error: validationError } = await attempt(async () => {
+    const apiKey = await Effect.runPromise(apiKeyConfig.getKey());
+    const headerName = await Effect.runPromise(apiKeyConfig.getHeaderName());
+
+    return await validateUser({
+      body: { ids: [userId] },
+      headers: {
+        [headerName]: apiKey,
+      },
+    });
+  });
+
+  // Determine if user is new (not provisioned in backend)
+  let isNewUser = false;
+
+  if (validationError) {
+    // Validation call failed - assume new user
+    console.log("[checkIsNewUser] Validation call failed, assuming new user");
+    isNewUser = true;
+  } else if (validationResult.response.status === 400) {
+    // 400 means user ID not found in backend
+    console.log("[checkIsNewUser] User not found in backend (400)");
+    isNewUser = true;
+  } else if (validationResult.response.status !== 200) {
+    // Any non-200/non-400 status - assume new user to be safe
+    console.log("[checkIsNewUser] Unexpected status:", validationResult.response.status);
+    isNewUser = true;
+  }
+
+  if (isNewUser) {
+    // Set up sign-up session for the new social user
+    await session.update({
+      state: "social-sign-on",
+      createdUserId: userId,
+      accountData: {
+        email: userEmail,
+        firstName: userName.split(" ")[0] || "",
+        lastName: userName.split(" ").slice(1).join(" ") || "",
+      },
+    });
+  }
+
+  console.log("[checkIsNewUser] User:", userId, "isNewUser:", isNewUser);
 
   return { isNewUser };
 });
@@ -24,13 +85,38 @@ export const checkIsNewUser = createServerFn({ method: "GET" }).handler(async ()
 export const getServerSession = createServerFn({ method: "GET" }).handler(async () => {
   const headers = getRequestHeaders();
 
-  const session = await getSession({
-    fetchOptions: {
-      headers,
-    },
+  const session = await auth.api.getSession({
+    headers,
   });
 
-  return session.data;
+  console.log("[getServerSession] Session data:", JSON.stringify(session, null, 2));
+
+  return session;
+});
+
+/**
+ * Gets a JWT token for the current authenticated user.
+ * Used to authenticate API requests to the backend.
+ */
+export const getJwtToken = createServerFn({ method: "GET" }).handler(async () => {
+  const headers = getRequestHeaders();
+
+  try {
+    console.log("[getJwtToken] Requesting JWT token...");
+
+    const tokenResponse = await auth.api.getToken({
+      headers,
+    });
+
+    console.log("[getJwtToken] Token response:", {
+      hasToken: !!tokenResponse.token,
+    });
+
+    return tokenResponse.token;
+  } catch (error) {
+    console.error("[getJwtToken] Error getting JWT token:", error);
+    return undefined;
+  }
 });
 
 /**

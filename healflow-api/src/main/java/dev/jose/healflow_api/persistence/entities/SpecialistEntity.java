@@ -49,6 +49,9 @@ public class SpecialistEntity {
   @Column(name = "license_number", unique = true, length = 50)
   private String licenseNumber;
 
+  @Column(name = "profile_picture_name")
+  private String profilePictureName;
+
   @Column(name = "is_active", nullable = false)
   @Builder.Default
   private Boolean isActive = true;

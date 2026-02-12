@@ -1,86 +1,30 @@
-import { betterAuth } from 'better-auth'
-import { drizzleAdapter } from 'better-auth/adapters/drizzle'
-import { admin, jwt, openAPI } from 'better-auth/plugins'
-import { APIError } from 'better-auth/api'
-import { Effect } from 'effect'
-import { apiKeyConfig } from './api-key.config'
+import { betterAuth } from "better-auth";
+import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { admin, jwt, openAPI } from "better-auth/plugins";
+import Stripe from "stripe";
+import { stripe } from "@better-auth/stripe";
 
-import { db } from '@/db'
-import * as schema from '@/db/schemas/auth-schema'
-import { UserRegistrationService } from '@/services/user-registration.service'
-import { useSignUpSession } from '@/server/session'
+import { v7 } from "uuid";
+import { db } from "@/db";
+
+import * as schema from "@/db/schemas";
+
+const stripeClient = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+  apiVersion: "2026-01-28.clover",
+});
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
-    provider: 'sqlite',
-    schema: { ...schema },
+    provider: "sqlite",
+    schema,
   }),
 
   advanced: {
     database: {
-      generateId: () => crypto.randomUUID(),
+      generateId: () => v7(),
     },
   },
 
-  databaseHooks: {
-    user: {
-      create: {
-        before: async (user, ctx) => {
-          user.id = user.id || crypto.randomUUID()
-
-          const service = new UserRegistrationService(apiKeyConfig)
-
-          // Parse name into firstName and lastName
-          const nameParts = user.name?.split(' ') || []
-          const firstName = nameParts[0] || ''
-          const lastName = nameParts.slice(1).join(' ') || ''
-
-          const provisionEffect = Effect.gen(function* () {
-            yield* service.post({
-              user_id: user.id,
-              email: user.email,
-              // specialist_id is now optional - backend will auto-assign
-              // Include name fields for better user experience
-              first_name: firstName,
-              last_name: lastName,
-            })
-          }).pipe(
-            Effect.catchAll((err) => {
-              console.error('Provisioning failed, aborting user creation:', err)
-              return Effect.fail(
-                new APIError('INTERNAL_SERVER_ERROR', {
-                  message: 'Failed to provision user. Please try again.',
-                }),
-              )
-            }),
-          )
-
-          await Effect.runPromise(provisionEffect)
-
-          return { data: user }
-        },
-        after: async (user, ctx) => {
-          const isSocialSignOn = ctx?.params?.id === 'google'
-
-          if (isSocialSignOn) {
-            const session = await useSignUpSession()
-
-            await session.update({
-              state: 'social-sign-on' as const,
-              createdUserId: user.id,
-              accountData: {
-                email: user.email,
-                firstName: user.name.split(' ')[0] || '',
-                lastName: user.name.split(' ').slice(1).join(' ') || '',
-              },
-            })
-          }
-        },
-      },
-    },
-  },
-
-  callbackURL: '/dashboard',
   socialProviders: {
     google: {
       clientId: process.env.GOOGLE_CLIENT_ID as string,
@@ -90,18 +34,37 @@ export const auth = betterAuth({
   emailAndPassword: { enabled: true, requireEmailVerification: false },
   plugins: [
     jwt({
-      jwks: { keyPairConfig: { alg: 'RS256' } },
+      jwks: { keyPairConfig: { alg: "RS256" } },
     }),
     openAPI(),
     admin(),
+    stripe({
+      stripeClient,
+      stripeWebhookSecret: process.env.STRIPE_WEBHOOK_SECRET!,
+      createCustomerOnSignUp: true,
+      subscription: {
+        enabled: true,
+        plans: [
+          {
+            name: "monthly",
+            priceId: process.env.STRIPE_MONTHLY_PRICE_ID!,
+          },
+          {
+            name: "yearly",
+            priceId: process.env.STRIPE_YEARLY_PRICE_ID!,
+          },
+        ],
+      },
+    }),
   ],
-  user: { modelName: 'users' },
-  session: { modelName: 'sessions' },
+  user: { modelName: "users" },
+  session: { modelName: "sessions" },
   account: {
-    modelName: 'accounts',
+    modelName: "accounts",
     accountLinking: {
       enabled: true,
     },
   },
-  verification: { modelName: 'verifications' },
-})
+  verification: { modelName: "verifications" },
+  callbackURL: "/dashboard",
+});

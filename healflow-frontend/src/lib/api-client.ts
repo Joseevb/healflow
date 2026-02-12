@@ -8,25 +8,22 @@
  * Instead, we configure the client using interceptors.
  */
 
-import { client } from '@/client/client.gen'
+import { client } from "@/client/client.gen";
 
 /**
  * List of API endpoints that require API key authentication.
  * These endpoints use X-API-KEY header instead of Bearer token.
  */
-const API_KEY_ENDPOINTS = [
-  '/api/v1/specialists',
-  '/api/v1/user-provisions',
-] as const
+const API_KEY_ENDPOINTS = ["/api/v1/specialists", "/api/v1/user-provisions"] as const;
 
 /**
  * Get API key from environment variables (server-side only).
  */
 function getApiKey(): string | undefined {
-  if (typeof process !== 'undefined' && process.env) {
-    return process.env.API_SERVICE_KEY
+  if (typeof process !== "undefined") {
+    return process.env.API_SERVICE_KEY;
   }
-  return undefined
+  return undefined;
 }
 
 /**
@@ -34,17 +31,17 @@ function getApiKey(): string | undefined {
  * Defaults to "X-API-KEY" if not specified.
  */
 function getApiKeyHeaderName(): string {
-  if (typeof process !== 'undefined' && process.env) {
-    return process.env.API_KEY_HEADER_NAME || 'X-API-KEY'
+  if (typeof process !== "undefined") {
+    return process.env.API_KEY_HEADER_NAME || "X-API-KEY";
   }
-  return 'X-API-KEY'
+  return "X-API-KEY";
 }
 
 /**
  * Check if a URL requires API key authentication.
  */
 function requiresApiKey(url: string): boolean {
-  return API_KEY_ENDPOINTS.some((endpoint) => url.includes(endpoint))
+  return API_KEY_ENDPOINTS.some((endpoint) => url.includes(endpoint));
 }
 
 /**
@@ -52,29 +49,29 @@ function requiresApiKey(url: string): boolean {
  * This should be called once during app initialization (server-side).
  */
 export function configureApiKeyInterceptor(): void {
-  const apiKey = getApiKey()
-  const headerName = getApiKeyHeaderName()
+  const apiKey = getApiKey();
+  const headerName = getApiKeyHeaderName();
 
   if (!apiKey) {
     console.warn(
-      '[API Client] API_SERVICE_KEY not found in environment. ' +
-        'API requests requiring API key authentication may fail.',
-    )
-    return
+      "[API Client] API_SERVICE_KEY not found in environment. " +
+        "API requests requiring API key authentication may fail.",
+    );
+    return;
   }
 
   // Add request interceptor to inject API key for specific endpoints
-  client.interceptors.request.use(async (request) => {
-    const url = request.url
+  client.interceptors.request.use((request) => {
+    const url = request.url;
 
     // Check if this endpoint requires API key
     if (requiresApiKey(url)) {
-      request.headers.set(headerName, apiKey)
-      console.log(`[API Client] ✓ API key added for: ${url}`)
+      request.headers.set(headerName, apiKey);
+      console.log(`[API Client] ✓ API key added for: ${url}`);
     }
 
-    return request
-  })
+    return request;
+  });
 
-  console.log('[API Client] API key interceptor configured')
+  console.log("[API Client] API key interceptor configured");
 }

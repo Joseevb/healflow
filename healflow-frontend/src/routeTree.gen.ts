@@ -14,13 +14,15 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
 import { Route as AuthIndexRouteImport } from './routes/auth/index'
-import { Route as ProfileCompleteRouteImport } from './routes/profile/complete'
+import { Route as DashboardSettingsRouteImport } from './routes/dashboard/settings'
 import { Route as DashboardMedicationsRouteImport } from './routes/dashboard/medications'
+import { Route as DashboardHealthMetricsRouteImport } from './routes/dashboard/health-metrics'
 import { Route as DashboardAppointmentsRouteImport } from './routes/dashboard/appointments'
 import { Route as AuthSocialCallbackRouteImport } from './routes/auth/social-callback'
 import { Route as AuthSignUpIndexRouteImport } from './routes/auth/sign-up.index'
 import { Route as AuthSignUpUserDataRouteImport } from './routes/auth/sign-up.user-data'
 import { Route as AuthSignUpPaymentInfoRouteImport } from './routes/auth/sign-up.payment-info'
+import { Route as AuthCallbackStripeRouteImport } from './routes/auth/callback.stripe'
 import { Route as ApiAuthSplatRouteImport } from './routes/api.auth.$'
 
 const DashboardRoute = DashboardRouteImport.update({
@@ -48,14 +50,19 @@ const AuthIndexRoute = AuthIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthRoute,
 } as any)
-const ProfileCompleteRoute = ProfileCompleteRouteImport.update({
-  id: '/profile/complete',
-  path: '/profile/complete',
-  getParentRoute: () => rootRouteImport,
+const DashboardSettingsRoute = DashboardSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => DashboardRoute,
 } as any)
 const DashboardMedicationsRoute = DashboardMedicationsRouteImport.update({
   id: '/medications',
   path: '/medications',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardHealthMetricsRoute = DashboardHealthMetricsRouteImport.update({
+  id: '/health-metrics',
+  path: '/health-metrics',
   getParentRoute: () => DashboardRoute,
 } as any)
 const DashboardAppointmentsRoute = DashboardAppointmentsRouteImport.update({
@@ -83,6 +90,11 @@ const AuthSignUpPaymentInfoRoute = AuthSignUpPaymentInfoRouteImport.update({
   path: '/sign-up/payment-info',
   getParentRoute: () => AuthRoute,
 } as any)
+const AuthCallbackStripeRoute = AuthCallbackStripeRouteImport.update({
+  id: '/callback/stripe',
+  path: '/callback/stripe',
+  getParentRoute: () => AuthRoute,
+} as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   id: '/api/auth/$',
   path: '/api/auth/$',
@@ -95,11 +107,13 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof DashboardRouteWithChildren
   '/auth/social-callback': typeof AuthSocialCallbackRoute
   '/dashboard/appointments': typeof DashboardAppointmentsRoute
+  '/dashboard/health-metrics': typeof DashboardHealthMetricsRoute
   '/dashboard/medications': typeof DashboardMedicationsRoute
-  '/profile/complete': typeof ProfileCompleteRoute
+  '/dashboard/settings': typeof DashboardSettingsRoute
   '/auth/': typeof AuthIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/auth/callback/stripe': typeof AuthCallbackStripeRoute
   '/auth/sign-up/payment-info': typeof AuthSignUpPaymentInfoRoute
   '/auth/sign-up/user-data': typeof AuthSignUpUserDataRoute
   '/auth/sign-up/': typeof AuthSignUpIndexRoute
@@ -108,11 +122,13 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth/social-callback': typeof AuthSocialCallbackRoute
   '/dashboard/appointments': typeof DashboardAppointmentsRoute
+  '/dashboard/health-metrics': typeof DashboardHealthMetricsRoute
   '/dashboard/medications': typeof DashboardMedicationsRoute
-  '/profile/complete': typeof ProfileCompleteRoute
+  '/dashboard/settings': typeof DashboardSettingsRoute
   '/auth': typeof AuthIndexRoute
   '/dashboard': typeof DashboardIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/auth/callback/stripe': typeof AuthCallbackStripeRoute
   '/auth/sign-up/payment-info': typeof AuthSignUpPaymentInfoRoute
   '/auth/sign-up/user-data': typeof AuthSignUpUserDataRoute
   '/auth/sign-up': typeof AuthSignUpIndexRoute
@@ -124,11 +140,13 @@ export interface FileRoutesById {
   '/dashboard': typeof DashboardRouteWithChildren
   '/auth/social-callback': typeof AuthSocialCallbackRoute
   '/dashboard/appointments': typeof DashboardAppointmentsRoute
+  '/dashboard/health-metrics': typeof DashboardHealthMetricsRoute
   '/dashboard/medications': typeof DashboardMedicationsRoute
-  '/profile/complete': typeof ProfileCompleteRoute
+  '/dashboard/settings': typeof DashboardSettingsRoute
   '/auth/': typeof AuthIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/auth/callback/stripe': typeof AuthCallbackStripeRoute
   '/auth/sign-up/payment-info': typeof AuthSignUpPaymentInfoRoute
   '/auth/sign-up/user-data': typeof AuthSignUpUserDataRoute
   '/auth/sign-up/': typeof AuthSignUpIndexRoute
@@ -141,11 +159,13 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/auth/social-callback'
     | '/dashboard/appointments'
+    | '/dashboard/health-metrics'
     | '/dashboard/medications'
-    | '/profile/complete'
+    | '/dashboard/settings'
     | '/auth/'
     | '/dashboard/'
     | '/api/auth/$'
+    | '/auth/callback/stripe'
     | '/auth/sign-up/payment-info'
     | '/auth/sign-up/user-data'
     | '/auth/sign-up/'
@@ -154,11 +174,13 @@ export interface FileRouteTypes {
     | '/'
     | '/auth/social-callback'
     | '/dashboard/appointments'
+    | '/dashboard/health-metrics'
     | '/dashboard/medications'
-    | '/profile/complete'
+    | '/dashboard/settings'
     | '/auth'
     | '/dashboard'
     | '/api/auth/$'
+    | '/auth/callback/stripe'
     | '/auth/sign-up/payment-info'
     | '/auth/sign-up/user-data'
     | '/auth/sign-up'
@@ -169,11 +191,13 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/auth/social-callback'
     | '/dashboard/appointments'
+    | '/dashboard/health-metrics'
     | '/dashboard/medications'
-    | '/profile/complete'
+    | '/dashboard/settings'
     | '/auth/'
     | '/dashboard/'
     | '/api/auth/$'
+    | '/auth/callback/stripe'
     | '/auth/sign-up/payment-info'
     | '/auth/sign-up/user-data'
     | '/auth/sign-up/'
@@ -183,7 +207,6 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthRoute: typeof AuthRouteWithChildren
   DashboardRoute: typeof DashboardRouteWithChildren
-  ProfileCompleteRoute: typeof ProfileCompleteRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
 }
 
@@ -224,18 +247,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthIndexRouteImport
       parentRoute: typeof AuthRoute
     }
-    '/profile/complete': {
-      id: '/profile/complete'
-      path: '/profile/complete'
-      fullPath: '/profile/complete'
-      preLoaderRoute: typeof ProfileCompleteRouteImport
-      parentRoute: typeof rootRouteImport
+    '/dashboard/settings': {
+      id: '/dashboard/settings'
+      path: '/settings'
+      fullPath: '/dashboard/settings'
+      preLoaderRoute: typeof DashboardSettingsRouteImport
+      parentRoute: typeof DashboardRoute
     }
     '/dashboard/medications': {
       id: '/dashboard/medications'
       path: '/medications'
       fullPath: '/dashboard/medications'
       preLoaderRoute: typeof DashboardMedicationsRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/health-metrics': {
+      id: '/dashboard/health-metrics'
+      path: '/health-metrics'
+      fullPath: '/dashboard/health-metrics'
+      preLoaderRoute: typeof DashboardHealthMetricsRouteImport
       parentRoute: typeof DashboardRoute
     }
     '/dashboard/appointments': {
@@ -273,6 +303,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthSignUpPaymentInfoRouteImport
       parentRoute: typeof AuthRoute
     }
+    '/auth/callback/stripe': {
+      id: '/auth/callback/stripe'
+      path: '/callback/stripe'
+      fullPath: '/auth/callback/stripe'
+      preLoaderRoute: typeof AuthCallbackStripeRouteImport
+      parentRoute: typeof AuthRoute
+    }
     '/api/auth/$': {
       id: '/api/auth/$'
       path: '/api/auth/$'
@@ -286,6 +323,7 @@ declare module '@tanstack/react-router' {
 interface AuthRouteChildren {
   AuthSocialCallbackRoute: typeof AuthSocialCallbackRoute
   AuthIndexRoute: typeof AuthIndexRoute
+  AuthCallbackStripeRoute: typeof AuthCallbackStripeRoute
   AuthSignUpPaymentInfoRoute: typeof AuthSignUpPaymentInfoRoute
   AuthSignUpUserDataRoute: typeof AuthSignUpUserDataRoute
   AuthSignUpIndexRoute: typeof AuthSignUpIndexRoute
@@ -294,6 +332,7 @@ interface AuthRouteChildren {
 const AuthRouteChildren: AuthRouteChildren = {
   AuthSocialCallbackRoute: AuthSocialCallbackRoute,
   AuthIndexRoute: AuthIndexRoute,
+  AuthCallbackStripeRoute: AuthCallbackStripeRoute,
   AuthSignUpPaymentInfoRoute: AuthSignUpPaymentInfoRoute,
   AuthSignUpUserDataRoute: AuthSignUpUserDataRoute,
   AuthSignUpIndexRoute: AuthSignUpIndexRoute,
@@ -303,13 +342,17 @@ const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
 
 interface DashboardRouteChildren {
   DashboardAppointmentsRoute: typeof DashboardAppointmentsRoute
+  DashboardHealthMetricsRoute: typeof DashboardHealthMetricsRoute
   DashboardMedicationsRoute: typeof DashboardMedicationsRoute
+  DashboardSettingsRoute: typeof DashboardSettingsRoute
   DashboardIndexRoute: typeof DashboardIndexRoute
 }
 
 const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardAppointmentsRoute: DashboardAppointmentsRoute,
+  DashboardHealthMetricsRoute: DashboardHealthMetricsRoute,
   DashboardMedicationsRoute: DashboardMedicationsRoute,
+  DashboardSettingsRoute: DashboardSettingsRoute,
   DashboardIndexRoute: DashboardIndexRoute,
 }
 
@@ -321,7 +364,6 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRoute: AuthRouteWithChildren,
   DashboardRoute: DashboardRouteWithChildren,
-  ProfileCompleteRoute: ProfileCompleteRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
 }
 export const routeTree = rootRouteImport

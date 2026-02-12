@@ -47,9 +47,20 @@ export const Route = createFileRoute("/auth/sign-up/user-data")({
 const fieldConfigsFn = (specialists: Array<SpecialistResponse>): FieldConfigs<UserDataSchema> => {
   console.debug(specialists);
   return {
+    phoneNumber: {
+      label: "Phone number",
+      type: "text",
+      group: { name: "info", orientation: "horizontal" },
+    },
+    dateOfBirth: {
+      label: "Date of birth",
+      type: "date",
+      group: { name: "info", orientation: "horizontal" },
+    },
     address: {
       label: "Address",
       type: "object",
+      group: { name: "address", orientation: "vertical" },
       fields: {
         city: {
           label: "City",
@@ -72,22 +83,16 @@ const fieldConfigsFn = (specialists: Array<SpecialistResponse>): FieldConfigs<Us
           group: { name: "address-2", orientation: "horizontal" },
         },
       },
-      group: { name: "info", orientation: "horizontal" },
       set: {
         legend: "Address",
         controlClassName: "w-full",
       },
     },
-    phoneNumber: {
-      label: "Phone number",
-      type: "text",
-      group: { name: "info", orientation: "horizontal" },
-      // set: "User Data",
-    },
     primaryCareSpecialist: {
       label: "Primary care specialist",
       type: "select",
       group: { name: "info", orientation: "horizontal" },
+      placeholder: "Select a General Practice specialist",
       // set: "User Data",
       options: specialists.map((s) => ({
         label: s.name,
@@ -139,13 +144,14 @@ function UserDataForm() {
   );
 
   const defaultValues: UserDataSchema = {
+    phoneNumber: sessionData.userData?.phoneNumber || "",
+    dateOfBirth: sessionData.userData?.dateOfBirth || "",
     address: {
       city: sessionData.userData?.address.city || "",
       state: sessionData.userData?.address.state || "",
       street: sessionData.userData?.address.street || "",
       zipCode: sessionData.userData?.address.zipCode || "",
     },
-    phoneNumber: sessionData.userData?.phoneNumber || "",
     primaryCareSpecialist: sessionData.userData?.primaryCareSpecialist || "",
   };
 
@@ -153,11 +159,14 @@ function UserDataForm() {
     defaultValues,
     validators: { onSubmit: userDataSchema },
     onSubmit: async ({ value: data }) => {
+      // Determine the state based on current session state
+      const nextState = sessionData.state === "profile-update" ? "profile-update" : "user-data";
+
       await createUserFn({
         data: {
           ...sessionData,
           userData: data,
-          state: "user-data",
+          state: nextState,
         },
       });
     },
@@ -184,7 +193,7 @@ function UserDataForm() {
     <Form
       form={form}
       buttonGroup={
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 mt-3">
           <form.SubscribeButton label="Submit" />
         </div>
       }

@@ -1,4 +1,5 @@
-import { Calendar, ChevronRight, Clock, User } from "lucide-react";
+import { Calendar, ChevronRight, Clock } from "lucide-react";
+import { SpecialistImage } from "./specialist-image";
 import type { AppointmentResponse } from "@/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -71,7 +72,10 @@ export default function AppointmentHistory({
               >
                 <div className="flex items-center gap-4">
                   <div className="p-2.5 bg-slate-100 dark:bg-slate-700 rounded-xl transition-all duration-300 group-hover:bg-blue-100 dark:group-hover:bg-blue-900/20 group-hover:scale-105">
-                    <User className="size-5 text-slate-500 group-hover:text-blue-600 transition-colors" />
+                    <SpecialistImage
+                      profilePictureName={appointment.specialist.profile_picture_name}
+                      name={appointment.specialist.name}
+                    />
                   </div>
                   <div className="space-y-1">
                     <p className="font-semibold text-slate-900 dark:text-slate-100 group-hover:text-blue-700 dark:group-hover:text-blue-400 transition-colors">

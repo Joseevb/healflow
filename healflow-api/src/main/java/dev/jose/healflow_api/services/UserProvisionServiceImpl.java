@@ -74,6 +74,7 @@ public class UserProvisionServiceImpl implements UserProvisionService {
             .lastName(lastName)
             .phone(phone)
             .primarySpecialist(primarySpecialist)
+            .isSubscribed(Boolean.TRUE.equals(request.isSubscribed()))
             .build();
 
     // Persist first to obtain generated id
@@ -108,8 +109,7 @@ public class UserProvisionServiceImpl implements UserProvisionService {
         specialistRepository.findActiveBySpecialistType(SpecialistTypeEnum.GENERAL_PRACTICE);
 
     if (generalPracticeSpecialists.isEmpty()) {
-      throw new IllegalStateException(
-          "No active General Practice specialists found in the system");
+      throw new IllegalStateException("No active General Practice specialists found in the system");
     }
 
     // Find specialist with most availability days
@@ -122,8 +122,7 @@ public class UserProvisionServiceImpl implements UserProvisionService {
                   availabilityRepository.findBySpecialistAndIsAvailableTrue(s2).size();
               return Long.compare(s1AvailabilityCount, s2AvailabilityCount);
             })
-        .orElseThrow(
-            () -> new IllegalStateException("Unable to determine default specialist"));
+        .orElseThrow(() -> new IllegalStateException("Unable to determine default specialist"));
   }
 
   // TODO: Remove this method
@@ -173,16 +172,10 @@ public class UserProvisionServiceImpl implements UserProvisionService {
       // Cardiovascular metrics
       metrics.add(
           createMetric(
-              user,
-              HealthMetricType.BLOOD_PRESSURE_SYSTOLIC,
-              randomInRange(110, 140),
-              recordedAt));
+              user, HealthMetricType.BLOOD_PRESSURE_SYSTOLIC, randomInRange(110, 140), recordedAt));
       metrics.add(
           createMetric(
-              user,
-              HealthMetricType.BLOOD_PRESSURE_DIASTOLIC,
-              randomInRange(70, 90),
-              recordedAt));
+              user, HealthMetricType.BLOOD_PRESSURE_DIASTOLIC, randomInRange(70, 90), recordedAt));
       metrics.add(
           createMetric(user, HealthMetricType.HEART_RATE, randomInRange(60, 100), recordedAt));
       metrics.add(
@@ -190,37 +183,31 @@ public class UserProvisionServiceImpl implements UserProvisionService {
               user, HealthMetricType.OXYGEN_SATURATION, randomInRange(95, 100), recordedAt));
 
       // Metabolic metrics
-      metrics.add(
-          createMetric(user, HealthMetricType.WEIGHT, randomInRange(60, 90), recordedAt));
+      metrics.add(createMetric(user, HealthMetricType.WEIGHT, randomInRange(60, 90), recordedAt));
       metrics.add(
           createMetric(user, HealthMetricType.BLOOD_GLUCOSE, randomInRange(70, 120), recordedAt));
       metrics.add(
           createMetric(
               user, HealthMetricType.CHOLESTEROL_TOTAL, randomInRange(150, 220), recordedAt));
       metrics.add(
-          createMetric(
-              user, HealthMetricType.CHOLESTEROL_LDL, randomInRange(70, 130), recordedAt));
+          createMetric(user, HealthMetricType.CHOLESTEROL_LDL, randomInRange(70, 130), recordedAt));
       metrics.add(
-          createMetric(
-              user, HealthMetricType.CHOLESTEROL_HDL, randomInRange(40, 80), recordedAt));
+          createMetric(user, HealthMetricType.CHOLESTEROL_HDL, randomInRange(40, 80), recordedAt));
       metrics.add(
-          createMetric(
-              user, HealthMetricType.TRIGLYCERIDES, randomInRange(50, 150), recordedAt));
+          createMetric(user, HealthMetricType.TRIGLYCERIDES, randomInRange(50, 150), recordedAt));
 
       // Vital signs
       metrics.add(
           createMetric(
               user, HealthMetricType.BODY_TEMPERATURE, randomInRange(36.1, 37.2), recordedAt));
       metrics.add(
-          createMetric(
-              user, HealthMetricType.RESPIRATORY_RATE, randomInRange(12, 20), recordedAt));
+          createMetric(user, HealthMetricType.RESPIRATORY_RATE, randomInRange(12, 20), recordedAt));
 
       // Lifestyle metrics
       metrics.add(
           createMetric(user, HealthMetricType.SLEEP_HOURS, randomInRange(5, 9), recordedAt));
       metrics.add(
-          createMetric(
-              user, HealthMetricType.EXERCISE_MINUTES, randomInRange(0, 90), recordedAt));
+          createMetric(user, HealthMetricType.EXERCISE_MINUTES, randomInRange(0, 90), recordedAt));
       metrics.add(
           createMetric(user, HealthMetricType.WATER_INTAKE, randomInRange(1.0, 3.5), recordedAt));
       metrics.add(
@@ -229,11 +216,17 @@ public class UserProvisionServiceImpl implements UserProvisionService {
 
     // Add a few one-time metrics (Height, BMI, HbA1c - less frequently tracked)
     metrics.add(
-        createMetric(user, HealthMetricType.HEIGHT, randomInRange(150, 190), now.minus(30, ChronoUnit.DAYS)));
+        createMetric(
+            user,
+            HealthMetricType.HEIGHT,
+            randomInRange(150, 190),
+            now.minus(30, ChronoUnit.DAYS)));
     metrics.add(
-        createMetric(user, HealthMetricType.BMI, randomInRange(18.5, 28), now.minus(30, ChronoUnit.DAYS)));
+        createMetric(
+            user, HealthMetricType.BMI, randomInRange(18.5, 28), now.minus(30, ChronoUnit.DAYS)));
     metrics.add(
-        createMetric(user, HealthMetricType.HBA1C, randomInRange(4.5, 6.5), now.minus(60, ChronoUnit.DAYS)));
+        createMetric(
+            user, HealthMetricType.HBA1C, randomInRange(4.5, 6.5), now.minus(60, ChronoUnit.DAYS)));
 
     healthMetricRepository.saveAll(metrics);
     log.info("Generated {} test health metrics for user: {}", metrics.size(), user.getId());

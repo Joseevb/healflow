@@ -61,6 +61,10 @@ public class UserEntity {
   @Column(name = "auth_id", nullable = false, unique = true, length = 255)
   private UUID authId;
 
+  @Column(name = "is_subscribed", nullable = false)
+  @Builder.Default
+  private Boolean isSubscribed = false;
+
   @CreationTimestamp
   @Column(name = "created_at", nullable = false, updatable = false)
   private Instant createdAt;

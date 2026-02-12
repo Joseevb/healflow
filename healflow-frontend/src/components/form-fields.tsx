@@ -286,7 +286,7 @@ export function CheckboxGroupField({
       <FieldLegend variant="label">{label}</FieldLegend>
       {description && <FieldDescription>{description}</FieldDescription>}
       <FieldGroup data-slot="checkbox-group">
-        {items.map(({ label, value, orientation }) => {
+        {items.map(({ label: itemLabel, value, orientation }) => {
           return (
             <Field key={value} orientation={orientation} data-invalid={isInvalid}>
               <Checkbox
@@ -302,7 +302,7 @@ export function CheckboxGroupField({
                 value={value}
               />
               <FieldLabel htmlFor={`form-tanstack-checkbox-${value}`} className="font-normal">
-                {label}
+                {itemLabel}
               </FieldLabel>
             </Field>
           );

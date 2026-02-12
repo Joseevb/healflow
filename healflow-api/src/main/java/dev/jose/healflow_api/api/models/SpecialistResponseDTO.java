@@ -26,6 +26,8 @@ public record SpecialistResponseDTO(
             example = "sarah.johnson@hospital.com",
             requiredMode = RequiredMode.REQUIRED)
         String email,
+    @Schema(description = "Profile picture name", requiredMode = RequiredMode.REQUIRED)
+        String profilePictureName,
     @Schema(description = "Phone number", example = "+1-555-0123") String phone,
     @Schema(
             description = "Whether the specialist is accepting new patients",

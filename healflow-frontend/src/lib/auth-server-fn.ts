@@ -1,5 +1,4 @@
 import { createServerFn } from "@tanstack/react-start";
-import { getRequestHeaders } from "@tanstack/react-start/server";
 import { redirect } from "@tanstack/react-router";
 import { Effect } from "effect";
 
@@ -10,7 +9,6 @@ import { authMiddleware } from "@/lib/auth-middleware";
 import { signUpSession } from "@/schemas/sign-up-session.schema";
 import { useSignUpSession } from "@/server/session";
 import { UserRegistrationService } from "@/services/user-registration.service";
-import { validateUser } from "@/client";
 
 export const getUserId = createServerFn({ method: "GET" })
   .middleware([authMiddleware])
@@ -23,6 +21,8 @@ export const getJwt = createServerFn({ method: "GET" })
 export const createUser = createServerFn({ method: "POST" })
   .inputValidator(signUpSession)
   .handler(async ({ data }) => {
+    const session = await useSignUpSession();
+
     // TODO: Implement this
     async function storeImage(file: File) {
       const imageName = file.name.replace(/\.[^/.]+$/, "");
@@ -30,38 +30,49 @@ export const createUser = createServerFn({ method: "POST" })
       return imageName;
     }
 
-    const session = await useSignUpSession();
-    const isSocialSignOn =
-      data.state === "social-sign-on" || !!data.createdUserId || !!session.data.createdUserId;
-
-    const account = data.accountData || session.data.accountData;
-    if (!account && !isSocialSignOn) {
-      throw new Error("No account data");
-    }
-
     switch (data.state) {
+      // Email signup: Create Better Auth user immediately
       case "email": {
-        if (data.accountData?.profileImage) {
-          const imageName = await storeImage(data.accountData.profileImage);
+        if (!data.accountData?.password) {
+          throw redirect({ to: "/auth/sign-up" });
+        }
+
+        const { password, firstName, lastName, email, profileImage } = data.accountData;
+
+        if (profileImage) {
+          const imageName = await storeImage(profileImage);
           data.accountData.profileImageRef = imageName;
         }
 
+        const { data: authResult, error } = await attempt(
+          async () =>
+            await auth.api.signUpEmail({
+              body: {
+                name: `${firstName} ${lastName}`,
+                email,
+                password,
+              },
+            }),
+        );
+
+        if (error || !authResult.user.id) {
+          throw new Error("Failed to create account");
+        }
+
+        // Store in session for later provisioning (AFTER payment)
         await session.update({
+          createdUserId: authResult.user.id,
           accountData: data.accountData,
           state: "user-data",
         });
-        throw redirect({
-          to: "/auth/sign-up/user-data",
-        });
+
+        throw redirect({ to: "/auth/sign-up/user-data" });
       }
 
-      case "social-sign-on":
+      // User data: Just save and go to payment
       case "user-data": {
-        console.debug({ state: data.state });
         if (!data.userData) {
-          throw redirect({
-            to: "/auth/sign-up/user-data",
-          });
+          throw redirect({ to: "/auth/sign-up/user-data" });
         }
 
         await session.update({
@@ -69,215 +80,50 @@ export const createUser = createServerFn({ method: "POST" })
           userData: data.userData,
           state: "payment-info",
         });
-        throw redirect({
-          to: "/auth/sign-up/payment-info",
-        });
+
+        throw redirect({ to: "/auth/sign-up/payment-info" });
       }
+
+      // Payment success: NOW provision to backend API
       case "payment-info": {
-        const userData = data.userData || session.data.userData;
-        const accountData = data.accountData || session.data.accountData;
-        const createdUserId = data.createdUserId || session.data.createdUserId;
+        const { createdUserId, accountData, userData } = session.data;
 
-        if (!userData) {
-          throw redirect({
-            to: "/auth/sign-up/user-data",
-          });
-        }
-        if (!data.paymentInfo) {
-          throw redirect({
-            to: "/auth/sign-up/payment-info",
-          });
+        if (!createdUserId || !accountData || !userData) {
+          throw redirect({ to: "/auth/sign-up" });
         }
 
-        if (isSocialSignOn) {
-          if (!accountData) {
-            throw redirect({
-              to: "/auth/sign-up",
-            });
-          }
-
-          const userId = createdUserId!;
-
-          console.log("[Social Sign-On] Starting user validation and provisioning for:", userId);
-
-          // Check if user already exists in the database
-          const { data: validationResult, error: validationError } = await attempt(async () => {
-            const apiKey = await Effect.runPromise(apiKeyConfig.getKey());
-            const headerName = await Effect.runPromise(apiKeyConfig.getHeaderName());
-
-            console.log("[Social Sign-On] Calling validateUser API");
-
-            return await validateUser({
-              body: { ids: [userId] },
-              headers: {
-                [headerName]: apiKey,
-              },
-            });
-          });
-
-          // Log the validation response for debugging
-          console.log("[Social Sign-On] Validation check result:", {
-            userId,
-            status: validationResult?.response.status,
-            hasValidationError: !!validationError,
-            validationError: validationError?.message || null,
-            hasApiError: !!validationResult?.error,
-            apiError: validationResult?.error || null,
-          });
-
-          // Determine if we should provision based on validation result
-          let shouldProvision = false;
-
-          // If validation call itself failed (auth error, network error, etc.), treat as new user
-          if (validationError) {
-            console.warn(
-              "[Social Sign-On] Validation API call failed, assuming new user and proceeding with provisioning:",
-              validationError.message,
-            );
-            shouldProvision = true;
-          }
-          // If validation succeeds (status 200), user already exists - skip provisioning
-          else if (validationResult.response.status === 200) {
-            console.log(
-              "[Social Sign-On] User already exists in database, skipping provisioning:",
-              userId,
-            );
-            shouldProvision = false;
-          }
-          // If validation returns 400, user doesn't exist - provision
-          else if (validationResult.response.status === 400) {
-            console.log(
-              "[Social Sign-On] User doesn't exist in database (400), proceeding with provisioning:",
-              userId,
-            );
-            shouldProvision = true;
-          }
-          // Handle authentication/authorization errors
-          else if (
-            validationResult.response.status === 401 ||
-            validationResult.response.status === 403
-          ) {
-            console.error(
-              "[Social Sign-On] Authentication/Authorization error during validation:",
-              {
-                status: validationResult.response.status,
-                error: validationResult.error,
-              },
-            );
-            console.log("[Social Sign-On] Proceeding with provisioning attempt despite auth error");
-            shouldProvision = true;
-          }
-          // Handle other unexpected statuses
-          else {
-            console.error("[Social Sign-On] Unexpected validation response:", {
-              status: validationResult.response.status,
-              error: validationResult.error,
-            });
-            console.log("[Social Sign-On] Proceeding with provisioning as fallback");
-            shouldProvision = true;
-          }
-
-          // If user already exists, skip provisioning
-          if (!shouldProvision) {
-            console.log("[Social Sign-On] Skipping provisioning, redirecting to dashboard");
-
-            await session.update({
-              paymentInfo: data.paymentInfo,
-              state: "success",
-            });
-
-            await session.clear();
-            throw redirect({
-              to: "/dashboard",
-            });
-          }
-
-          // User doesn't exist or validation failed, proceed with provisioning
-          console.log("[Social Sign-On] Starting provisioning for user:", userId);
-
-          const { error: provisionError } = await attempt(async () => {
-            const service = new UserRegistrationService(apiKeyConfig);
-            await Effect.runPromise(
-              service.post({
-                user_id: userId,
-                email: accountData.email,
-                specialist_id: userData.primaryCareSpecialist,
-              }),
-            );
-          });
-
-          console.log("[Social Sign-On] Provision result:", {
-            userId,
-            success: !provisionError,
-            error: provisionError?.message || null,
-          });
-
-          if (provisionError) {
-            console.error(
-              "[Social Sign-On] Provisioning failed, rolling back user:",
-              provisionError,
-            );
-            const headers = getRequestHeaders();
-
-            await attempt(async () => {
-              await auth.api.removeUser({
-                body: { userId },
-                headers,
-              });
-            });
-
-            await session.clear();
-            throw redirect({
-              to: "/auth/sign-up",
-            });
-          }
-
-          console.log("[Social Sign-On] Provisioning successful, redirecting to dashboard");
-
-          await session.update({
-            paymentInfo: data.paymentInfo,
-            state: "success",
-          });
-
-          await session.clear();
-          throw redirect({
-            to: "/dashboard",
-          });
+        if (!data.isPaymentSuccessfull) {
+          throw redirect({ to: "/auth/sign-up/payment-info" });
         }
 
-        // Regular email sign-up flow
-        if (!accountData || !accountData.password) {
-          throw redirect({
-            to: "/auth/sign-up",
-          });
-        }
-
-        const { password, firstName, lastName, email, profileImageRef } = accountData;
-
-        const { data: res, error } = await attempt(
-          async () =>
-            await auth.api.signUpEmail({
-              body: {
-                name: `${firstName} ${lastName}`,
-                email: email,
-                password: password,
-                image: profileImageRef,
-              },
+        // 🎯 PROVISION TO BACKEND API HERE (after payment!)
+        const { error: provisionError } = await attempt(async () => {
+          const service = new UserRegistrationService(apiKeyConfig);
+          await Effect.runPromise(
+            service.post({
+              user_id: createdUserId,
+              email: accountData.email,
+              specialist_id: userData.primaryCareSpecialist,
+              first_name: accountData.firstName,
+              last_name: accountData.lastName,
+              phone: userData.phoneNumber,
             }),
-        );
-
-        console.log({ res });
-        console.log({ error });
-
-        await session.update({
-          paymentInfo: data.paymentInfo,
-          state: "success",
+          );
         });
 
-        throw redirect({
-          to: "/dashboard",
-        });
+        if (provisionError) {
+          console.error("Provisioning failed:", provisionError);
+          // Don't delete the user — they paid! Log for manual fix
+          throw new Error("Account created but setup incomplete. Contact support.");
+        }
+
+        // Success! Clear session and go to dashboard
+        await session.clear();
+        throw redirect({ to: "/dashboard" });
       }
+
+      default:
+        throw redirect({ to: "/auth/sign-up" });
     }
   });
 

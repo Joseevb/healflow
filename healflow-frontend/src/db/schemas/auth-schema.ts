@@ -1,11 +1,13 @@
 import { relations } from "drizzle-orm";
-import { index, integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { sqliteTable, text, integer, index } from "drizzle-orm/sqlite-core";
 
 export const users = sqliteTable("users", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),
   email: text("email").notNull().unique(),
-  emailVerified: integer("email_verified", { mode: "boolean" }).default(false).notNull(),
+  emailVerified: integer("email_verified", { mode: "boolean" })
+    .default(false)
+    .notNull(),
   image: text("image"),
   createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull(),
   updatedAt: integer("updated_at", { mode: "timestamp_ms" })
@@ -15,6 +17,7 @@ export const users = sqliteTable("users", {
   banned: integer("banned", { mode: "boolean" }).default(false),
   banReason: text("ban_reason"),
   banExpires: integer("ban_expires", { mode: "timestamp_ms" }),
+  stripeCustomerId: text("stripe_customer_id"),
 });
 
 export const sessions = sqliteTable(
@@ -86,6 +89,26 @@ export const jwks = sqliteTable("jwks", {
   privateKey: text("private_key").notNull(),
   createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull(),
   expiresAt: integer("expires_at", { mode: "timestamp_ms" }),
+});
+
+export const subscription = sqliteTable("subscription", {
+  id: text("id").primaryKey(),
+  plan: text("plan").notNull(),
+  referenceId: text("reference_id").notNull(),
+  stripeCustomerId: text("stripe_customer_id"),
+  stripeSubscriptionId: text("stripe_subscription_id"),
+  status: text("status").default("incomplete"),
+  periodStart: integer("period_start", { mode: "timestamp_ms" }),
+  periodEnd: integer("period_end", { mode: "timestamp_ms" }),
+  trialStart: integer("trial_start", { mode: "timestamp_ms" }),
+  trialEnd: integer("trial_end", { mode: "timestamp_ms" }),
+  cancelAtPeriodEnd: integer("cancel_at_period_end", {
+    mode: "boolean",
+  }).default(false),
+  cancelAt: integer("cancel_at", { mode: "timestamp_ms" }),
+  canceledAt: integer("canceled_at", { mode: "timestamp_ms" }),
+  endedAt: integer("ended_at", { mode: "timestamp_ms" }),
+  seats: integer("seats"),
 });
 
 export const usersRelations = relations(users, ({ many }) => ({

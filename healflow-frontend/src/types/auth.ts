@@ -1,7 +1,6 @@
 import type * as z from "zod";
 import type { signUpSchema } from "@/schemas/sing-up.schema";
 import type { signInSchema } from "@/schemas/sing-in.schema";
-import type { paymentInfoSchema } from "@/schemas/payment-info.schema";
 import type { addressSchema, userDataSchema } from "@/schemas/user-data.schema";
 
 export type IsLoading = {
@@ -22,6 +21,7 @@ export const signUpState = [
   "payment-info",
   "success",
   "social-sign-on",
+  "profile-update",
 ] as const;
 
 export type SignUpState = (typeof signUpState)[number];
@@ -30,4 +30,3 @@ export type SignUpSchema = z.infer<typeof signUpSchema>;
 export type SignInSchema = z.infer<typeof signInSchema>;
 export type AddressSchema = z.infer<typeof addressSchema>;
 export type UserDataSchema = z.infer<typeof userDataSchema>;
-export type PaymentInfoSchema = z.infer<typeof paymentInfoSchema>;

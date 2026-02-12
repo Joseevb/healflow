@@ -17,4 +17,6 @@ public record SpecialistSummaryDTO(
             requiredMode = RequiredMode.REQUIRED)
         String name,
     @Schema(description = "Specialty", example = "Cardiology", requiredMode = RequiredMode.REQUIRED)
-        SpecialistTypeEnum specialty) {}
+        SpecialistTypeEnum specialty,
+    @Schema(description = "Profile picture name", requiredMode = RequiredMode.REQUIRED)
+        String profilePictureName) {}

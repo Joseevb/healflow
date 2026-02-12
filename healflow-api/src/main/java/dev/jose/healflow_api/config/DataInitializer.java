@@ -51,14 +51,14 @@ public class DataInitializer {
               log.info("Specialist types checked/created");
 
               // --- Create Specialists ---
-              // FIX: Now we pass the MANAGED 'cardiology' entity to the specialist
               SpecialistEntity drJohnson =
                   createOrFetchSpecialist(
                       specialistRepository,
                       "sarah.johnson@hospital.com",
                       "Sarah",
                       "Johnson",
-                      SpecialistTypeEnum.CARDIOLOGY);
+                      SpecialistTypeEnum.CARDIOLOGY,
+                      "johnson.jpeg");
 
               SpecialistEntity drChen =
                   createOrFetchSpecialist(
@@ -66,7 +66,8 @@ public class DataInitializer {
                       "michael.chen@dental.com",
                       "Michael",
                       "Chen",
-                      SpecialistTypeEnum.DENTISTRY);
+                      SpecialistTypeEnum.DENTISTRY,
+                      "michael_chen.jpeg");
 
               SpecialistEntity drBrown =
                   createOrFetchSpecialist(
@@ -74,7 +75,8 @@ public class DataInitializer {
                       "emily.brown@clinic.com",
                       "Emily",
                       "Brown",
-                      SpecialistTypeEnum.GENERAL_PRACTICE);
+                      SpecialistTypeEnum.GENERAL_PRACTICE,
+                      "emily_brown.jpeg");
 
               SpecialistEntity drPerez =
                   createOrFetchSpecialist(
@@ -82,7 +84,8 @@ public class DataInitializer {
                       "emily.perez@clinic.com",
                       "Emily",
                       "Perez",
-                      SpecialistTypeEnum.DERMATOLOGY);
+                      SpecialistTypeEnum.DERMATOLOGY,
+                      "emily_perez.jpeg");
 
               log.info("Specialists checked/created");
 
@@ -203,7 +206,12 @@ public class DataInitializer {
   }
 
   private SpecialistEntity createOrFetchSpecialist(
-      SpecialistRepository repo, String email, String first, String last, SpecialistTypeEnum type) {
+      SpecialistRepository repo,
+      String email,
+      String first,
+      String last,
+      SpecialistTypeEnum type,
+      String profilePictureName) {
     return repo.findByEmail(email)
         .orElseGet(
             () ->
@@ -216,6 +224,7 @@ public class DataInitializer {
                         .licenseNumber(UUID.randomUUID().toString().substring(0, 8))
                         .specialty(type)
                         .consultationDurationMinutes((short) 30)
+                        .profilePictureName(profilePictureName)
                         .build()));
   }
 

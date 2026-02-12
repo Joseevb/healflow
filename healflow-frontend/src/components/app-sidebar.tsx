@@ -146,7 +146,7 @@ export function AppSidebar({
     >
       <SidebarContent className="border-r-0">
         <SidebarGroup>
-          <SidebarGroupLabel>Dashboard</SidebarGroupLabel>
+          <SidebarGroupLabel>HealFlow</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {renderTrigger && (

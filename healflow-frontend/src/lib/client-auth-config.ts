@@ -1,108 +1,66 @@
-import { client } from '@/client/client.gen'
-import { authClient } from '@/lib/auth-client'
-import { configureApiKeyInterceptor } from '@/lib/api-client'
+import { client } from "@/client/client.gen";
+import { configureApiKeyInterceptor } from "@/lib/api-client";
 
 // Configure API key interceptor for server-side requests
-configureApiKeyInterceptor()
+configureApiKeyInterceptor();
 
-let tokenPromise: Promise<string | undefined> | null = null
+// Token storage - can be set before requests are made
+let cachedToken: string | undefined = undefined;
 
-const getCachedToken = async (): Promise<string | undefined> => {
-  if (!tokenPromise) {
-    tokenPromise = (async () => {
-      try {
-        // First check if there's an active session
-        const session = await authClient.getSession()
-        console.log(
-          'Session check:',
-          session.data ? 'Session exists' : 'No session',
-        )
-
-        if (!session.data?.session) {
-          console.warn('No active session found - user not authenticated')
-          return undefined
-        }
-
-        // Try to get the JWT token
-        const tokenResponse = await authClient.token()
-        console.log(
-          'Auth token retrieved:',
-          tokenResponse.data?.token ? 'Token exists' : 'No token',
-        )
-
-        if (!tokenResponse.data?.token) {
-          console.error('Token response:', tokenResponse)
-        }
-
-        return tokenResponse.data?.token
-      } catch (error) {
-        console.error('Error getting auth token:', error)
-        return undefined
-      }
-    })()
+/**
+ * Set the JWT token for API requests.
+ * Call this before making any authenticated API requests.
+ */
+export function setAuthToken(token: string | undefined): void {
+  cachedToken = token;
+  if (token) {
+    console.log("[Auth] Token set successfully");
+  } else {
+    console.log("[Auth] Token cleared");
   }
-
-  return tokenPromise
 }
 
-client.interceptors.request.use(async (request) => {
-  try {
-    const token = await getCachedToken()
+/**
+ * Get the current cached token.
+ */
+export function getAuthToken(): string | undefined {
+  return cachedToken;
+}
 
-    if (token) {
-      request.headers.set('Authorization', `Bearer ${token}`)
-      console.log('✓ Authorization header set for:', request.url)
-    } else {
-      console.warn('⚠ No auth token available for:', request.url)
-    }
-  } catch (error) {
-    console.error('❌ Error setting auth header:', error)
+/**
+ * Clear the cached token.
+ */
+export function clearAuthToken(): void {
+  cachedToken = undefined;
+  console.log("[Auth] Token cache cleared");
+}
+
+/**
+ * Check if a token is available.
+ */
+export function hasAuthToken(): boolean {
+  return !!cachedToken;
+}
+
+client.interceptors.request.use((request) => {
+  if (cachedToken) {
+    request.headers.set("Authorization", `Bearer ${cachedToken}`);
   }
+  return request;
+});
 
-  return request
-})
-
-client.interceptors.response.use(async (response, request) => {
+client.interceptors.response.use((response, request) => {
   if (!response.ok) {
-    // Single, accurate error log with actual status code
-    console.error(`❌ HTTP ${response.status} error for:`, request.url)
-
-    // Track error for analytics
-    console.count(`API_ERROR_${response.status}`)
-
     // Special handling for 401 - authentication issues
     if (response.status === 401) {
-      console.error('→ User authentication required - clearing token cache')
-      console.count('AUTH_TOKEN_EXPIRED')
-      tokenPromise = null
-    }
-
-    // Track 404 errors separately for missing data
-    if (response.status === 404) {
-      console.count(`NOT_FOUND_${new URL(request.url).pathname}`)
-    }
-
-    // Log response body for detailed debugging
-    try {
-      const text = await response.clone().text()
-      if (text) {
-        console.error('Response body:', text)
-      }
-    } catch (e) {
-      console.error('Could not read response body')
+      console.error(`[Auth] 401 Unauthorized for: ${request.url}`);
+      clearAuthToken();
     }
   }
-
-  return response
-})
+  return response;
+});
 
 client.interceptors.error.use((error) => {
-  console.error('❌ Client error:', error)
-
-  // Track client errors for analytics
-  console.count('CLIENT_ERROR')
-
-  // Clear token cache on errors to allow retry
-  tokenPromise = null
-  return error
-})
+  console.error("[Auth] Client error:", error);
+  return error;
+});

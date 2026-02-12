@@ -1,30 +1,24 @@
-import {
-  Outlet,
-  createFileRoute,
-  redirect,
-  useNavigate,
-} from '@tanstack/react-router'
+import { Link, Outlet, createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import {
   Activity,
   Calendar,
   FileText,
   Home,
   LogOut,
+  Moon,
   Pill,
   Settings,
+  Sun,
   User,
-} from 'lucide-react'
-import type { SidebarItems } from '@/components/app-sidebar'
-import type { RoutePath } from '@/types/routes'
-import {
-  SidebarInset,
-  SidebarProvider,
-} from '@/components/animate-ui/components/radix/sidebar'
-import { AppSidebar } from '@/components/app-sidebar'
-import { signOut } from '@/lib/auth-client'
-import { getServerSession } from '@/server/auth'
-import { Button } from '@/components/ui/button'
-import { ProfileCompletionBanner } from '@/components/profile-completion-banner'
+} from "lucide-react";
+import type { SidebarItems } from "@/components/app-sidebar";
+import type { RoutePath } from "@/types/routes";
+import { SidebarInset, SidebarProvider } from "@/components/animate-ui/components/radix/sidebar";
+import { AppSidebar } from "@/components/app-sidebar";
+import { signOut } from "@/lib/auth-client";
+import { getJwtToken, getServerSession } from "@/server/auth";
+import { setAuthToken } from "@/lib/client-auth-config";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -32,57 +26,90 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+} from "@/components/ui/dropdown-menu";
+import { useTheme } from "@/components/providers/theme-provider";
 
-export const Route = createFileRoute('/dashboard')({
+/**
+ * Generate user initials from name
+ * Handles single names, multiple names, and undefined values safely
+ */
+function getInitials(name: string | null | undefined): string {
+  if (!name || typeof name !== "string") return "U";
+
+  const parts = name.trim().split(/\s+/);
+  if (parts.length === 0) return "U";
+  if (parts.length === 1) return parts[0].charAt(0).toUpperCase();
+
+  return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
+}
+
+export const Route = createFileRoute("/dashboard")({
   beforeLoad: async () => {
-    const session = await getServerSession()
+    // Fetch session and JWT token in parallel
+    const [sessionData, jwtToken] = await Promise.all([getServerSession(), getJwtToken()]);
 
-    if (!session?.session) {
-      console.warn('No active session found, redirecting to auth')
+    console.log("[dashboard] Session check:", sessionData ? "Session exists" : "No session");
+
+    if (!sessionData?.session) {
+      console.warn("[dashboard] No active session found, redirecting to auth");
       throw redirect({
-        to: '/auth',
-      })
+        to: "/auth",
+      });
+    }
+
+    // Set JWT token for API client interceptor BEFORE any child route loaders run
+    if (jwtToken) {
+      setAuthToken(jwtToken);
+      console.log("[dashboard] JWT token set for API requests");
+    } else {
+      console.warn("[dashboard] No JWT token available");
     }
 
     return {
       hideHeader: true,
-      session,
-    }
+      user: sessionData.user,
+    };
   },
   component: DashboardLayout,
-})
+});
 
 const sidebarItems = (_baseUrl: RoutePath): SidebarItems => [
   {
-    title: 'Dashboard',
+    title: "Dashboard",
     icon: Home,
-    url: '/dashboard',
+    url: "/dashboard",
   },
   {
-    title: 'Appointments',
+    title: "Appointments",
     icon: Calendar,
-    url: '/dashboard/appointments',
+    url: "/dashboard/appointments",
   },
   {
-    title: 'Medications',
+    title: "Medications",
     icon: Pill,
-    url: '/dashboard/medications',
+    url: "/dashboard/medications",
   },
   {
-    title: 'Health Metrics',
+    title: "Health Metrics",
     icon: Activity,
-    url: '/dashboard' as RoutePath,
+    url: "/dashboard/health-metrics",
   },
   {
-    title: 'Medical Records',
+    title: "Medical Records",
     icon: FileText,
-    url: '/dashboard' as RoutePath,
+    url: "/dashboard" as RoutePath,
   },
-]
+  {
+    title: "Settings",
+    icon: Settings,
+    url: "/dashboard/settings",
+  },
+];
 
 function UserMenu() {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
+  const { user } = Route.useRouteContext();
+  const { theme, setTheme } = useTheme();
 
   return (
     <DropdownMenu>
@@ -92,41 +119,47 @@ function UserMenu() {
           className="w-full justify-start gap-3 px-3 py-6 hover:bg-sidebar-accent"
         >
           <div className="flex size-8 items-center justify-center rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400 text-sm font-medium">
-            JD
+            {getInitials(user.name)}
           </div>
           <div className="flex flex-col items-start text-sm">
-            <span className="font-medium">John Doe</span>
-            <span className="text-xs text-muted-foreground">
-              john.doe@example.com
-            </span>
+            <span className="font-medium">{user.name}</span>
+            <span className="text-xs text-muted-foreground">{user.email}</span>
           </div>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
         <DropdownMenuLabel>My Account</DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>
-          <User className="size-4 mr-2" />
-          Profile
+        <DropdownMenuItem asChild>
+          <Link to="/dashboard/settings">
+            <User className="size-4 mr-2" />
+            Profile
+          </Link>
         </DropdownMenuItem>
-        <DropdownMenuItem>
-          <Settings className="size-4 mr-2" />
-          Settings
+        <DropdownMenuItem asChild>
+          <Link to="/dashboard/settings">
+            <Settings className="size-4 mr-2" />
+            Settings
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={(e) => setTheme(theme === "light" ? "dark" : "light", e)}>
+          {theme === "light" ? <Moon className="size-4 mr-2" /> : <Sun className="size-4 mr-2" />}
+          {theme === "light" ? "Dark mode" : "Light mode"}
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem
+          variant="destructive"
           onClick={async () => {
-            await signOut()
-            await navigate({ to: '/' })
+            await signOut();
+            await navigate({ to: "/" });
           }}
-          className="text-red-600 dark:text-red-400"
         >
           <LogOut className="size-4 mr-2" />
           Sign out
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
-  )
+  );
 }
 
 function DashboardLayout() {
@@ -141,11 +174,10 @@ function DashboardLayout() {
         />
         <SidebarInset className="bg-slate-50 dark:bg-slate-900">
           <div className="container mx-auto px-4 py-8 max-w-7xl">
-            <ProfileCompletionBanner />
             <Outlet />
           </div>
         </SidebarInset>
       </div>
     </SidebarProvider>
-  )
+  );
 }

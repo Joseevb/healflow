@@ -17,4 +17,6 @@ public record ProvisionUserRequestDTO(
     @Schema(description = "User last name", requiredMode = RequiredMode.NOT_REQUIRED)
         String lastName,
     @Schema(description = "User phone number", requiredMode = RequiredMode.NOT_REQUIRED)
-        String phone) {}
+        String phone,
+    @Schema(description = "User subscription status", requiredMode = RequiredMode.NOT_REQUIRED)
+        Boolean isSubscribed) {}

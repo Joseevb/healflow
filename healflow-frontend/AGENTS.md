@@ -1,3 +1,11 @@
+# Application description
+
+This app is a Hospital Management System called HealFlow. It is built using TypeScript and React with Tanstack Start, having the Authentication and Authorization features provided by Better Auth. The domain logic is provided by an API built with Java 25 and Spring Boot. This is just the frontend and auth layer of the application.
+
+## Auth Flow
+
+The user authenticates on the frontend using Better Auth. After successful authentication, a JWT is created and stored in the browser's local storage. The JWT is then used to authenticate the user on subsequent requests to the backend API. 
+
 # Better Auth
 
 > The most comprehensive authentication framework for TypeScript
