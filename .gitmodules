@@ -4,3 +4,6 @@
 [submodule "healflow-frontend"]
 	path = healflow-frontend
 	url = https://github.com/Joseevb/healflow-frontend
+[submodule "medicines-api"]
+	path = medicines-api
+	url = https://github.com/Joseevb/medicines-api
