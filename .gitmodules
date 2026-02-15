@@ -1,9 +1,12 @@
 [submodule "healflow-api"]
 	path = healflow-api
 	url = https://github.com/Joseevb/healflow-api
+	branch = master
 [submodule "healflow-frontend"]
 	path = healflow-frontend
 	url = https://github.com/Joseevb/healflow-frontend
+	branch = master
 [submodule "medicines-api"]
 	path = medicines-api
 	url = https://github.com/Joseevb/medicines-api
+	branch = master
