@@ -92,11 +92,7 @@ import Link from 'next/link'
 
 // ✅ CORRECT - Base UI pattern
 import Link from 'next/link'
-;<Button
-  render={<Link href="/dashboard" />}
-  variant="ghost"
-  nativeButton={false}
->
+;<Button render={<Link href="/dashboard" />} variant="ghost" nativeButton={false}>
   Dashboard
 </Button>
 ```
