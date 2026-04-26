@@ -12,6 +12,9 @@ export const env = createEnv({
 
     GOOGLE_CLIENT_ID: z.string().nonempty().nonoptional(),
     GOOGLE_CLIENT_SECRET: z.string().nonempty().nonoptional(),
+
+    RESEND_API_KEY: z.string().nonempty().nonoptional(),
+    RESEND_EMAIL_FROM: z.string().nonempty().nonoptional(),
   },
   runtimeEnv: process.env,
   emptyStringAsUndefined: true,

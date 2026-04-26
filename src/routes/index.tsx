@@ -11,7 +11,7 @@ import { FieldGroup, Field, FieldLabel, FieldError, FieldDescription } from '@/c
 import { Input } from '@/components/ui/input'
 import { db } from '@/db'
 import { users } from '@/db/schemas'
-import { authClient } from '@/lib/auth-client'
+import { authClient, deleteUser } from '@/lib/auth-client'
 
 export const Route = createFileRoute('/')({ component: Home })
 
@@ -122,6 +122,15 @@ function Home() {
         <Button type="submit">Submit</Button>
       </form>
       <SocialSignOn />
+
+      <Button
+        variant={'destructive'}
+        onClick={async () => {
+          await deleteUser()
+        }}
+      >
+        Delete Account
+      </Button>
 
       {data && <pre>{JSON.stringify(data, null, 2)}</pre>}
     </Card>
