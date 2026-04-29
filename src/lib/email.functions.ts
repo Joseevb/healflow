@@ -38,7 +38,6 @@ const program = (params: z.infer<typeof sendEmailSchema>) =>
         throw new Error(res.error.message)
       }
 
-      console.debug(res)
       return { id: res.data?.id, data: res.data }
     },
     catch: (cause) =>
