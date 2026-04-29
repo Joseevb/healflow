@@ -12,6 +12,7 @@ import { Input } from '@/components/ui/input'
 import { db } from '@/db'
 import { users } from '@/db/schemas'
 import { authClient, deleteUser } from '@/lib/auth-client'
+import { Header } from '@/routes/-components/header'
 
 export const Route = createFileRoute('/')({ component: Home })
 
@@ -42,97 +43,102 @@ function Home() {
   })
 
   return (
-    <Card className="p-8">
-      <form
-        onSubmit={(e) => {
-          e.preventDefault()
-          form.handleSubmit()
-        }}
-      >
-        <FieldGroup>
-          <form.Field name="name">
-            {(field) => {
-              const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid
-              return (
-                <Field data-invalid={isInvalid}>
-                  <FieldLabel htmlFor={field.name}>Name</FieldLabel>
-                  <Input
-                    id={field.name}
-                    name={field.name}
-                    value={field.state.value}
-                    onBlur={field.handleBlur}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                    aria-invalid={isInvalid}
-                    placeholder="John Doe"
-                    autoComplete="off"
-                  />
-                  <FieldDescription>Your full name</FieldDescription>
-                  {isInvalid && <FieldError errors={field.state.meta.errors} />}
-                </Field>
-              )
+    <>
+      <Header />
+      <main>
+        <Card className="p-8">
+          <form
+            onSubmit={(e) => {
+              e.preventDefault()
+              form.handleSubmit()
             }}
-          </form.Field>
+          >
+            <FieldGroup>
+              <form.Field name="name">
+                {(field) => {
+                  const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid
+                  return (
+                    <Field data-invalid={isInvalid}>
+                      <FieldLabel htmlFor={field.name}>Name</FieldLabel>
+                      <Input
+                        id={field.name}
+                        name={field.name}
+                        value={field.state.value}
+                        onBlur={field.handleBlur}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        aria-invalid={isInvalid}
+                        placeholder="John Doe"
+                        autoComplete="off"
+                      />
+                      <FieldDescription>Your full name</FieldDescription>
+                      {isInvalid && <FieldError errors={field.state.meta.errors} />}
+                    </Field>
+                  )
+                }}
+              </form.Field>
 
-          <form.Field name="email">
-            {(field) => {
-              const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid
-              return (
-                <Field data-invalid={isInvalid}>
-                  <FieldLabel htmlFor={field.name}>Email</FieldLabel>
-                  <Input
-                    id={field.name}
-                    name={field.name}
-                    value={field.state.value}
-                    onBlur={field.handleBlur}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                    aria-invalid={isInvalid}
-                    placeholder="john-doe@gmail.com"
-                    autoComplete="off"
-                  />
-                  <FieldDescription>Your email</FieldDescription>
-                  {isInvalid && <FieldError errors={field.state.meta.errors} />}
-                </Field>
-              )
+              <form.Field name="email">
+                {(field) => {
+                  const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid
+                  return (
+                    <Field data-invalid={isInvalid}>
+                      <FieldLabel htmlFor={field.name}>Email</FieldLabel>
+                      <Input
+                        id={field.name}
+                        name={field.name}
+                        value={field.state.value}
+                        onBlur={field.handleBlur}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        aria-invalid={isInvalid}
+                        placeholder="john-doe@gmail.com"
+                        autoComplete="off"
+                      />
+                      <FieldDescription>Your email</FieldDescription>
+                      {isInvalid && <FieldError errors={field.state.meta.errors} />}
+                    </Field>
+                  )
+                }}
+              </form.Field>
+
+              <form.Field name="password">
+                {(field) => {
+                  const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid
+                  return (
+                    <Field data-invalid={isInvalid}>
+                      <FieldLabel htmlFor={field.name}>Password</FieldLabel>
+                      <Input
+                        id={field.name}
+                        name={field.name}
+                        value={field.state.value}
+                        onBlur={field.handleBlur}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        aria-invalid={isInvalid}
+                        placeholder="********************"
+                        autoComplete="off"
+                      />
+                      <FieldDescription>A secure password</FieldDescription>
+                      {isInvalid && <FieldError errors={field.state.meta.errors} />}
+                    </Field>
+                  )
+                }}
+              </form.Field>
+            </FieldGroup>
+            <Button type="submit">Submit</Button>
+          </form>
+          <SocialSignOn />
+
+          <Button
+            variant={'destructive'}
+            onClick={async () => {
+              await deleteUser()
             }}
-          </form.Field>
+          >
+            Delete Account
+          </Button>
 
-          <form.Field name="password">
-            {(field) => {
-              const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid
-              return (
-                <Field data-invalid={isInvalid}>
-                  <FieldLabel htmlFor={field.name}>Password</FieldLabel>
-                  <Input
-                    id={field.name}
-                    name={field.name}
-                    value={field.state.value}
-                    onBlur={field.handleBlur}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                    aria-invalid={isInvalid}
-                    placeholder="********************"
-                    autoComplete="off"
-                  />
-                  <FieldDescription>A secure password</FieldDescription>
-                  {isInvalid && <FieldError errors={field.state.meta.errors} />}
-                </Field>
-              )
-            }}
-          </form.Field>
-        </FieldGroup>
-        <Button type="submit">Submit</Button>
-      </form>
-      <SocialSignOn />
-
-      <Button
-        variant={'destructive'}
-        onClick={async () => {
-          await deleteUser()
-        }}
-      >
-        Delete Account
-      </Button>
-
-      {data && <pre>{JSON.stringify(data, null, 2)}</pre>}
-    </Card>
+          {data && <pre>{JSON.stringify(data, null, 2)}</pre>}
+        </Card>
+      </main>
+    </>
   )
 }
