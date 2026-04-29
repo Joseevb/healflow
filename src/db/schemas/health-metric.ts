@@ -15,7 +15,7 @@ export const healthMetrics = sqliteTable('health-metrics', (t) => ({
   notes: t.text('notes'),
   source: t.text('source').default('manual'),
 
-  userId: t
+  clientId: t
     .text('user_id')
     .notNull()
     .references(() => users.id),

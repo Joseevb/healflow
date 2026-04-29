@@ -15,7 +15,6 @@ export const healthScore = sqliteTable(
     metabolicScore: t.integer('metabolic_score').notNull(),
     lifestyleScore: t.integer('lifestyle_score').notNull(),
     vitalScore: t.integer('vital_score').notNull(),
-    calculatedAt: t.integer('calculated_at', { mode: 'timestamp_ms' }).notNull(),
     dataPointsCount: t.integer('data_points_count').notNull(),
     periodDays: t.integer('period_days').notNull().default(90),
 
@@ -33,9 +32,5 @@ export const healthScore = sqliteTable(
       .notNull()
       .$onUpdate(() => new Date()),
   }),
-  (t) => [
-    index('idx_health_score_user_id').on(t.userId),
-    index('idx_health_score_calculated_at').on(t.calculatedAt),
-    index('idx_health_score_user_calculated').on(t.userId, t.calculatedAt),
-  ],
+  (t) => [index('idx_health_score_user_id').on(t.userId)],
 )

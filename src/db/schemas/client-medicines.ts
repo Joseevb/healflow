@@ -2,8 +2,8 @@ import { primaryKey, sqliteTable } from 'drizzle-orm/sqlite-core'
 
 import { users } from '@/db/schemas'
 
-export const userMedicines = sqliteTable(
-  'user_medicines',
+export const clientMedicines = sqliteTable(
+  'client_medicines',
   (t) => ({
     dosage: t.text('dosage').notNull(),
     frequency: t.text('frequency').notNull(),
@@ -13,8 +13,17 @@ export const userMedicines = sqliteTable(
     medicineId: t.integer('medicine_id').notNull(),
     userId: t
       .text('user_id')
-      .notNull(),
+      .notNull()
       .references(() => users.id),
+
+    createdAt: t
+      .integer('created_at', { mode: 'timestamp_ms' })
+      .notNull()
+      .$defaultFn(() => new Date()),
+    updatedAt: t
+      .integer('updated_at', { mode: 'timestamp_ms' })
+      .notNull()
+      .$onUpdate(() => new Date()),
   }),
   (t) => [primaryKey({ columns: [t.userId, t.medicineId] })],
 )
