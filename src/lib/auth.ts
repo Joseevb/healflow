@@ -1,9 +1,12 @@
-import { APIError, betterAuth } from 'better-auth'
+import { stripe } from '@better-auth/stripe'
+import { APIError } from 'better-auth'
 import { drizzleAdapter } from 'better-auth/adapters/drizzle'
+import { betterAuth } from 'better-auth/minimal'
 import { admin as adminPlugin } from 'better-auth/plugins'
 import { tanstackStartCookies } from 'better-auth/tanstack-start'
 import { Result } from 'better-result'
 import { toast } from 'sonner'
+import { Stripe } from 'stripe'
 
 import { DeleteUserTemplate } from '@/components/email/delete-user-template'
 import { db } from '@/db'
@@ -12,6 +15,10 @@ import { env } from '@/env/server'
 import { softDeleteUser } from '@/lib/auth.functions'
 import { sendEmail } from '@/lib/email.functions'
 import { ac, admin, client, specialist } from '@/lib/permissions'
+
+const stripeClient = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+  apiVersion: '2026-04-22.dahlia',
+})
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, { provider: 'sqlite', schema, usePlural: true }),
@@ -22,8 +29,8 @@ export const auth = betterAuth({
       clientId: env.GOOGLE_CLIENT_ID,
       clientSecret: env.GOOGLE_CLIENT_SECRET,
       mapProfileToUser: (profile) => ({
-        firstName: profile.name.split(' ')[0],
-        lastName: profile.name.split(' ')[1],
+        firstName: profile.given_name,
+        lastName: profile.family_name,
       }),
     },
   },
@@ -34,21 +41,39 @@ export const auth = betterAuth({
       defaultRole: 'client',
       adminRoles: ['admin'],
     }),
+    stripe({
+      stripeClient,
+      stripeWebhookSecret: env.STRIPE_WEBHOOK_SECRET,
+      createCustomerOnSignUp: true,
+      subscription: {
+        enabled: true,
+        plans: [
+          {
+            name: 'monthly',
+            priceId: env.STRIPE_MONTHLY_PRICE_ID,
+          },
+          {
+            name: 'yearly',
+            priceId: env.STRIPE_YEARLY_PRICE_ID,
+          },
+        ],
+      },
+    }),
     tanstackStartCookies(),
   ],
   user: {
     deleteUser: {
       enabled: true,
       sendDeleteAccountVerification: async ({ user, url }) => {
-        const serializedResult = await sendEmail({
-          data: {
-            to: user.email,
-            subject: 'Delete Account Verification',
-            react: DeleteUserTemplate({ name: user.name.split(' ')[0], url }),
-          },
-        })
-
-        const result = Result.deserialize(serializedResult)
+        const result = Result.deserialize(
+          await sendEmail({
+            data: {
+              to: user.email,
+              subject: 'Delete Account Verification',
+              react: DeleteUserTemplate({ name: user.name.split(' ')[0], url }),
+            },
+          }),
+        )
 
         result.match({
           ok: () => {
@@ -78,29 +103,17 @@ export const auth = betterAuth({
       },
     },
     additionalFields: {
-      firstName: {
-        type: 'string',
-        required: true,
-        index: true,
-      },
-      lastName: {
-        type: 'string',
-        required: true,
-        index: true,
-      },
-      phoneNumber: {
-        type: 'string',
-        required: true,
-        index: true,
-      },
       deletedAt: {
         type: 'date',
         required: false,
         input: false,
       },
+      onboardingComplete: {
+        type: 'boolean',
+        required: true,
+        default: false,
+        input: false,
+      },
     },
-  },
-  experimental: {
-    joins: true,
   },
 })

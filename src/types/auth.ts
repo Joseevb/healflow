@@ -17,3 +17,13 @@ export type SocialSignOnProvider = {
   callbackUrl?: string
   onClick?: () => void
 }
+
+export const signUpState = [
+  'email',
+  'user-data',
+  'success',
+  'social-sign-on',
+  'profile-update',
+] as const
+
+export type SignUpState = (typeof signUpState)[number]

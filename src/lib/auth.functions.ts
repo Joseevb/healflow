@@ -61,15 +61,13 @@ export const createRoleMiddleware = (role: Permission) =>
 export const softDeleteUser = createServerFn().handler(async () => {
   const { user } = await ensureSession()
 
-  const result = await Result.tryPromise(async () => {
+  return Result.tryPromise(async () => {
     await db.transaction(async (tx) => {
       await tx
         .update(users)
         .set({
           name: 'Deleted User',
           email: `deleted_${user.id}@deleted.invalid`,
-          firstName: 'Deleted User',
-          lastName: 'Deleted User',
           image: null,
           emailVerified: false,
           deletedAt: new Date(),
@@ -79,7 +77,5 @@ export const softDeleteUser = createServerFn().handler(async () => {
       await tx.delete(accounts).where(eq(accounts.userId, user.id))
       await tx.delete(sessions).where(eq(sessions.userId, user.id))
     })
-  })
-
-  return safeSerialize(result)
+  }).then(safeSerialize)
 })

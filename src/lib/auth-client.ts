@@ -1,5 +1,8 @@
+import { stripeClient } from '@better-auth/stripe/client'
 import { createAuthClient } from 'better-auth/client'
-import { adminClient } from 'better-auth/client/plugins'
+import { adminClient, inferAdditionalFields } from 'better-auth/client/plugins'
+
+import type { auth } from '@/lib/auth'
 
 import { ac, admin, client, specialist } from '@/lib/permissions'
 
@@ -9,6 +12,10 @@ export const authClient = createAuthClient({
       ac,
       roles: { admin, client, specialist },
     }),
+    stripeClient({
+      subscription: true,
+    }),
+    inferAdditionalFields<typeof auth>(),
   ],
 })
 
