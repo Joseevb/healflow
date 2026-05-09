@@ -10,13 +10,13 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as AdminRouteImport } from './routes/admin'
-import { Route as IndexRouteImport } from './routes/index'
-import { Route as AuthIndexRouteImport } from './routes/auth/index'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
+import { Route as ApiAuthSplatRouteImport } from './routes/api/auth.$'
+import { Route as AuthIndexRouteImport } from './routes/auth/index'
 import { Route as AuthSignUpRouteImport } from './routes/auth/sign-up'
 import { Route as AuthSignUpIndexRouteImport } from './routes/auth/sign-up/index'
 import { Route as AuthSignUpUserDataRouteImport } from './routes/auth/sign-up/user-data'
-import { Route as ApiAuthSplatRouteImport } from './routes/api/auth.$'
+import { Route as IndexRouteImport } from './routes/index'
 
 const AdminRoute = AdminRouteImport.update({
   id: '/admin',
@@ -100,13 +100,7 @@ export interface FileRouteTypes {
     | '/auth/sign-up/user-data'
     | '/auth/sign-up/'
   fileRoutesByTo: FileRoutesByTo
-  to:
-    | '/'
-    | '/admin'
-    | '/auth'
-    | '/api/auth/$'
-    | '/auth/sign-up/user-data'
-    | '/auth/sign-up'
+  to: '/' | '/admin' | '/auth' | '/api/auth/$' | '/auth/sign-up/user-data' | '/auth/sign-up'
   id:
     | '__root__'
     | '/'
@@ -208,9 +202,7 @@ const AuthSignUpRouteChildren: AuthSignUpRouteChildren = {
   AuthSignUpIndexRoute: AuthSignUpIndexRoute,
 }
 
-const AuthSignUpRouteWithChildren = AuthSignUpRoute._addFileChildren(
-  AuthSignUpRouteChildren,
-)
+const AuthSignUpRouteWithChildren = AuthSignUpRoute._addFileChildren(AuthSignUpRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
@@ -223,8 +215,9 @@ export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
 
-import type { getRouter } from './router.tsx'
 import type { createStart } from '@tanstack/react-start'
+
+import type { getRouter } from './router.tsx'
 declare module '@tanstack/react-start' {
   interface Register {
     ssr: true
