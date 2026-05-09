@@ -11,7 +11,7 @@ type ThemeProviderProps = {
 
 type ThemeProviderState = {
   theme: Theme
-  setTheme: (theme: Theme) => void
+  setTheme: (theme: Theme, event?: React.MouseEvent) => void
 }
 
 function getThemeScript(storageKey: string, defaultTheme: Theme) {
@@ -71,9 +71,29 @@ export function ThemeProvider({
     return () => media.removeEventListener('change', onChange)
   }, [theme, mounted])
 
-  const setTheme = (next: Theme) => {
-    localStorage.setItem(storageKey, next)
-    setThemeState(next)
+  const setTheme = (next: Theme, event?: React.MouseEvent) => {
+    if (!event) {
+      localStorage.setItem(storageKey, next)
+      setThemeState(next)
+      return
+    }
+
+    const x = event.clientX
+    const y = event.clientY
+
+    document.documentElement.style.setProperty('--circle-x', `${x}px`)
+    document.documentElement.style.setProperty('--circle-y', `${y}px`)
+
+    document.documentElement.classList.add('theme-transitioning')
+
+    const transition = document.startViewTransition(() => {
+      localStorage.setItem(storageKey, next)
+      setThemeState(next)
+    })
+
+    transition.finished.finally(() => {
+      document.documentElement.classList.remove('theme-transitioning')
+    })
   }
 
   return (

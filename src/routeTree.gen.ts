@@ -14,6 +14,8 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthIndexRouteImport } from './routes/auth/index'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as AuthSignUpRouteImport } from './routes/auth/sign-up'
+import { Route as AuthSignUpIndexRouteImport } from './routes/auth/sign-up/index'
+import { Route as AuthSignUpUserDataRouteImport } from './routes/auth/sign-up/user-data'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth.$'
 
 const AdminRoute = AdminRouteImport.update({
@@ -41,6 +43,16 @@ const AuthSignUpRoute = AuthSignUpRouteImport.update({
   path: '/auth/sign-up',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthSignUpIndexRoute = AuthSignUpIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AuthSignUpRoute,
+} as any)
+const AuthSignUpUserDataRoute = AuthSignUpUserDataRouteImport.update({
+  id: '/user-data',
+  path: '/user-data',
+  getParentRoute: () => AuthSignUpRoute,
+} as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   id: '/api/auth/$',
   path: '/api/auth/$',
@@ -50,26 +62,31 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
-  '/auth/sign-up': typeof AuthSignUpRoute
+  '/auth/sign-up': typeof AuthSignUpRouteWithChildren
   '/admin/': typeof AdminIndexRoute
   '/auth/': typeof AuthIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/auth/sign-up/user-data': typeof AuthSignUpUserDataRoute
+  '/auth/sign-up/': typeof AuthSignUpIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/auth/sign-up': typeof AuthSignUpRoute
   '/admin': typeof AdminIndexRoute
   '/auth': typeof AuthIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/auth/sign-up/user-data': typeof AuthSignUpUserDataRoute
+  '/auth/sign-up': typeof AuthSignUpIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
-  '/auth/sign-up': typeof AuthSignUpRoute
+  '/auth/sign-up': typeof AuthSignUpRouteWithChildren
   '/admin/': typeof AdminIndexRoute
   '/auth/': typeof AuthIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/auth/sign-up/user-data': typeof AuthSignUpUserDataRoute
+  '/auth/sign-up/': typeof AuthSignUpIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -80,8 +97,16 @@ export interface FileRouteTypes {
     | '/admin/'
     | '/auth/'
     | '/api/auth/$'
+    | '/auth/sign-up/user-data'
+    | '/auth/sign-up/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth/sign-up' | '/admin' | '/auth' | '/api/auth/$'
+  to:
+    | '/'
+    | '/admin'
+    | '/auth'
+    | '/api/auth/$'
+    | '/auth/sign-up/user-data'
+    | '/auth/sign-up'
   id:
     | '__root__'
     | '/'
@@ -90,12 +115,14 @@ export interface FileRouteTypes {
     | '/admin/'
     | '/auth/'
     | '/api/auth/$'
+    | '/auth/sign-up/user-data'
+    | '/auth/sign-up/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRouteWithChildren
-  AuthSignUpRoute: typeof AuthSignUpRoute
+  AuthSignUpRoute: typeof AuthSignUpRouteWithChildren
   AuthIndexRoute: typeof AuthIndexRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
 }
@@ -137,6 +164,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthSignUpRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/auth/sign-up/': {
+      id: '/auth/sign-up/'
+      path: '/'
+      fullPath: '/auth/sign-up/'
+      preLoaderRoute: typeof AuthSignUpIndexRouteImport
+      parentRoute: typeof AuthSignUpRoute
+    }
+    '/auth/sign-up/user-data': {
+      id: '/auth/sign-up/user-data'
+      path: '/user-data'
+      fullPath: '/auth/sign-up/user-data'
+      preLoaderRoute: typeof AuthSignUpUserDataRouteImport
+      parentRoute: typeof AuthSignUpRoute
+    }
     '/api/auth/$': {
       id: '/api/auth/$'
       path: '/api/auth/$'
@@ -157,10 +198,24 @@ const AdminRouteChildren: AdminRouteChildren = {
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
+interface AuthSignUpRouteChildren {
+  AuthSignUpUserDataRoute: typeof AuthSignUpUserDataRoute
+  AuthSignUpIndexRoute: typeof AuthSignUpIndexRoute
+}
+
+const AuthSignUpRouteChildren: AuthSignUpRouteChildren = {
+  AuthSignUpUserDataRoute: AuthSignUpUserDataRoute,
+  AuthSignUpIndexRoute: AuthSignUpIndexRoute,
+}
+
+const AuthSignUpRouteWithChildren = AuthSignUpRoute._addFileChildren(
+  AuthSignUpRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRouteWithChildren,
-  AuthSignUpRoute: AuthSignUpRoute,
+  AuthSignUpRoute: AuthSignUpRouteWithChildren,
   AuthIndexRoute: AuthIndexRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
 }

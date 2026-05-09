@@ -149,3 +149,84 @@ body {
     cursor: pointer;
   }
 }
+
+@supports (view-transition-name: none) {
+  /* Smooth fade and scale transition for auth card */
+  ::view-transition-old(auth-card),
+  ::view-transition-new(auth-card) {
+    animation-duration: 0.4s;
+    animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  ::view-transition-old(auth-card) {
+    animation-name: fade-out, scale-down;
+  }
+
+  ::view-transition-new(auth-card) {
+    animation-name: fade-in, scale-up;
+  }
+
+  html.theme-transitioning::view-transition-old(root),
+  html.theme-transitioning::view-transition-new(root) {
+    animation: none;
+    mix-blend-mode: normal;
+  }
+
+  html.theme-transitioning::view-transition-new(root) {
+    animation: theme-circle-expand 0.5s ease-in-out;
+  }
+
+  @keyframes fade-out {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+    }
+  }
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes scale-down {
+    from {
+      transform: scale(1);
+    }
+    to {
+      transform: scale(0.95);
+    }
+  }
+
+  @keyframes scale-up {
+    from {
+      transform: scale(0.95);
+    }
+    to {
+      transform: scale(1);
+    }
+  }
+
+  @keyframes theme-circle-expand {
+    0% {
+      clip-path: circle(0% at var(--circle-x) var(--circle-y));
+    }
+    100% {
+      clip-path: circle(150% at var(--circle-x) var(--circle-y));
+    }
+  }
+
+  @keyframes theme-square-expand {
+    0% {
+      clip-path: inset(50% 50% 50% 50% round 15px);
+    }
+    100% {
+      clip-path: inset(0 0 0 0 round 15px);
+    }
+  }
+}
