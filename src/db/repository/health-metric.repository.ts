@@ -1,5 +1,7 @@
 import { eq } from 'drizzle-orm'
+
 import type { healthMetrics } from '@/db/schemas'
+
 import { BaseRepository } from '@/db/repository/base-repository'
 
 export class HealthMetricRepository extends BaseRepository<typeof healthMetrics> {

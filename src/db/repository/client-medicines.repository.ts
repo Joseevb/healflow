@@ -1,5 +1,7 @@
 import { eq } from 'drizzle-orm'
+
 import type { clientMedicines } from '@/db/schemas'
+
 import { BaseRepository } from '@/db/repository/base-repository'
 
 export class ClientMedicinesRepository extends BaseRepository<typeof clientMedicines> {

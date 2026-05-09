@@ -1,8 +1,12 @@
 import { eq } from 'drizzle-orm'
+
 import type { specialistAvailability } from '@/db/schemas'
+
 import { BaseRepository } from '@/db/repository/base-repository'
 
-export class SpecialistAvailabilityRepository extends BaseRepository<typeof specialistAvailability> {
+export class SpecialistAvailabilityRepository extends BaseRepository<
+  typeof specialistAvailability
+> {
   constructor(
     db: BaseRepository<typeof specialistAvailability>['db'],
     table: typeof specialistAvailability,
