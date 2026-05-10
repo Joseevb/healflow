@@ -3,11 +3,11 @@ import * as z from 'zod'
 
 export const env = createEnv({
   server: {
-    SERVER_URL: z.string().url().optional(),
+    SERVER_URL: z.url().optional(),
     // TURSO_DATABASE_URL: z.string().min(1),
     // TURSO_AUTH_TOKEN: z.string().optional(),
     BETTER_AUTH_SECRET: z.string().nonempty(),
-    BETTER_AUTH_URL: z.string().url(),
+    BETTER_AUTH_URL: z.url(),
     DB_FILE_NAME: z.string().nonempty().nonoptional(),
 
     GOOGLE_CLIENT_ID: z.string().nonempty().nonoptional(),
@@ -21,7 +21,7 @@ export const env = createEnv({
     STRIPE_MONTHLY_PRICE_ID: z.string().nonempty().nonoptional(),
     STRIPE_YEARLY_PRICE_ID: z.string().nonempty().nonoptional(),
 
-    SESSION_SECRET: z.string().nonempty().nonoptional(),
+    SESSION_SECRET: z.string().min(32).nonempty().nonoptional(),
 
     NODE_ENV: z.enum(['development', 'production']).nonoptional().default('development'),
   },
