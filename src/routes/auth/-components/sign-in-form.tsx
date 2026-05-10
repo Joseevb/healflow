@@ -49,7 +49,6 @@ export const SignInForm = withForm({
 
       <form.AppForm>
         <div className="mt-3 flex flex-row items-end justify-end gap-5 ">
-          <form.SubscribeButton label="Sign In" />
           <div className="flex flex-col justify-between gap-1">
             <span className="text-xs text-muted-foreground">No account?</span>
             <Button
@@ -58,6 +57,7 @@ export const SignInForm = withForm({
               render={<Link to="/auth/sign-up">Sign Up</Link>}
             />
           </div>
+          <form.SubscribeButton label="Sign In" />
         </div>
       </form.AppForm>
     </form>

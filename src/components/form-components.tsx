@@ -24,6 +24,7 @@ type BaseProps = {
   label: string
   description?: string
   required?: boolean
+  disabled?: boolean
 }
 
 type TextProps = BaseProps & React.ComponentProps<'input'>

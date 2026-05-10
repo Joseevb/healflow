@@ -111,7 +111,6 @@ export const SignUpForm = withForm({
 
       <form.AppForm>
         <div className="mt-3 flex flex-row items-end justify-end gap-5 ">
-          <form.SubscribeButton label="Sign Up" />
           <div className="flex flex-col  gap-1">
             <span className="text-xs text-muted-foreground">Already have an account?</span>
             <Button
@@ -121,6 +120,7 @@ export const SignUpForm = withForm({
             />
           </div>
         </div>
+        <form.SubscribeButton label="Sign Up" />
       </form.AppForm>
     </form>
   ),

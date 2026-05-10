@@ -15,6 +15,7 @@ import { Route as ApiAuthSplatRouteImport } from './routes/api/auth.$'
 import { Route as AuthIndexRouteImport } from './routes/auth/index'
 import { Route as AuthSignUpRouteImport } from './routes/auth/sign-up'
 import { Route as AuthSignUpIndexRouteImport } from './routes/auth/sign-up/index'
+import { Route as AuthSignUpPaymentRouteImport } from './routes/auth/sign-up/payment'
 import { Route as AuthSignUpUserDataRouteImport } from './routes/auth/sign-up/user-data'
 import { Route as IndexRouteImport } from './routes/index'
 
@@ -53,6 +54,11 @@ const AuthSignUpUserDataRoute = AuthSignUpUserDataRouteImport.update({
   path: '/user-data',
   getParentRoute: () => AuthSignUpRoute,
 } as any)
+const AuthSignUpPaymentRoute = AuthSignUpPaymentRouteImport.update({
+  id: '/payment',
+  path: '/payment',
+  getParentRoute: () => AuthSignUpRoute,
+} as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   id: '/api/auth/$',
   path: '/api/auth/$',
@@ -66,6 +72,7 @@ export interface FileRoutesByFullPath {
   '/admin/': typeof AdminIndexRoute
   '/auth/': typeof AuthIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/auth/sign-up/payment': typeof AuthSignUpPaymentRoute
   '/auth/sign-up/user-data': typeof AuthSignUpUserDataRoute
   '/auth/sign-up/': typeof AuthSignUpIndexRoute
 }
@@ -74,6 +81,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminIndexRoute
   '/auth': typeof AuthIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/auth/sign-up/payment': typeof AuthSignUpPaymentRoute
   '/auth/sign-up/user-data': typeof AuthSignUpUserDataRoute
   '/auth/sign-up': typeof AuthSignUpIndexRoute
 }
@@ -85,6 +93,7 @@ export interface FileRoutesById {
   '/admin/': typeof AdminIndexRoute
   '/auth/': typeof AuthIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/auth/sign-up/payment': typeof AuthSignUpPaymentRoute
   '/auth/sign-up/user-data': typeof AuthSignUpUserDataRoute
   '/auth/sign-up/': typeof AuthSignUpIndexRoute
 }
@@ -97,10 +106,18 @@ export interface FileRouteTypes {
     | '/admin/'
     | '/auth/'
     | '/api/auth/$'
+    | '/auth/sign-up/payment'
     | '/auth/sign-up/user-data'
     | '/auth/sign-up/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/admin' | '/auth' | '/api/auth/$' | '/auth/sign-up/user-data' | '/auth/sign-up'
+  to:
+    | '/'
+    | '/admin'
+    | '/auth'
+    | '/api/auth/$'
+    | '/auth/sign-up/payment'
+    | '/auth/sign-up/user-data'
+    | '/auth/sign-up'
   id:
     | '__root__'
     | '/'
@@ -109,6 +126,7 @@ export interface FileRouteTypes {
     | '/admin/'
     | '/auth/'
     | '/api/auth/$'
+    | '/auth/sign-up/payment'
     | '/auth/sign-up/user-data'
     | '/auth/sign-up/'
   fileRoutesById: FileRoutesById
@@ -172,6 +190,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthSignUpUserDataRouteImport
       parentRoute: typeof AuthSignUpRoute
     }
+    '/auth/sign-up/payment': {
+      id: '/auth/sign-up/payment'
+      path: '/payment'
+      fullPath: '/auth/sign-up/payment'
+      preLoaderRoute: typeof AuthSignUpPaymentRouteImport
+      parentRoute: typeof AuthSignUpRoute
+    }
     '/api/auth/$': {
       id: '/api/auth/$'
       path: '/api/auth/$'
@@ -193,11 +218,13 @@ const AdminRouteChildren: AdminRouteChildren = {
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
 interface AuthSignUpRouteChildren {
+  AuthSignUpPaymentRoute: typeof AuthSignUpPaymentRoute
   AuthSignUpUserDataRoute: typeof AuthSignUpUserDataRoute
   AuthSignUpIndexRoute: typeof AuthSignUpIndexRoute
 }
 
 const AuthSignUpRouteChildren: AuthSignUpRouteChildren = {
+  AuthSignUpPaymentRoute: AuthSignUpPaymentRoute,
   AuthSignUpUserDataRoute: AuthSignUpUserDataRoute,
   AuthSignUpIndexRoute: AuthSignUpIndexRoute,
 }
