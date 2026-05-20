@@ -8,6 +8,7 @@ import type { Address } from '@/db/types/addresses.zod'
 import type { User } from '@/db/types/auth.zod'
 import type { Client } from '@/db/types/clients.zod'
 
+import { ModeToggle } from '@/components/mode-toggle'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -19,6 +20,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { db } from '@/db'
 import { ClientsRepository } from '@/db/repository/clients-repository'
 import { accounts, addresses, clients, sessions, subscriptions } from '@/db/schemas'
@@ -151,7 +153,6 @@ function RouteComponent() {
 
   return (
     <div>
-      Hello "/dashboard"!
       <Button
         variant="destructive"
         onClick={async () => {
@@ -161,7 +162,15 @@ function RouteComponent() {
       >
         Logout
       </Button>
-      <pre>{JSON.stringify(data, null, 2)}</pre>
+      <ModeToggle mode="small" />
+      <Card>
+        <CardHeader>
+          <CardTitle>Hello "/dashboard"!</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <pre>{JSON.stringify(data, null, 2)}</pre>
+        </CardContent>
+      </Card>
     </div>
   )
 }
