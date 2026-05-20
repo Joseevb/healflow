@@ -15,6 +15,7 @@ import {
   Select as BaseSelect,
   SelectTrigger,
   SelectValue,
+  SelectGroup,
 } from '@/components/ui/select'
 import { Spinner } from '@/components/ui/spinner'
 import { Textarea } from '@/components/ui/textarea'
@@ -108,14 +109,18 @@ export function Select({ label, description, options, ...props }: Readonly<Selec
         {...props}
       >
         <SelectTrigger id={field.name} aria-invalid={isInvalid} className="min-w-30">
-          <SelectValue placeholder="Select" />
+          <SelectValue placeholder="Select">
+            {(value: string) => options.find((o) => o.value === value)?.label ?? value}
+          </SelectValue>
         </SelectTrigger>
         <SelectContent align="center">
-          {options.map((option) => (
-            <SelectItem key={option.value} value={option.value}>
-              {option.label}
-            </SelectItem>
-          ))}
+          <SelectGroup>
+            {options.map((option) => (
+              <SelectItem key={option.value} value={option.value}>
+                {option.label}
+              </SelectItem>
+            ))}
+          </SelectGroup>
         </SelectContent>
       </BaseSelect>
     </Field>

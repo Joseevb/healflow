@@ -1,11 +1,12 @@
+import type { AnyUseMutationOptions } from '@tanstack/react-query'
+
 import { useMutation } from '@tanstack/react-query'
 import { Image } from '@unpic/react'
 import { toast } from 'sonner'
 
-import type { RoutePath } from '@/types/routes'
-
 import { Button } from '@/components/ui/button'
-import { signIn as defaultSignIn } from '@/lib/auth-client'
+import { signIn } from '@/lib/auth-client'
+import { createUrl } from '@/lib/utils'
 
 import type { SocialSignOnProvider } from '../types/auth'
 
@@ -24,33 +25,27 @@ export const socialSignOnProviders: Array<SocialSignOnProvider> = [
   },
 ]
 
-interface SocialSignOnProps {
-  signIn?: typeof defaultSignIn
-  callbackUrl?: RoutePath
-}
+const mutationOptions = {
+  mutationKey: ['social-sign-on'],
+  mutationFn: async (provider: SocialSignOnProvider) => {
+    if (provider.onClick) {
+      provider.onClick()
+      return
+    }
 
-// Internal mutation hook
-function useSocialSignOn(signIn: typeof defaultSignIn, callbackUrl?: RoutePath) {
-  return useMutation({
-    mutationFn: async (provider: SocialSignOnProvider) => {
-      if (provider.onClick) {
-        provider.onClick()
-        return
-      }
+    signIn.social({
+      provider: provider.name,
+      callbackURL: createUrl('/auth/callback/social'),
+    })
+  },
+  onError: (err) => {
+    console.error('Error signign in: ', err)
+    toast.error(normalizeErrorMessage(err))
+  },
+} satisfies AnyUseMutationOptions
 
-      signIn.social({
-        provider: provider.name,
-        callbackURL: callbackUrl || '/',
-      })
-    },
-    onError: (error) => {
-      toast.error(normalizeErrorMessage(error))
-    },
-  })
-}
-
-export default function SocialSignOn({ signIn = defaultSignIn, callbackUrl }: SocialSignOnProps) {
-  const mutation = useSocialSignOn(signIn, callbackUrl)
+export default function SocialSignOn() {
+  const mutation = useMutation(mutationOptions)
 
   return (
     <div className="space-y-2">
