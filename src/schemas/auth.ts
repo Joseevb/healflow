@@ -2,35 +2,43 @@ import * as z from 'zod'
 
 import { signUpState } from '@/types/auth'
 
+function requiredString(message: string) {
+  return z.string().trim().min(1, message)
+}
+
+const birthDateInputSchema = requiredString('Date of birth cannot be empty')
+  .pipe(z.coerce.date())
+  .refine((date) => date <= new Date(), 'Date of birth cannot be in the future')
+
 export const addressSchema = z.object({
-  street: z.string().nonempty('Street cannot be empty').nonoptional('Street cannot be empty'),
-  city: z.string().nonempty('City cannot be empty').nonoptional('City cannot be empty'),
-  state: z.string().nonempty('State cannot be empty').nonoptional('State cannot be empty'),
-  zipCode: z.string().nonempty('Zip code cannot be empty').nonoptional('Zip code cannot be empty'),
+  street: requiredString('Street cannot be empty'),
+  city: requiredString('City cannot be empty'),
+  state: requiredString('State cannot be empty'),
+  country: requiredString('Country cannot be empty'),
+  zipCode: requiredString('Zip code cannot be empty'),
 })
 
 export const userDataSchema = z.object({
-  phoneNumber: z
-    .string()
-    .nonempty('Phone number cannot be empty')
-    .nonoptional('Phone number cannot be empty'),
-  birthDate: z
-    .date()
-    .nonoptional('Date of birth cannot be empty')
-    .refine((date) => date <= new Date(), 'Date of birth cannot be in the future'),
+  phoneNumber: requiredString('Phone number cannot be empty'),
+  birthDate: birthDateInputSchema,
   address: addressSchema,
-  primaryCareSpecialist: z
-    .uuid()
-    .nonempty('Primary care specialist is required')
-    .nonoptional('Primary care specialist is required'),
+  primaryCareSpecialist: requiredString('Primary care specialist is required'),
 })
 
-export type UserData = z.infer<typeof userDataSchema>
+export const parsedUserDataSchema = z.object({
+  phoneNumber: requiredString('Phone number cannot be empty'),
+  birthDate: z.date().refine((date) => date <= new Date(), 'Date of birth cannot be in the future'),
+  address: addressSchema,
+  primaryCareSpecialist: requiredString('Primary care specialist is required'),
+})
+
+export type UserData = z.infer<typeof parsedUserDataSchema>
+export type UserDataInput = z.input<typeof userDataSchema>
 export type Address = z.infer<typeof addressSchema>
 
 export const signInSchema = z.object({
-  email: z.email('Invalid email').nonempty('Email is required').nonoptional('Email is required'),
-  password: z.string().nonempty('Password is required').nonoptional('Password is required'),
+  email: z.email('Invalid email'),
+  password: requiredString('Password is required'),
   rememberMe: z.boolean(),
 })
 
@@ -57,9 +65,9 @@ const passwordSchema = z
   })
 
 export const signUpBaseSchema = z.object({
-  firstName: z.string().nonempty('First name cannot be empty'),
-  lastName: z.string().nonempty('Last name cannot be empty'),
-  email: z.email('It must be a valid email').nonempty('Email cannot be empty'),
+  firstName: requiredString('First name cannot be empty'),
+  lastName: requiredString('Last name cannot be empty'),
+  email: z.email('It must be a valid email'),
   password: passwordSchema,
   confirmPassword: passwordSchema,
   profileImage: z.file('It must be a valid image').optional(),
@@ -77,21 +85,59 @@ export const signUpSchema = signUpBaseSchema.superRefine((data, ctx) => {
 
 export type SignUp = z.infer<typeof signUpSchema>
 
+export const socialSignUpAccountSchema = z.object({
+  id: requiredString('Social account id is required'),
+  email: z.email('Invalid email'),
+  name: requiredString('Name is required'),
+  firstName: z.string().optional().nullable(),
+  lastName: z.string().optional().nullable(),
+  image: z.string().optional().nullable(),
+})
+
 const signUpBaseSchemaLenient = signUpBaseSchema.extend({
   firstName: z.string().optional().nullable().default(''),
   lastName: z.string().optional().nullable().default(''),
 })
 
+export const signUpSessionAccountDataSchema = signUpBaseSchemaLenient
+  .omit({ profileImage: true })
+  .partial({ password: true, confirmPassword: true })
+  .extend({
+    profileImageRef: z.string().optional(),
+  })
+
+export const serializableUserDataSchema = z.object({
+  phoneNumber: requiredString('Phone number cannot be empty'),
+  birthDate: requiredString('Date of birth cannot be empty'),
+  address: addressSchema,
+  primaryCareSpecialist: requiredString('Primary care specialist is required'),
+})
+
 export const serializableSignUpSession = z.object({
-  accountData: signUpBaseSchemaLenient
-    .omit({ profileImage: true })
-    .partial({ password: true, confirmPassword: true })
-    .extend({
-      profileImageRef: z.string().optional(),
-    })
-    .optional(),
-  userData: userDataSchema.optional(),
+  accountData: signUpSessionAccountDataSchema.optional(),
+  userData: serializableUserDataSchema.optional(),
   state: z.enum(signUpState).optional(),
 })
+
+export const signUpUserInputSchema = z.discriminatedUnion('step', [
+  z.object({
+    step: z.literal('account'),
+    accountData: signUpSchema,
+  }),
+  z.object({
+    step: z.literal('social'),
+    accountData: socialSignUpAccountSchema,
+  }),
+  z.object({
+    step: z.literal('user-data'),
+    userData: userDataSchema,
+  }),
+])
+
+export const finalizeOnboardingInputSchema = z
+  .object({
+    requireActiveSubscription: z.boolean().optional(),
+  })
+  .optional()
 
 export type SerializableSignUpSession = z.infer<typeof serializableSignUpSession>

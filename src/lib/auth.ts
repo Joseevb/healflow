@@ -61,6 +61,28 @@ export const auth = betterAuth({
     }),
     tanstackStartCookies(),
   ],
+  account: {
+    storeStateStrategy: 'database',
+    skipStateCookieCheck: true,
+  },
+  databaseHooks: {
+    user: {
+      create: {
+        before: async (user) => {
+          try {
+            const result = {
+              data: { ...user, onboardingComplete: user.onboardingComplete ?? false },
+            }
+            return result
+          } catch (err) {
+            console.error('[DB HOOK ERROR]', err)
+            console.error('[DB HOOK USER]', Object.keys(user))
+            throw err
+          }
+        },
+      },
+    },
+  },
   user: {
     deleteUser: {
       enabled: true,

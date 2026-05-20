@@ -8,6 +8,8 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
+import { authClient } from '@/lib/auth-client'
+import { cn, createUrl } from '@/lib/utils'
 
 const searchParams = z.object({
   error: z.enum(['provisioning_failed', 'cancelled', 'unknown_error']).optional(),
@@ -34,7 +36,12 @@ const plans = [
     price: '600',
     period: 'year',
     description: 'Best value - save 17%',
-    features: ['Full access to all features', 'Priority support', '17% discount', 'Annual billing'],
+    features: [
+      'Full access to all features',
+      'Two months of discount',
+      'Priority support',
+      'Annual billing',
+    ],
     popular: true,
   },
 ] as const
@@ -56,11 +63,30 @@ function RouteComponent() {
   }, [searchError])
 
   const handleSubscribe = async (planId: 'monthly' | 'yearly') => {
-    toast(planId)
+    const plan = plans.find((p) => p.id === planId)
+    if (!plan) return
+
+    const toastId = toast.loading(`Redirecting to secure checkout...`)
+
+    const { error } = await authClient.subscription.upgrade({
+      plan: planId,
+      successUrl: createUrl('/dashboard'),
+      cancelUrl: createUrl('/auth/sign-up/payment', { error: 'cancelled' }),
+    })
+
+    if (error) {
+      toast.error(error.message || 'Failed to start checkout. Please try again.', {
+        id: toastId,
+      })
+      return
+    }
+
+    // Success - Stripe handles the redirect, but toast will show briefly
+    toast.success('Redirecting to Stripe...', { id: toastId })
   }
 
   return (
-    <div className="mx-auto flex max-w-4xl flex-col gap-6">
+    <div className="mx-auto flex h-screen w-screen max-w-4xl flex-col items-center justify-center gap-6">
       <div className="space-y-2 text-center">
         <h1 className="text-2xl font-bold tracking-tight">Choose your plan</h1>
         <p className="text-muted-foreground">
@@ -68,14 +94,17 @@ function RouteComponent() {
         </p>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
+      <div className="grid w-full gap-6 md:grid-cols-2">
         {plans.map((plan) => (
           <Card
             key={plan.id}
-            className={`relative flex flex-col ${plan.popular ? 'border-primary shadow-lg' : ''}`}
+            className={cn(
+              'relative',
+              plan.popular ? 'overflow-visible border-primary shadow-lg' : '',
+            )}
           >
             {plan.popular && (
-              <Badge className="absolute -top-2 left-1/2 -translate-x-1/2" variant="default">
+              <Badge className="absolute -top-2 left-1/2 z-50 -translate-x-1/2 " variant="default">
                 <Zap className="mr-1 h-3 w-3" />
                 Best Value
               </Badge>
@@ -110,7 +139,7 @@ function RouteComponent() {
                 className="mt-auto w-full"
                 size="lg"
                 variant={plan.popular ? 'default' : 'outline'}
-                // onClick={() => handleSubscribe(plan.id)}
+                onClick={() => handleSubscribe(plan.id)}
               >
                 <CreditCard className="mr-2 h-4 w-4" />
                 Subscribe {plan.name}

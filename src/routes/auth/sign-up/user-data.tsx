@@ -4,44 +4,39 @@ import { useMutation, useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute, useRouter } from '@tanstack/react-router'
 import { Activity } from 'react'
 
-import type { UserData } from '@/schemas/auth'
+import type { UserDataInput } from '@/schemas/auth'
 
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import { useAppForm } from '@/hooks/form'
+import { signUpUser, validateSignUpSession } from '@/lib/auth.functions'
 import { getSpecialistByQuery } from '@/lib/specialists.functions'
 import { UserDataForm, formOpts } from '@/routes/auth/-components/user-data-form'
-import { getSignUpSession, updateSignUpSession } from '@/session/onboarding-session'
+import { SPECIALTIES } from '@/types/specialties'
 
 export const Route = createFileRoute('/auth/sign-up/user-data')({
   component: RouteComponent,
+  beforeLoad: async () => await validateSignUpSession({ data: 'user-data' }),
 })
 
 const getPrimaryCareSpecialistQuery = {
   queryKey: ['specialists', 'primary care'],
-  queryFn: async () => {
-    return await getSpecialistByQuery({
+  queryFn: async () =>
+    await getSpecialistByQuery({
       data: {
         field: 'specialty',
-        value: 'primary care',
+        value: SPECIALTIES[0],
       },
-    })
-  },
+    }),
 } satisfies AnyUseQueryOptions
 
 const mutationOptions = {
   mutationKey: ['sign-up-user-data'],
-  mutationFn: async ({ value }: { value: UserData }) => {
-    const session = await getSignUpSession()
+  mutationFn: async ({ value }: { value: UserDataInput }) => {
+    const result = await signUpUser({ data: { step: 'user-data', userData: value } })
 
-    await updateSignUpSession({
-      data: {
-        ...session,
-        userData: value,
-        state: 'user-data',
-      },
-    })
+    if (!result.success) throw new Error('Failed to save user data')
   },
 } satisfies AnyUseMutationOptions
 

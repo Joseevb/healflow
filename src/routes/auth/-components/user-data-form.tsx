@@ -1,13 +1,15 @@
 import { formOptions } from '@tanstack/react-form'
-import { Link } from '@tanstack/react-router'
 
-import type { UserData } from '@/schemas/auth'
+import type { UserDataInput } from '@/schemas/auth'
 
 import { Button } from '@/components/ui/button'
 import { FieldDescription, FieldGroup, FieldLegend, FieldSet } from '@/components/ui/field'
 import { Separator } from '@/components/ui/separator'
 import { Skeleton } from '@/components/ui/skeleton'
 import { withForm } from '@/hooks/form'
+import { userDataSchema } from '@/schemas/auth'
+
+const userDataFormSchema = userDataSchema
 
 export const formOpts = formOptions({
   defaultValues: {
@@ -15,12 +17,16 @@ export const formOpts = formOptions({
       street: '',
       city: '',
       state: '',
+      country: '',
       zipCode: '',
     },
-    birthDate: new Date(),
+    birthDate: '',
     phoneNumber: '',
     primaryCareSpecialist: '',
-  } satisfies UserData,
+  } satisfies UserDataInput,
+  validators: {
+    onSubmit: userDataFormSchema,
+  },
 })
 
 export const UserDataForm = withForm({
@@ -77,7 +83,7 @@ export const UserDataForm = withForm({
                     description="Select your primary care specialist"
                     options={specialists.map((s) => ({ value: s.id, label: s.name }))}
                     required
-                    disabled={specialists.length > 0}
+                    disabled={specialists.length <= 0}
                   />
                 )
               }
@@ -130,6 +136,20 @@ export const UserDataForm = withForm({
                 )}
               </form.AppField>
 
+              <form.AppField name="address.country">
+                {(field) => (
+                  <field.TextField
+                    type="text"
+                    label="Country"
+                    placeholder="Portugal"
+                    description="Your country"
+                    required
+                  />
+                )}
+              </form.AppField>
+            </div>
+
+            <div className="grid grid-cols-2 md:gap-2 lg:grid-cols-2">
               <form.AppField name="address.zipCode">
                 {(field) => (
                   <field.TextField
@@ -148,6 +168,7 @@ export const UserDataForm = withForm({
 
       <form.AppForm>
         <div className="mt-3 flex flex-row items-end justify-end gap-5 ">
+          <Button variant="secondary">Go back</Button>
           <form.SubscribeButton label="Continue" />
         </div>
       </form.AppForm>

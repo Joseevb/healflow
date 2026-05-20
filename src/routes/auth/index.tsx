@@ -13,9 +13,11 @@ import { Separator } from '@/components/ui/separator'
 import { useAppForm } from '@/hooks/form'
 import { signIn } from '@/lib/auth-client'
 import { formOpts, SignInForm } from '@/routes/auth/-components/sign-in-form'
+import { validateSignUpSession } from '@/session/onboarding-session'
 
 export const Route = createFileRoute('/auth/')({
   component: RouteComponent,
+  beforeLoad: async () => validateSignUpSession({ data: 'account' }),
 })
 
 const mutationOptions = {

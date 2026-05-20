@@ -18,12 +18,6 @@ export type SocialSignOnProvider = {
   onClick?: () => void
 }
 
-export const signUpState = [
-  'email',
-  'user-data',
-  'success',
-  'social-sign-on',
-  'profile-update',
-] as const
+export const signUpState = ['account', 'social-sign-on', 'user-data', 'success'] as const
 
 export type SignUpState = (typeof signUpState)[number]

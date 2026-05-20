@@ -1,12 +1,16 @@
+import { redirect } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { useSession } from '@tanstack/react-start/server'
 import { Result, TaggedError } from 'better-result'
+import * as z from 'zod'
 
 import type { SerializableSignUpSession } from '@/schemas/auth'
+import type { SignUpState } from '@/types/auth'
 
 import { env } from '@/env/server'
 import { safeSerialize } from '@/lib/result'
 import { serializableSignUpSession } from '@/schemas/auth'
+import { signUpState } from '@/types/auth'
 
 export class OnboardingSessionError extends TaggedError('OnboardingSessionError')<{
   message?: string
@@ -66,3 +70,25 @@ export const clearSignUpSession = createServerFn({ method: 'POST' }).handler(asy
   await session.clear()
   return { success: true }
 })
+
+export const validateSignUpSession = createServerFn()
+  .inputValidator(z.enum(signUpState))
+  .handler(async ({ data: state }) => {
+    const session = await getSignUpSession()
+
+    const flowOrder: Array<SignUpState | undefined> = ['account', 'user-data', 'success']
+    const currentIdx = flowOrder.indexOf(session.state)
+    const expectedIdx = flowOrder.indexOf(state)
+
+    // Can't go back to a previous step
+    if (currentIdx > expectedIdx) {
+      throw redirect({ to: '/auth/sign-up' })
+    }
+
+    // Step-specific guards
+    if (state === 'user-data' && !session.accountData) {
+      throw redirect({ to: '/auth/sign-up' })
+    }
+
+    return session
+  })

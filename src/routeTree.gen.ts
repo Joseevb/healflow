@@ -9,16 +9,29 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AdminRouteImport } from './routes/admin'
-import { Route as AdminIndexRouteImport } from './routes/admin/index'
-import { Route as ApiAuthSplatRouteImport } from './routes/api/auth.$'
+import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthIndexRouteImport } from './routes/auth/index'
+import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as AuthSignUpRouteImport } from './routes/auth/sign-up'
 import { Route as AuthSignUpIndexRouteImport } from './routes/auth/sign-up/index'
-import { Route as AuthSignUpPaymentRouteImport } from './routes/auth/sign-up/payment'
 import { Route as AuthSignUpUserDataRouteImport } from './routes/auth/sign-up/user-data'
-import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthSignUpPaymentRouteImport } from './routes/auth/sign-up/payment'
+import { Route as AuthCallbackSocialRouteImport } from './routes/auth/callback/social'
+import { Route as ApiAuthSplatRouteImport } from './routes/api/auth.$'
 
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminRoute = AdminRouteImport.update({
   id: '/admin',
   path: '/admin',
@@ -30,9 +43,9 @@ const IndexRoute = IndexRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthIndexRoute = AuthIndexRouteImport.update({
-  id: '/auth/',
-  path: '/auth/',
-  getParentRoute: () => rootRouteImport,
+  id: '/',
+  path: '/',
+  getParentRoute: () => AuthRoute,
 } as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
   id: '/',
@@ -40,9 +53,9 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
   getParentRoute: () => AdminRoute,
 } as any)
 const AuthSignUpRoute = AuthSignUpRouteImport.update({
-  id: '/auth/sign-up',
-  path: '/auth/sign-up',
-  getParentRoute: () => rootRouteImport,
+  id: '/sign-up',
+  path: '/sign-up',
+  getParentRoute: () => AuthRoute,
 } as any)
 const AuthSignUpIndexRoute = AuthSignUpIndexRouteImport.update({
   id: '/',
@@ -59,6 +72,11 @@ const AuthSignUpPaymentRoute = AuthSignUpPaymentRouteImport.update({
   path: '/payment',
   getParentRoute: () => AuthSignUpRoute,
 } as any)
+const AuthCallbackSocialRoute = AuthCallbackSocialRouteImport.update({
+  id: '/callback/social',
+  path: '/callback/social',
+  getParentRoute: () => AuthRoute,
+} as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   id: '/api/auth/$',
   path: '/api/auth/$',
@@ -68,19 +86,24 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
+  '/auth': typeof AuthRouteWithChildren
+  '/dashboard': typeof DashboardRoute
   '/auth/sign-up': typeof AuthSignUpRouteWithChildren
   '/admin/': typeof AdminIndexRoute
   '/auth/': typeof AuthIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/auth/callback/social': typeof AuthCallbackSocialRoute
   '/auth/sign-up/payment': typeof AuthSignUpPaymentRoute
   '/auth/sign-up/user-data': typeof AuthSignUpUserDataRoute
   '/auth/sign-up/': typeof AuthSignUpIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/dashboard': typeof DashboardRoute
   '/admin': typeof AdminIndexRoute
   '/auth': typeof AuthIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/auth/callback/social': typeof AuthCallbackSocialRoute
   '/auth/sign-up/payment': typeof AuthSignUpPaymentRoute
   '/auth/sign-up/user-data': typeof AuthSignUpUserDataRoute
   '/auth/sign-up': typeof AuthSignUpIndexRoute
@@ -89,10 +112,13 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
+  '/auth': typeof AuthRouteWithChildren
+  '/dashboard': typeof DashboardRoute
   '/auth/sign-up': typeof AuthSignUpRouteWithChildren
   '/admin/': typeof AdminIndexRoute
   '/auth/': typeof AuthIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/auth/callback/social': typeof AuthCallbackSocialRoute
   '/auth/sign-up/payment': typeof AuthSignUpPaymentRoute
   '/auth/sign-up/user-data': typeof AuthSignUpUserDataRoute
   '/auth/sign-up/': typeof AuthSignUpIndexRoute
@@ -102,19 +128,24 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/admin'
+    | '/auth'
+    | '/dashboard'
     | '/auth/sign-up'
     | '/admin/'
     | '/auth/'
     | '/api/auth/$'
+    | '/auth/callback/social'
     | '/auth/sign-up/payment'
     | '/auth/sign-up/user-data'
     | '/auth/sign-up/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/dashboard'
     | '/admin'
     | '/auth'
     | '/api/auth/$'
+    | '/auth/callback/social'
     | '/auth/sign-up/payment'
     | '/auth/sign-up/user-data'
     | '/auth/sign-up'
@@ -122,10 +153,13 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/admin'
+    | '/auth'
+    | '/dashboard'
     | '/auth/sign-up'
     | '/admin/'
     | '/auth/'
     | '/api/auth/$'
+    | '/auth/callback/social'
     | '/auth/sign-up/payment'
     | '/auth/sign-up/user-data'
     | '/auth/sign-up/'
@@ -134,13 +168,27 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRouteWithChildren
-  AuthSignUpRoute: typeof AuthSignUpRouteWithChildren
-  AuthIndexRoute: typeof AuthIndexRoute
+  AuthRoute: typeof AuthRouteWithChildren
+  DashboardRoute: typeof DashboardRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin': {
       id: '/admin'
       path: '/admin'
@@ -157,10 +205,10 @@ declare module '@tanstack/react-router' {
     }
     '/auth/': {
       id: '/auth/'
-      path: '/auth'
+      path: '/'
       fullPath: '/auth/'
       preLoaderRoute: typeof AuthIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AuthRoute
     }
     '/admin/': {
       id: '/admin/'
@@ -171,10 +219,10 @@ declare module '@tanstack/react-router' {
     }
     '/auth/sign-up': {
       id: '/auth/sign-up'
-      path: '/auth/sign-up'
+      path: '/sign-up'
       fullPath: '/auth/sign-up'
       preLoaderRoute: typeof AuthSignUpRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AuthRoute
     }
     '/auth/sign-up/': {
       id: '/auth/sign-up/'
@@ -196,6 +244,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/auth/sign-up/payment'
       preLoaderRoute: typeof AuthSignUpPaymentRouteImport
       parentRoute: typeof AuthSignUpRoute
+    }
+    '/auth/callback/social': {
+      id: '/auth/callback/social'
+      path: '/callback/social'
+      fullPath: '/auth/callback/social'
+      preLoaderRoute: typeof AuthCallbackSocialRouteImport
+      parentRoute: typeof AuthRoute
     }
     '/api/auth/$': {
       id: '/api/auth/$'
@@ -229,22 +284,37 @@ const AuthSignUpRouteChildren: AuthSignUpRouteChildren = {
   AuthSignUpIndexRoute: AuthSignUpIndexRoute,
 }
 
-const AuthSignUpRouteWithChildren = AuthSignUpRoute._addFileChildren(AuthSignUpRouteChildren)
+const AuthSignUpRouteWithChildren = AuthSignUpRoute._addFileChildren(
+  AuthSignUpRouteChildren,
+)
+
+interface AuthRouteChildren {
+  AuthSignUpRoute: typeof AuthSignUpRouteWithChildren
+  AuthIndexRoute: typeof AuthIndexRoute
+  AuthCallbackSocialRoute: typeof AuthCallbackSocialRoute
+}
+
+const AuthRouteChildren: AuthRouteChildren = {
+  AuthSignUpRoute: AuthSignUpRouteWithChildren,
+  AuthIndexRoute: AuthIndexRoute,
+  AuthCallbackSocialRoute: AuthCallbackSocialRoute,
+}
+
+const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRouteWithChildren,
-  AuthSignUpRoute: AuthSignUpRouteWithChildren,
-  AuthIndexRoute: AuthIndexRoute,
+  AuthRoute: AuthRouteWithChildren,
+  DashboardRoute: DashboardRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
 
-import type { createStart } from '@tanstack/react-start'
-
 import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
 declare module '@tanstack/react-start' {
   interface Register {
     ssr: true

@@ -2,7 +2,6 @@ import type { AnyUseMutationOptions } from '@tanstack/react-query'
 
 import { useMutation } from '@tanstack/react-query'
 import { createFileRoute, useRouter } from '@tanstack/react-router'
-import { Result } from 'better-result'
 import { Activity } from 'react'
 
 import type { SignUp } from '@/schemas/auth'
@@ -12,8 +11,8 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import { useAppForm } from '@/hooks/form'
+import { signUpUser } from '@/lib/auth.functions'
 import { formOpts, SignUpForm } from '@/routes/auth/-components/sign-up-form'
-import { updateSignUpSession } from '@/session/onboarding-session'
 
 export const Route = createFileRoute('/auth/sign-up/')({
   component: RouteComponent,
@@ -22,18 +21,9 @@ export const Route = createFileRoute('/auth/sign-up/')({
 const mutationOptions = {
   mutationKey: ['sign-up'],
   mutationFn: async ({ value }: { value: SignUp }) => {
-    const serializedRes = await updateSignUpSession({
-      data: {
-        accountData: value,
-        state: 'email',
-      },
-    })
+    const result = await signUpUser({ data: { step: 'account', accountData: value } })
 
-    const res = Result.deserialize(serializedRes)
-
-    if (res.isErr()) {
-      throw new Error('Failed to create account')
-    }
+    if (!result.success) throw new Error('Failed to save account data')
   },
 } satisfies AnyUseMutationOptions
 
@@ -54,10 +44,10 @@ function RouteComponent() {
     <div className="container grid min-h-screen min-w-screen place-items-center">
       <Card className="relative w-full max-w-md [view-transition-name:auth-card]">
         <CardHeader>
-          <CardTitle>Sign Un</CardTitle>
+          <CardTitle>Sign Up</CardTitle>
           <CardDescription>Create a New Account</CardDescription>
           <div className="my-2">
-            <SocialSignOn callbackUrl="/auth/sign-up/user-data" />
+            <SocialSignOn />
           </div>
           <Separator className="mt-2" />
         </CardHeader>

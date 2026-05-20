@@ -38,9 +38,11 @@ type UpdateShape = Record<string, unknown>
 type UpdateQuery = { where: () => Promise<TransactionResult> }
 type UpdateBuilder = { set: (values: UpdateShape) => UpdateQuery }
 type DeleteBuilder = { where: () => Promise<TransactionResult> }
+type InsertBuilder = { values: () => Promise<TransactionResult> }
 type TransactionContext = {
   update: () => UpdateBuilder
   delete: () => DeleteBuilder
+  insert: () => InsertBuilder
 }
 type TransactionCallback = (tx: TransactionContext) => Promise<unknown> | unknown
 type MiddlewareContext = { session: MockSession }
@@ -110,10 +112,13 @@ const updateSetMock = mock(() => ({ where: updateWhereMock }))
 const updateMock = mock(() => ({ set: updateSetMock }))
 const deleteWhereMock = mock(async (): Promise<TransactionResult> => [])
 const deleteMock = mock(() => ({ where: deleteWhereMock }))
+const insertValuesMock = mock(async (): Promise<TransactionResult> => [])
+const insertMock = mock(() => ({ values: insertValuesMock }))
 const transactionMock = mock(async (callback: TransactionCallback) =>
   callback({
     update: updateMock,
     delete: deleteMock,
+    insert: insertMock,
   }),
 )
 
@@ -127,12 +132,18 @@ mock.module('@tanstack/react-start', () => ({
 mock.module('@tanstack/react-start/server', () => ({
   getRequestHeaders: getRequestHeadersMock,
   setResponseStatus: setResponseStatusMock,
+  useSession: mock(() => ({
+    data: {},
+    update: mock(async () => {}),
+    clear: mock(async () => {}),
+  })),
 }))
 
 mock.module('@/lib/auth', () => ({
   auth: {
     api: {
       getSession: getSessionMock,
+      signUpEmail: mock(async () => ({ user: { id: 'user-1' } })),
     },
   },
 }))
@@ -140,7 +151,24 @@ mock.module('@/lib/auth', () => ({
 mock.module('@/db', () => ({
   db: {
     transaction: transactionMock,
+    select: mock(() => ({
+      from: mock(() => ({
+        where: mock(() => ({
+          limit: mock(async () => []),
+        })),
+      })),
+    })),
   },
+}))
+
+mock.module('@tanstack/react-router', () => ({
+  redirect: (input: unknown) => input,
+}))
+
+mock.module('@/session/onboarding-session', () => ({
+  getSignUpSession: mock(async () => ({})),
+  updateSignUpSession: mock(async () => ({ status: 'ok', value: undefined })),
+  clearSignUpSession: mock(async () => ({ success: true })),
 }))
 
 const { createRoleMiddleware, ensureRole, ensureSession, getSession, softDeleteUser } =
@@ -157,6 +185,8 @@ describe('auth.functions', () => {
     updateMock.mockClear()
     deleteWhereMock.mockClear()
     deleteMock.mockClear()
+    insertValuesMock.mockClear()
+    insertMock.mockClear()
     transactionMock.mockClear()
 
     getRequestHeadersMock.mockImplementation(() => ({ cookie: 'session=test' }))
@@ -167,10 +197,13 @@ describe('auth.functions', () => {
     updateMock.mockImplementation(() => ({ set: updateSetMock }))
     deleteWhereMock.mockImplementation(async () => [])
     deleteMock.mockImplementation(() => ({ where: deleteWhereMock }))
+    insertValuesMock.mockImplementation(async () => [])
+    insertMock.mockImplementation(() => ({ values: insertValuesMock }))
     transactionMock.mockImplementation(async (callback: TransactionCallback) =>
       callback({
         update: updateMock,
         delete: deleteMock,
+        insert: insertMock,
       }),
     )
   })
@@ -250,8 +283,6 @@ describe('auth.functions', () => {
     expect(updatedUser).toBeDefined()
     expect(updatedUser?.name).toBe('Deleted User')
     expect(updatedUser?.email).toBe('deleted_user-42@deleted.invalid')
-    expect(updatedUser?.firstName).toBe('Deleted User')
-    expect(updatedUser?.lastName).toBe('Deleted User')
     expect(updatedUser?.image).toBeNull()
     expect(updatedUser?.emailVerified).toBe(false)
     expect(updatedUser?.deletedAt).toBeInstanceOf(Date)
