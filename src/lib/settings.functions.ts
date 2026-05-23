@@ -15,34 +15,48 @@ const usersRepository = new UsersRepository(db, users)
 const clientsRepository = new ClientsRepository(db, clients)
 const addressesRepository = new AddressesRepository(db, addresses)
 
+async function getAccountSummary(userId: string) {
+  const user = await usersRepository.findById(userId).then((result) =>
+    result.match({
+      ok: (value) => value,
+      err: () => undefined,
+    }),
+  )
+
+  if (!user) {
+    throw new Error('Unable to load account')
+  }
+
+  return {
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    image: user.image,
+    role: user.role,
+    onboardingComplete: user.onboardingComplete,
+    createdAt: user.createdAt,
+  }
+}
+
+export const getCurrentAccountSummary = createServerFn()
+  .middleware([ensureSessionMiddleware])
+  .handler(async ({ context: { session } }) => await getAccountSummary(session.user.id))
+
 export const getUserSettings = createServerFn()
   .middleware([ensureSessionMiddleware])
   .handler(async ({ context: { session } }) => {
     const [user, client, address] = await Promise.all([
-      usersRepository.findById(session.user.id).then((result) =>
-        result.match({
-          ok: (value) => value,
-          err: () => undefined,
-        }),
-      ),
+      getAccountSummary(session.user.id),
       clientsRepository.findByClientId(session.user.id),
       addressesRepository.findByUserId(session.user.id),
     ])
 
-    if (!user || !client) {
+    if (!client) {
       throw new Error('Unable to load settings')
     }
 
     return {
-      account: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        image: user.image,
-        role: user.role,
-        onboardingComplete: user.onboardingComplete,
-        createdAt: user.createdAt,
-      },
+      account: user,
       profile: {
         firstName: client.firstName,
         lastName: client.lastName,

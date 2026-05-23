@@ -1,6 +1,16 @@
 import { mutationOptions, queryOptions } from '@tanstack/react-query'
 
-import { getUserSettings, updateUserSettings } from '@/lib/settings.functions'
+import {
+  getCurrentAccountSummary,
+  getUserSettings,
+  updateUserSettings,
+} from '@/lib/settings.functions'
+
+export const getCurrentAccountSummaryQueryOptions = () =>
+  queryOptions({
+    queryKey: ['account-summary'],
+    queryFn: getCurrentAccountSummary,
+  })
 
 export const getUserSettingsQueryOptions = () =>
   queryOptions({
