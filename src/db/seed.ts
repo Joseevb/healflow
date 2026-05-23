@@ -386,10 +386,39 @@ async function seedAdmin() {
   console.log({ ...user })
 }
 
+async function seedBasicSpecialist() {
+  const existingUser = await db.select().from(users).where(eq(users.email, 'spe@test.com'))
+
+  if (existingUser.length > 0) {
+    console.log({ ...existingUser[0] })
+    return
+  }
+
+  const { user } = await auth.api.createUser({
+    body: {
+      email: 'spe@test.com',
+      password: 'spe',
+      name: 'Test Specialist',
+      role: 'specialist',
+      data: { onboardingComplete: true },
+    },
+  })
+
+  const res = await db.insert(specialistsData).values({
+    consultationDurationMinutes: 30,
+    licenseNumber: 'TEST123456',
+    specialistId: user.id,
+    specialty: 'Primary Care',
+  })
+
+  console.log({ ...user, specialistData: res })
+}
+
 const customSeeders: Record<string, () => Promise<void>> = {
   'medical-info': seedMedicalInfo,
   specialists: seedSpecialists,
   admin: seedAdmin,
+  'basic-specialist': seedBasicSpecialist,
 }
 
 // ── Run ─────────────────────────────────────────────────────
