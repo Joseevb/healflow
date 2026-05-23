@@ -117,28 +117,49 @@ function buildBookingDays({
   >()
 
   for (const block of availabilityBlocks) {
-    let slotStart = new Date(block.startTime)
-    const blockEnd = new Date(block.endTime)
+    const blockStartTime = new Date(block.startTime)
+    const blockEndTime = new Date(block.endTime)
 
-    while (slotStart.getTime() + durationMs <= blockEnd.getTime()) {
-      const startsAt = new Date(slotStart)
-      if (startsAt >= startDate && startsAt <= endDate) {
-        const dayKey = getDayKey(startsAt)
-        const day = days.get(dayKey) ?? {
-          date: dayKey,
-          slots: new Map(),
-        }
+    for (
+      const cursor = new Date(startDate);
+      cursor <= endDate;
+      cursor.setDate(cursor.getDate() + 1)
+    ) {
+      const currentDay = new Date(cursor)
 
-        day.slots.set(startsAt.toISOString(), {
-          startsAt: startsAt.toISOString(),
-          label: formatSlotLabel(startsAt),
-          status: bookedSlotStarts.has(startsAt.toISOString()) ? 'booked' : 'available',
-        })
-
-        days.set(dayKey, day)
+      if (currentDay.toLocaleDateString('en-US', { weekday: 'long' }) !== block.dayOfWeek) {
+        continue
       }
 
-      slotStart = new Date(slotStart.getTime() + durationMs)
+      const startsAt = new Date(currentDay)
+      startsAt.setHours(blockStartTime.getUTCHours(), blockStartTime.getUTCMinutes(), 0, 0)
+
+      const endsAt = new Date(currentDay)
+      endsAt.setHours(blockEndTime.getUTCHours(), blockEndTime.getUTCMinutes(), 0, 0)
+
+      let slotStart = new Date(startsAt)
+
+      while (slotStart.getTime() + durationMs <= endsAt.getTime()) {
+        const slot = new Date(slotStart)
+
+        if (slot >= startDate && slot <= endDate) {
+          const dayKey = getDayKey(slot)
+          const day = days.get(dayKey) ?? {
+            date: dayKey,
+            slots: new Map(),
+          }
+
+          day.slots.set(slot.toISOString(), {
+            startsAt: slot.toISOString(),
+            label: formatSlotLabel(slot),
+            status: bookedSlotStarts.has(slot.toISOString()) ? 'booked' : 'available',
+          })
+
+          days.set(dayKey, day)
+        }
+
+        slotStart = new Date(slotStart.getTime() + durationMs)
+      }
     }
   }
 
@@ -188,9 +209,8 @@ export const getClientUpcomingAppointments = createServerFn()
 export const getClientAppointmentHistory = createServerFn()
   .middleware([ensureSessionMiddleware])
   .handler(async ({ context: { session } }) => {
-    const appointmentHistory = await appointmentsRepository.findHistoryByClientId(
+    const appointmentHistory = await appointmentsRepository.findCompletedHistoryByClientId(
       session.user.id,
-      new Date(),
     )
 
     return await Promise.all(
