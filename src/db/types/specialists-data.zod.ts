@@ -34,6 +34,9 @@ export type SpecialistData = z.infer<typeof selectSpecialistDataSchema>
 export type CreateSpecialistData = z.infer<typeof insertSpecialistDataSchema>
 export type UpdateSpecialistData = z.infer<typeof updateSpecialistDataSchema>
 
-export type Specialist = Omit<typeof users.$inferSelect, 'stripeCustomerId'> & {
-  specialistData: Omit<SpecialistData, 'id' | 'specialistId'>
+export type Specialist = Pick<
+  typeof users.$inferSelect,
+  'id' | 'name' | 'image' | 'email' | 'createdAt' | 'updatedAt'
+> & {
+  specialistData: Omit<SpecialistData, 'specialistId'>
 }

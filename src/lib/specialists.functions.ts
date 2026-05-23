@@ -1,14 +1,21 @@
 import { createServerFn } from '@tanstack/react-start'
-import { and, eq, getTableColumns, inArray } from 'drizzle-orm'
+import { Result } from 'better-result'
+import { getTableColumns } from 'drizzle-orm'
 import * as z from 'zod'
 
 import { db } from '@/db'
+import { EntityNotFoundError } from '@/db/repository/base-repository'
 import { SpecialistsDataRepository } from '@/db/repository/specialists-data.repository'
+import { UsersRepository } from '@/db/repository/users.repository'
 import { specialistsData, users } from '@/db/schemas'
 import { selectUsersSchema } from '@/db/types/auth.zod'
 import { selectSpecialistDataSchema } from '@/db/types/specialists-data.zod'
+import { safeSerialize } from '@/lib/result'
+
+import { ensureSessionMiddleware } from './auth.functions'
 
 const specialistRepository = new SpecialistsDataRepository(db, specialistsData)
+const usersRepository = new UsersRepository(db, users)
 
 const specialistFieldKeys = Object.keys({
   ...selectUsersSchema.shape,
@@ -22,6 +29,15 @@ const getSpecialistsByQuerySchema = z.object({
   value: z.string().nonempty().nonoptional(),
 })
 
+const requiredString = z.string().nonempty().nonoptional()
+
+function createSpecialistNotFoundError(specialistId: string) {
+  return new EntityNotFoundError({
+    field: 'specialistId',
+    value: specialistId,
+  })
+}
+
 export const getSpecialistByQuery = createServerFn()
   .inputValidator(getSpecialistsByQuerySchema)
   .handler(async ({ data }) => {
@@ -33,65 +49,94 @@ export const getSpecialistByQuery = createServerFn()
     let specialistIds: Array<string>
 
     if (sdFieldSet.has(field)) {
-      const rows = await db
-        .select({ id: specialistsData.specialistId })
-        .from(specialistsData)
-        .where(eq(sdColumns[field as keyof typeof sdColumns] as any, value))
+      const rows = await specialistRepository.findAllSpecialistIdsByField(
+        field as keyof typeof sdColumns,
+        value,
+      )
       specialistIds = rows.map((r) => r.id)
     } else {
-      const rows = await db
-        .select({ id: users.id })
-        .from(users)
-        .where(
-          and(
-            eq(users.role, 'specialist'),
-            eq(
-              getTableColumns(users)[
-                field as keyof ReturnType<typeof getTableColumns<typeof users>>
-              ] as any,
-              value,
-            ),
-          ),
-        )
+      const rows = await usersRepository.findAllSpecialistsByField(
+        field as keyof ReturnType<typeof getTableColumns<typeof users>>,
+        value,
+      )
       specialistIds = rows.map((r) => r.id)
     }
 
     if (specialistIds.length === 0) return []
 
-    const specialists = await db
-      .select()
-      .from(users)
-      .where(and(eq(users.role, 'specialist'), inArray(users.id, specialistIds)))
+    const specialists = await usersRepository.findAllSpecialistsByIds(specialistIds)
 
     const specialistDataNested = await Promise.all(
       specialists.map(async (s) => ({
         user: s,
-        data: await specialistRepository.findBySpecialistId(s.id),
+        specialistData: await specialistRepository.findBySpecialistId(s.id),
       })),
     )
 
     return specialistDataNested
-      .filter(({ data: sd }) => sd.length > 0)
-      .map(({ user, data: sd }) => ({
+      .filter(({ specialistData }) => specialistData)
+      .map(({ user, specialistData }) => ({
         ...user,
-        specialistData: sd[0],
+        specialistData,
       }))
   })
 
 export const getSpecialists = createServerFn().handler(async () => {
-  const specialists = await db.select().from(users).where(eq(users.role, 'specialist'))
+  const specialists = await usersRepository.findAllSpecialists()
 
   const specialistDataNested = await Promise.all(
     specialists.map(async (s) => ({
       user: s,
-      data: await specialistRepository.findBySpecialistId(s.id),
+      specialistData: await specialistRepository.findBySpecialistId(s.id),
     })),
   )
 
   return specialistDataNested
-    .filter(({ data: sd }) => sd.length > 0)
-    .map(({ user, data: sd }) => ({
+    .filter(({ specialistData }) => specialistData)
+    .map(({ user, specialistData }) => ({
       ...user,
-      specialistData: sd[0],
+      specialistData,
     }))
 })
+
+export const getSpecialistById = createServerFn()
+  .middleware([ensureSessionMiddleware])
+  .inputValidator(requiredString)
+  .handler(async ({ data: specialistId }) => {
+    const userResult = await Result.tryPromise({
+      try: async () => {
+        const user = await usersRepository.findSpecialistById(specialistId)
+        if (!user) {
+          throw createSpecialistNotFoundError(specialistId)
+        }
+
+        return user
+      },
+      catch: (cause) =>
+        cause instanceof EntityNotFoundError ? cause : createSpecialistNotFoundError(specialistId),
+    })
+
+    const specialistDataResult = await Result.tryPromise({
+      try: async () => {
+        const specialist = await specialistRepository.findBySpecialistId(specialistId)
+
+        if (!specialist) {
+          throw createSpecialistNotFoundError(specialistId)
+        }
+
+        return specialist
+      },
+      catch: (cause) =>
+        cause instanceof EntityNotFoundError ? cause : createSpecialistNotFoundError(specialistId),
+    })
+
+    return Result.gen(async function* () {
+      const user = yield* userResult
+      const specialist = yield* specialistDataResult
+
+      return Result.ok({
+        ...user,
+        specialistData: specialist,
+      })
+    }).then(safeSerialize)
+  })

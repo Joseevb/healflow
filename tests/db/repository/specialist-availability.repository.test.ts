@@ -34,7 +34,7 @@ describe('SpecialistAvailabilityRepository', () => {
     repo = new SpecialistAvailabilityRepository(db, specialistAvailability)
   })
 
-  describe('findBySpecialistId', () => {
+  describe('findAllBySpecialistId', () => {
     test('should find availability for a specialist', async () => {
       await db.insert(specialistAvailability).values([
         {
@@ -63,14 +63,14 @@ describe('SpecialistAvailabilityRepository', () => {
         },
       ])
 
-      const results = await repo.findBySpecialistId('spec1')
+      const results = await repo.findAllBySpecialistId('spec1')
       expect(results.length).toBe(2)
       expect(results[0].specialistId).toBe('spec1')
       expect(results[1].specialistId).toBe('spec1')
     })
 
     test('should return empty array when specialist has no availability', async () => {
-      const results = await repo.findBySpecialistId('non-existent')
+      const results = await repo.findAllBySpecialistId('non-existent')
       expect(results.length).toBe(0)
     })
   })

@@ -1,5 +1,3 @@
-import type { AnyUseMutationOptions } from '@tanstack/react-query'
-
 import { useMutation } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import { Activity } from 'react'
@@ -11,7 +9,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import { useAppForm } from '@/hooks/form'
-import { signIn } from '@/lib/auth-client'
+import { signInMutationOptions } from '@/queries/auth-queries'
 import { formOpts, SignInForm } from '@/routes/auth/-components/sign-in-form'
 import { validateSignUpSession } from '@/session/onboarding-session'
 
@@ -20,23 +18,9 @@ export const Route = createFileRoute('/auth/')({
   beforeLoad: async () => validateSignUpSession({ data: 'account' }),
 })
 
-const mutationOptions = {
-  mutationFn: async ({ value }: { value: SignIn }) => {
-    const result = await signIn.email({
-      callbackURL: '/dashboard',
-      ...value,
-    })
-
-    if (result.error) {
-      throw new Error(result.error.message || 'Sign in failed')
-    }
-  },
-  mutationKey: ['signIn'],
-} satisfies AnyUseMutationOptions
-
 function RouteComponent() {
   const { mutateAsync, error, isError } = useMutation<void, Error, { value: SignIn }>(
-    mutationOptions,
+    signInMutationOptions,
   )
 
   const form = useAppForm({

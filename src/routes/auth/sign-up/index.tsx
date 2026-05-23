@@ -1,5 +1,3 @@
-import type { AnyUseMutationOptions } from '@tanstack/react-query'
-
 import { useMutation } from '@tanstack/react-query'
 import { createFileRoute, useRouter } from '@tanstack/react-router'
 import { Activity } from 'react'
@@ -11,27 +9,18 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import { useAppForm } from '@/hooks/form'
-import { signUpUser } from '@/lib/auth.functions'
+import { signUpMutationOptions } from '@/queries/auth-queries'
 import { formOpts, SignUpForm } from '@/routes/auth/-components/sign-up-form'
 
 export const Route = createFileRoute('/auth/sign-up/')({
   component: RouteComponent,
 })
 
-const mutationOptions = {
-  mutationKey: ['sign-up'],
-  mutationFn: async ({ value }: { value: SignUp }) => {
-    const result = await signUpUser({ data: { step: 'account', accountData: value } })
-
-    if (!result.success) throw new Error('Failed to save account data')
-  },
-} satisfies AnyUseMutationOptions
-
 function RouteComponent() {
   const router = useRouter()
 
   const { mutateAsync, isError, error } = useMutation<void, Error, { value: SignUp }>({
-    ...mutationOptions,
+    ...signUpMutationOptions,
     onSuccess: async () => await router.navigate({ to: '/auth/sign-up/user-data' }),
   })
 

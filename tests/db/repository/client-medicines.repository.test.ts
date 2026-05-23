@@ -19,6 +19,7 @@ describe('ClientMedicinesRepository', () => {
 
     sqlite.run(`
       CREATE TABLE client_medicines (
+        name TEXT NOT NULL,
         dosage TEXT NOT NULL,
         frequency TEXT NOT NULL,
         start_date INTEGER NOT NULL,
@@ -38,6 +39,7 @@ describe('ClientMedicinesRepository', () => {
     test('should find all medicines for a client', async () => {
       await db.insert(clientMedicines).values([
         {
+          name: 'Metformin',
           userId: 'client1',
           medicineId: 1,
           dosage: '10mg',
@@ -46,6 +48,7 @@ describe('ClientMedicinesRepository', () => {
           endDate: new Date('2026-02-01T00:00:00.000Z'),
         },
         {
+          name: 'Lisinopril',
           userId: 'client1',
           medicineId: 2,
           dosage: '20mg',
@@ -54,6 +57,7 @@ describe('ClientMedicinesRepository', () => {
           endDate: new Date('2026-02-01T00:00:00.000Z'),
         },
         {
+          name: 'Metformin',
           userId: 'client2',
           medicineId: 1,
           dosage: '15mg',
@@ -79,6 +83,7 @@ describe('ClientMedicinesRepository', () => {
     test('should find all clients using a medicine', async () => {
       await db.insert(clientMedicines).values([
         {
+          name: 'Metformin',
           userId: 'client1',
           medicineId: 1,
           dosage: '10mg',
@@ -87,6 +92,7 @@ describe('ClientMedicinesRepository', () => {
           endDate: new Date('2026-02-01T00:00:00.000Z'),
         },
         {
+          name: 'Metformin',
           userId: 'client2',
           medicineId: 1,
           dosage: '20mg',
@@ -95,6 +101,7 @@ describe('ClientMedicinesRepository', () => {
           endDate: new Date('2026-02-01T00:00:00.000Z'),
         },
         {
+          name: 'Lisinopril',
           userId: 'client1',
           medicineId: 2,
           dosage: '30mg',

@@ -5,6 +5,7 @@ import { users } from '@/db/schemas'
 export const clientMedicines = sqliteTable(
   'client_medicines',
   (t) => ({
+    name: t.text('name').notNull(),
     dosage: t.text('dosage').notNull(),
     frequency: t.text('frequency').notNull(),
     startDate: t.integer('start_date', { mode: 'timestamp_ms' }).notNull(),

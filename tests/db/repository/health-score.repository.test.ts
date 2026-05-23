@@ -36,7 +36,7 @@ describe('HealthScoreRepository', () => {
     repo = new HealthScoreRepository(db, healthScore)
   })
 
-  describe('findByClientId', () => {
+  describe('findLatestByClientId', () => {
     test('should find health score for a client', async () => {
       await db.insert(healthScore).values([
         {
@@ -48,6 +48,8 @@ describe('HealthScoreRepository', () => {
           lifestyleScore: 82,
           vitalScore: 83,
           dataPointsCount: 10,
+          createdAt: new Date('2026-01-01T00:00:00.000Z'),
+          updatedAt: new Date('2026-01-01T00:00:00.000Z'),
         },
         {
           id: '2',
@@ -58,10 +60,12 @@ describe('HealthScoreRepository', () => {
           lifestyleScore: 93,
           vitalScore: 94,
           dataPointsCount: 12,
+          createdAt: new Date('2026-01-02T00:00:00.000Z'),
+          updatedAt: new Date('2026-01-02T00:00:00.000Z'),
         },
       ])
 
-      const result = await repo.findByClientId('client1')
+      const result = await repo.findLatestByClientId('client1')
       expect(result).toBeDefined()
       if (result) {
         expect(result.userId).toBe('client1')
@@ -70,11 +74,11 @@ describe('HealthScoreRepository', () => {
     })
 
     test('should return undefined when client not found', async () => {
-      const result = await repo.findByClientId('non-existent')
+      const result = await repo.findLatestByClientId('non-existent')
       expect(result).toBeUndefined()
     })
 
-    test('should return the first matching record', async () => {
+    test('should return the most recent matching record', async () => {
       await db.insert(healthScore).values([
         {
           id: '1',
@@ -85,6 +89,8 @@ describe('HealthScoreRepository', () => {
           lifestyleScore: 82,
           vitalScore: 83,
           dataPointsCount: 10,
+          createdAt: new Date('2026-01-01T00:00:00.000Z'),
+          updatedAt: new Date('2026-01-01T00:00:00.000Z'),
         },
         {
           id: '2',
@@ -95,13 +101,15 @@ describe('HealthScoreRepository', () => {
           lifestyleScore: 86,
           vitalScore: 87,
           dataPointsCount: 11,
+          createdAt: new Date('2026-02-01T00:00:00.000Z'),
+          updatedAt: new Date('2026-02-01T00:00:00.000Z'),
         },
       ])
 
-      const result = await repo.findByClientId('client1')
+      const result = await repo.findLatestByClientId('client1')
       expect(result).toBeDefined()
       if (result) {
-        expect(result.id).toBe('1')
+        expect(result.id).toBe('2')
         expect(result.userId).toBe('client1')
       }
     })

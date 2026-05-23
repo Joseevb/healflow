@@ -5,6 +5,7 @@ import { clientMedicines } from '@/db/schemas'
 
 export const selectUserMedicinesSchema = createSelectSchema(clientMedicines)
 export const insertUserMedicinesSchema = createInsertSchema(clientMedicines, {
+  name: z.string().nonempty().nonoptional(),
   dosage: z.string().nonempty().nonoptional(),
   frequency: z.string().nonempty().nonoptional(),
   startDate: z.date().nonoptional(),
@@ -17,6 +18,7 @@ export const insertUserMedicinesSchema = createInsertSchema(clientMedicines, {
   medicineId: z.number().positive().nonoptional(),
 }).omit({ createdAt: true, updatedAt: true })
 export const updateUserMedicinesSchema = createUpdateSchema(clientMedicines, {
+  name: z.string().nonempty().optional(),
   dosage: z.string().nonempty().optional(),
   frequency: z.string().nonempty().optional(),
   startDate: z.date().optional(),

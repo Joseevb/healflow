@@ -70,7 +70,7 @@ function RouteComponent() {
 
     const { error } = await authClient.subscription.upgrade({
       plan: planId,
-      successUrl: createUrl('/dashboard'),
+      successUrl: createUrl('/auth/callback/payment'),
       cancelUrl: createUrl('/auth/sign-up/payment', { error: 'cancelled' }),
     })
 

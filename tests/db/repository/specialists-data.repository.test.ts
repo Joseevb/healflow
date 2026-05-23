@@ -41,6 +41,8 @@ describe('SpecialistsDataRepository', () => {
           consultationDurationMinutes: 30,
           specialistId: 'spec1',
           specialty: 'Cardiology',
+          createdAt: new Date('2026-01-01T00:00:00.000Z'),
+          updatedAt: new Date('2026-01-01T00:00:00.000Z'),
         },
         {
           id: '2',
@@ -48,18 +50,20 @@ describe('SpecialistsDataRepository', () => {
           consultationDurationMinutes: 45,
           specialistId: 'spec2',
           specialty: 'Dermatology',
+          createdAt: new Date('2026-01-01T00:00:00.000Z'),
+          updatedAt: new Date('2026-01-01T00:00:00.000Z'),
         },
       ])
 
-      const results = await repo.findBySpecialistId('spec1')
-      expect(results.length).toBe(1)
-      expect(results[0].specialistId).toBe('spec1')
-      expect(results[0].specialty).toBe('Cardiology')
+      const result = await repo.findBySpecialistId('spec1')
+      expect(result).toBeDefined()
+      expect(result?.specialistId).toBe('spec1')
+      expect(result?.specialty).toBe('Cardiology')
     })
 
-    test('should return empty array when specialist not found', async () => {
-      const results = await repo.findBySpecialistId('non-existent')
-      expect(results.length).toBe(0)
+    test('should return undefined when specialist not found', async () => {
+      const result = await repo.findBySpecialistId('non-existent')
+      expect(result).toBeUndefined()
     })
   })
 })

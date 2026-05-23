@@ -35,3 +35,7 @@ export const updateHealthMetricSchema = createUpdateSchema(healthMetrics, {
   createdAt: true,
   updatedAt: true,
 })
+
+export type HealthMetrics = z.infer<typeof selectHealthMetricSchema>
+export type CreateHealthMetrics = z.infer<typeof insertHealthMetricSchema>
+export type UpdateHealthMetrics = z.infer<typeof updateHealthMetricSchema>

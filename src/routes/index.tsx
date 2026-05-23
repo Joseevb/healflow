@@ -1,7 +1,6 @@
 import { useForm } from '@tanstack/react-form'
 import { useQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
-import { createServerFn, useServerFn } from '@tanstack/react-start'
 import * as z from 'zod'
 
 import SocialSignOn from '@/components/social-sign-on'
@@ -9,9 +8,8 @@ import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { FieldGroup, Field, FieldLabel, FieldError, FieldDescription } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
-import { db } from '@/db'
-import { users } from '@/db/schemas'
 import { authClient, deleteUser } from '@/lib/auth-client'
+import { usersQueryOptions } from '@/queries/home-queries'
 import { Header } from '@/routes/-components/header'
 
 export const Route = createFileRoute('/')({ component: Home })
@@ -22,15 +20,8 @@ const schema = z.object({
   password: z.string(),
 })
 
-const getUsersServerFn = createServerFn().handler(async () => await db.select().from(users))
-
 function Home() {
-  const getUsers = useServerFn(getUsersServerFn)
-
-  const { data } = useQuery({
-    queryKey: ['users'],
-    queryFn: getUsers,
-  })
+  const { data } = useQuery(usersQueryOptions)
 
   const form = useForm({
     defaultValues: { name: '', email: '', password: '' } satisfies z.infer<typeof schema>,

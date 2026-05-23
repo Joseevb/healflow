@@ -22,7 +22,13 @@ export const formOpts = formOptions({
 export const SignInForm = withForm({
   ...formOpts,
   render: ({ form }) => (
-    <form>
+    <form
+      onSubmit={(e) => {
+        e.preventDefault()
+        e.stopPropagation()
+        form.handleSubmit()
+      }}
+    >
       <FieldGroup>
         <form.AppField name="email">
           {(field) => (
