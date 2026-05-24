@@ -15,7 +15,8 @@
     "**/dist/**",
     "**/snap/**",
     "**/vite.config.*.timestamp-*.*",
-    "src/components/ui/**"
+    "src/components/ui/**",
+    "**/*.gen.*"
   ],
   "rules": {},
   "overrides": [
