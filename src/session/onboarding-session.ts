@@ -28,7 +28,7 @@ export const getSignUpSession = createServerFn({ method: 'GET' }).handler(async 
     },
   })
 
-  return session.data
+  return session.data ?? {}
 })
 
 // Update session data

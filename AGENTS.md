@@ -17,7 +17,8 @@
 | ----------------------- | -------------------------------- |
 | `bun run dev`           | Dev server on port 3000          |
 | `bun run build`         | Production build                 |
-| `bun run test`          | Run all tests                    |
+| `bun run test`          | Run all tests (4 groups)         |
+| `bun run test:coverage` | Repo tests with coverage report  |
 | `bun run lint`          | oxlint                           |
 | `bun run fmt`           | oxfmt                            |
 | `bun run check`         | oxfmt && oxlint --fix            |
@@ -77,10 +78,31 @@ tests/               Mirrors src layout
 
 - **Runner**: `bun test` (Bun test runner, not Vitest)
 - **Timeout**: 10s (configured in `bunfig.toml`)
-- **Coverage threshold**: 80%
+- **Coverage**: Disabled by default (use `bun run test:coverage` for repo tests); coverage is disabled in `bunfig.toml` because Bun's `coverageThreshold` is per-file and schema/utility files inherently have low function coverage. CI uses `test:coverage` targeting only the repo group (90.96% line coverage).
 - **Test env**: `src/test/setup.ts` preload sets env vars; DB uses `:memory:` SQLite
 - DB repository tests create fresh in-memory tables per `beforeEach`
 - Tests live in `tests/` directory mirroring `src/`
+- **Test groups**: Tests are split into 4 groups because Bun's `mock.module` is process-global and path-normalized — mocking a module specifier (e.g. `@/db/repository/...`) affects ALL imports of that module, even via relative paths. This prevents concurrent execution of files that mock different modules.
+
+### Test groups
+
+| Command                    | Files                                                                   | Tests                   |
+| -------------------------- | ----------------------------------------------------------------------- | ----------------------- |
+| `bun run test:repo`        | `tests/db/repository/`                                                  | 170 repo + schema tests |
+| `bun run test:auth`        | `tests/lib/auth.functions.test.ts`, `tests/lib/admin.functions.test.ts` | 21 auth/admin tests     |
+| `bun run test:lib`         | All other lib + session                                                 | 79 lib/session tests    |
+| `bun run test:specialists` | `tests/lib/specialists.functions.test.ts`                               | 10 specialists tests    |
+
+Total: **280 tests, 0 failures, 538 expect() calls across 24 files**.
+
+### Mock isolation
+
+`mock.module` in Bun v1.3 uses **path-normalized matching**: once mocked, importing the same module via any specifier (`@/foo/bar` or `../../src/foo/bar`) returns the mock. This means test files in the same process must all agree on which modules are mocked. The 4 groups above partition files with incompatible mock regimes:
+
+- **`test:repo`**: No `mock.module` calls — real in-memory SQLite
+- **`test:auth`**: Uses real `auth.functions.ts` (no mock for `@/lib/auth.functions`), plus mocks for `@/db`, `@/lib/auth`, etc.
+- **`test:lib`**: All remaining lib tests mock `@/lib/auth.functions` with a lightweight stub and `@/db` with a functional chain
+- **`test:specialists`**: Standalone because `appointments.functions.test.ts` mocks `@/lib/specialists.functions` which pollutes the specialists test's import
 
 ## Generated / ignored files
 

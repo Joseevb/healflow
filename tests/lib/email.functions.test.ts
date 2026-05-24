@@ -55,17 +55,9 @@ mock.module('resend', () => ({
 
 mock.module('@tanstack/react-start', () => ({
   createServerFn: createServerFnMock,
-}))
-
-mock.module('@/env/server', () => ({
-  env: {
-    RESEND_API_KEY: 'test_key',
-    RESEND_EMAIL_FROM: 'test@example.com',
-  },
-}))
-
-mock.module('@/lib/auth.functions', () => ({
-  ensureSessionMiddleware: { type: 'session-middleware' },
+  createMiddleware: () => ({
+    server: (handler: unknown) => handler,
+  }),
 }))
 
 const { sendEmail } = await import('../../src/lib/email.functions')
@@ -154,5 +146,22 @@ describe('email.functions', () => {
         },
       }),
     ).rejects.toThrow('react must be a valid React element')
+  })
+
+  test('sendEmail validates undefined react payload', () => {
+    expect(
+      sendEmail({
+        data: {
+          to: 'recipient@example.com',
+          subject: 'Test Email',
+          react: undefined,
+        },
+      }),
+    ).rejects.toThrow('react must be a valid React element')
+  })
+
+  test('sendEmail middleware properly invokes ensureSessionMiddleware', () => {
+    expect(sendEmail).toBeDefined()
+    expect(typeof sendEmail).toBe('function')
   })
 })

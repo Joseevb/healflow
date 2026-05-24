@@ -9,12 +9,12 @@ import { AppointmentsRepository } from '@/db/repository/appoinments.repository'
 import { DatabaseError, EntityNotFoundError } from '@/db/repository/base-repository'
 import { SpecialistAvailabilityRepository } from '@/db/repository/specialist-availability.repository'
 import { SpecialistsDataRepository } from '@/db/repository/specialists-data.repository'
-import { appointments, specialistAvailability, specialistsData } from '@/db/schemas'
+import { UsersRepository } from '@/db/repository/users.repository'
+import { appointments, specialistAvailability, specialistsData, users } from '@/db/schemas'
 import { selectAppointmentsSchema } from '@/db/types/appointments.zod'
 
 import { ensureSessionMiddleware } from './auth.functions'
 import { safeSerialize } from './result'
-import { getSpecialistById } from './specialists.functions'
 
 const appointmentsRepository = new AppointmentsRepository(db, appointments)
 const specialistAvailabilityRepository = new SpecialistAvailabilityRepository(
@@ -22,6 +22,7 @@ const specialistAvailabilityRepository = new SpecialistAvailabilityRepository(
   specialistAvailability,
 )
 const specialistsDataRepository = new SpecialistsDataRepository(db, specialistsData)
+const usersRepository = new UsersRepository(db, users)
 
 const specialistBookingAvailabilitySchema = z
   .object({
@@ -84,6 +85,34 @@ async function getRequiredSpecialistDataResult(specialistId: string) {
     },
     catch: (cause) =>
       cause instanceof EntityNotFoundError ? cause : createSpecialistNotFoundError(specialistId),
+  })
+}
+
+async function getAppointmentSpecialistResult(specialistId: string) {
+  const userResult = await Result.tryPromise({
+    try: async () => {
+      const user = await usersRepository.findSpecialistById(specialistId)
+
+      if (!user) {
+        throw createSpecialistNotFoundError(specialistId)
+      }
+
+      return user
+    },
+    catch: (cause) =>
+      cause instanceof EntityNotFoundError ? cause : createSpecialistNotFoundError(specialistId),
+  })
+
+  const specialistDataResult = await getRequiredSpecialistDataResult(specialistId)
+
+  return await Result.gen(async function* () {
+    const user = yield* userResult
+    const specialistData = yield* specialistDataResult
+
+    return Result.ok({
+      ...user,
+      specialistData,
+    })
   })
 }
 
@@ -177,8 +206,8 @@ export const buildAppointmentSummary = createServerFn()
   .middleware([ensureSessionMiddleware])
   .inputValidator(selectAppointmentsSchema)
   .handler(async ({ data: appointment }) => {
-    const specialistResult: Result<Specialist, unknown> = Result.deserialize(
-      await getSpecialistById({ data: appointment.specialistId }),
+    const specialistResult: Result<Specialist, unknown> = await getAppointmentSpecialistResult(
+      appointment.specialistId,
     )
 
     if (specialistResult.isOk()) {

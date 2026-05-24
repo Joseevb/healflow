@@ -122,4 +122,205 @@ describe('ClientMedicinesRepository', () => {
       expect(results.length).toBe(0)
     })
   })
+
+  describe('findByClientIdAndMedicineId', () => {
+    test('should find a record by client id and medicine id when it exists', async () => {
+      await db.insert(clientMedicines).values({
+        name: 'Metformin',
+        userId: 'client1',
+        medicineId: 1,
+        dosage: '10mg',
+        frequency: 'daily',
+        startDate: new Date('2026-01-01T00:00:00.000Z'),
+        endDate: new Date('2026-02-01T00:00:00.000Z'),
+      })
+
+      const result = await repo.findByClientIdAndMedicineId('client1', 1)
+
+      expect(result).toBeDefined()
+      expect(result!.userId).toBe('client1')
+      expect(result!.medicineId).toBe(1)
+      expect(result!.name).toBe('Metformin')
+      expect(result!.dosage).toBe('10mg')
+      expect(result!.frequency).toBe('daily')
+    })
+
+    test('should return undefined when no matching record exists', async () => {
+      const result = await repo.findByClientIdAndMedicineId('non-existent', 999)
+      expect(result).toBeUndefined()
+    })
+
+    test('should return undefined when client id does not match', async () => {
+      await db.insert(clientMedicines).values({
+        name: 'Metformin',
+        userId: 'client1',
+        medicineId: 1,
+        dosage: '10mg',
+        frequency: 'daily',
+        startDate: new Date('2026-01-01T00:00:00.000Z'),
+        endDate: new Date('2026-02-01T00:00:00.000Z'),
+      })
+
+      const result = await repo.findByClientIdAndMedicineId('client2', 1)
+      expect(result).toBeUndefined()
+    })
+
+    test('should return undefined when medicine id does not match', async () => {
+      await db.insert(clientMedicines).values({
+        name: 'Metformin',
+        userId: 'client1',
+        medicineId: 1,
+        dosage: '10mg',
+        frequency: 'daily',
+        startDate: new Date('2026-01-01T00:00:00.000Z'),
+        endDate: new Date('2026-02-01T00:00:00.000Z'),
+      })
+
+      const result = await repo.findByClientIdAndMedicineId('client1', 999)
+      expect(result).toBeUndefined()
+    })
+  })
+
+  describe('saveOrUpdateByClientAndMedicineId', () => {
+    test('should create a new record when one does not exist', async () => {
+      const result = await repo.saveOrUpdateByClientAndMedicineId({
+        clientId: 'client1',
+        medicineId: 1,
+        name: 'Metformin',
+        dosage: '10mg',
+        frequency: 'daily',
+        startDate: new Date('2026-01-01T00:00:00.000Z'),
+        endDate: new Date('2026-02-01T00:00:00.000Z'),
+      })
+
+      expect(result.userId).toBe('client1')
+      expect(result.medicineId).toBe(1)
+      expect(result.name).toBe('Metformin')
+      expect(result.dosage).toBe('10mg')
+      expect(result.frequency).toBe('daily')
+    })
+
+    test('should update an existing record when one already exists', async () => {
+      await db.insert(clientMedicines).values({
+        name: 'Metformin',
+        userId: 'client1',
+        medicineId: 1,
+        dosage: '10mg',
+        frequency: 'daily',
+        startDate: new Date('2026-01-01T00:00:00.000Z'),
+        endDate: new Date('2026-02-01T00:00:00.000Z'),
+      })
+
+      const result = await repo.saveOrUpdateByClientAndMedicineId({
+        clientId: 'client1',
+        medicineId: 1,
+        name: 'Metformin',
+        dosage: '20mg',
+        frequency: 'twice daily',
+        startDate: new Date('2026-03-01T00:00:00.000Z'),
+        endDate: new Date('2026-04-01T00:00:00.000Z'),
+      })
+
+      expect(result.userId).toBe('client1')
+      expect(result.medicineId).toBe(1)
+      expect(result.dosage).toBe('20mg')
+      expect(result.frequency).toBe('twice daily')
+      expect(result.startDate).toBeDefined()
+      expect(result.endDate).toBeDefined()
+    })
+
+    test('should not create a duplicate record when updating', async () => {
+      await db.insert(clientMedicines).values({
+        name: 'Metformin',
+        userId: 'client1',
+        medicineId: 1,
+        dosage: '10mg',
+        frequency: 'daily',
+        startDate: new Date('2026-01-01T00:00:00.000Z'),
+        endDate: new Date('2026-02-01T00:00:00.000Z'),
+      })
+
+      await repo.saveOrUpdateByClientAndMedicineId({
+        clientId: 'client1',
+        medicineId: 1,
+        name: 'Metformin',
+        dosage: '20mg',
+        frequency: 'twice daily',
+        startDate: new Date('2026-03-01T00:00:00.000Z'),
+        endDate: new Date('2026-04-01T00:00:00.000Z'),
+      })
+
+      const all = await db.select().from(clientMedicines)
+      expect(all.length).toBe(1)
+    })
+
+    test('should only update the targeted record', async () => {
+      await db.insert(clientMedicines).values([
+        {
+          name: 'Metformin',
+          userId: 'client1',
+          medicineId: 1,
+          dosage: '10mg',
+          frequency: 'daily',
+          startDate: new Date('2026-01-01T00:00:00.000Z'),
+          endDate: new Date('2026-02-01T00:00:00.000Z'),
+        },
+        {
+          name: 'Lisinopril',
+          userId: 'client1',
+          medicineId: 2,
+          dosage: '20mg',
+          frequency: 'daily',
+          startDate: new Date('2026-01-01T00:00:00.000Z'),
+          endDate: new Date('2026-02-01T00:00:00.000Z'),
+        },
+      ])
+
+      await repo.saveOrUpdateByClientAndMedicineId({
+        clientId: 'client1',
+        medicineId: 1,
+        name: 'Metformin',
+        dosage: '50mg',
+        frequency: 'once daily',
+        startDate: new Date('2026-03-01T00:00:00.000Z'),
+        endDate: new Date('2026-04-01T00:00:00.000Z'),
+      })
+
+      const all = await db.select().from(clientMedicines)
+      expect(all.length).toBe(2)
+
+      const lisinopril = all.find((r) => r.medicineId === 2)
+      expect(lisinopril!.dosage).toBe('20mg')
+
+      const metformin = all.find((r) => r.medicineId === 1)
+      expect(metformin!.dosage).toBe('50mg')
+    })
+
+    test('should handle multiple create operations for different clients', async () => {
+      await repo.saveOrUpdateByClientAndMedicineId({
+        clientId: 'client1',
+        medicineId: 1,
+        name: 'Metformin',
+        dosage: '10mg',
+        frequency: 'daily',
+        startDate: new Date('2026-01-01T00:00:00.000Z'),
+        endDate: new Date('2026-02-01T00:00:00.000Z'),
+      })
+
+      await repo.saveOrUpdateByClientAndMedicineId({
+        clientId: 'client2',
+        medicineId: 1,
+        name: 'Metformin',
+        dosage: '20mg',
+        frequency: 'daily',
+        startDate: new Date('2026-01-01T00:00:00.000Z'),
+        endDate: new Date('2026-02-01T00:00:00.000Z'),
+      })
+
+      const all = await db.select().from(clientMedicines)
+      expect(all.length).toBe(2)
+      expect(all[0].userId).toBe('client1')
+      expect(all[1].userId).toBe('client2')
+    })
+  })
 })

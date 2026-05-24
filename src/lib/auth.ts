@@ -1,19 +1,13 @@
 import { stripe } from '@better-auth/stripe'
-import { APIError } from 'better-auth'
 import { drizzleAdapter } from 'better-auth/adapters/drizzle'
 import { betterAuth } from 'better-auth/minimal'
 import { admin as adminPlugin } from 'better-auth/plugins'
 import { tanstackStartCookies } from 'better-auth/tanstack-start'
-import { Result } from 'better-result'
-import { toast } from 'sonner'
 import { Stripe } from 'stripe'
 
-import { DeleteUserTemplate } from '@/components/email/delete-user-template'
 import { db } from '@/db'
 import * as schema from '@/db/schemas'
 import { env } from '@/env/server'
-import { softDeleteUser } from '@/lib/auth.functions'
-import { sendEmail } from '@/lib/email.functions'
 import { ac, admin, client, specialist } from '@/lib/permissions'
 
 const stripeClient = new Stripe(process.env.STRIPE_SECRET_KEY!, {
@@ -87,6 +81,11 @@ export const auth = betterAuth({
     deleteUser: {
       enabled: true,
       sendDeleteAccountVerification: async ({ user, url }) => {
+        const { Result } = await import('better-result')
+        const { toast } = await import('sonner')
+        const { DeleteUserTemplate } = await import('@/components/email/delete-user-template')
+        const { sendEmail } = await import('@/lib/email.functions')
+
         const result = Result.deserialize(
           await sendEmail({
             data: {
@@ -109,6 +108,11 @@ export const auth = betterAuth({
       },
       beforeDelete: async () => {
         // Anonymize the user in-place, then abort the real deletion
+        const { APIError } = await import('better-auth')
+        const { Result } = await import('better-result')
+        const { toast } = await import('sonner')
+        const { softDeleteUser } = await import('@/lib/auth.functions')
+
         const serializedResult = await softDeleteUser()
 
         const result = Result.deserialize(serializedResult)

@@ -15,29 +15,17 @@ type MockUpdateUserResponse = {
   error: { message: string } | null
 }
 
-interface MockServerChain {
-  inputValidator: () => MockServerChain
-  middleware: (middlewares: Array<unknown>) => MockServerChain
-  handler: <TInput, TResult>(
-    handler: (input: TInput) => TResult | Promise<TResult>,
-  ) => (input: TInput) => Promise<TResult>
-}
-
-const createServerFnMock = (): MockServerChain => {
-  const chain: MockServerChain = {
-    inputValidator() {
-      return chain
-    },
-    middleware() {
-      return chain
-    },
-    handler(handler) {
-      return async (input) => await handler(input)
-    },
-  }
-
-  return chain
-}
+const createServerFnMock = (opts?: unknown): Record<string, unknown> => ({
+  inputValidator() {
+    return this
+  },
+  middleware() {
+    return this
+  },
+  handler(fn: unknown) {
+    return fn
+  },
+})
 
 const updateWhereMock = mock(async (): Promise<TransactionResult> => [])
 const updateSetMock = mock(() => ({ where: updateWhereMock }))
@@ -84,6 +72,9 @@ const selectMock = mock(() => ({ from: selectFromMock }))
 
 mock.module('@tanstack/react-start', () => ({
   createServerFn: createServerFnMock,
+  createMiddleware: () => ({
+    server: (handler: unknown) => handler,
+  }),
 }))
 
 mock.module('@/db', () => ({
@@ -99,11 +90,6 @@ mock.module('@/lib/auth-client', () => ({
       updateUser: updateUserMock,
     },
   },
-}))
-
-mock.module('@/lib/auth.functions', () => ({
-  createRoleMiddleware: mock(() => ({ type: 'role-middleware' })),
-  ensureSessionMiddleware: { type: 'session-middleware' },
 }))
 
 mock.module('@/lib/auth', () => ({
@@ -162,6 +148,8 @@ describe('admin.functions', () => {
   })
 
   test('softDeleteUserById anonymizes the target user inside a transaction', async () => {
+    selectQueue.push([{ id: 'user-123', role: 'admin' }])
+
     const input: Parameters<typeof softDeleteUserById>[0] = { data: 'user-123' }
     const result = await softDeleteUserById(input)
 
@@ -267,6 +255,58 @@ describe('admin.functions', () => {
       allowed: false,
       message: 'This user has an active subscription and cannot be deleted.',
       reason: 'active-subscription',
+    })
+  })
+
+  test('validateAdminUserDeletion returns not-found for missing user', async () => {
+    selectQueue.push([], [])
+
+    const result = await validateAdminUserDeletion({ data: 'non-existent' })
+
+    expect(result).toEqual({
+      allowed: false,
+      message: 'User not found.',
+      reason: 'not-found',
+    })
+  })
+
+  test('validateAdminUserRoleTransition returns allowed when role is unchanged', async () => {
+    selectQueue.push([{ id: 'user-123', role: 'admin' }])
+
+    const result = await validateAdminUserRoleTransition({
+      data: { userId: 'user-123', role: 'admin' },
+    })
+
+    expect(result).toEqual({
+      allowed: true,
+      message: 'Role is unchanged.',
+    })
+  })
+
+  test('validateAdminUserRoleTransition blocks client role without client profile', async () => {
+    selectQueue.push([{ id: 'user-123', role: 'specialist' }], [], [{ id: 'spec-profile' }], [])
+
+    const result = await validateAdminUserRoleTransition({
+      data: { userId: 'user-123', role: 'client' },
+    })
+
+    expect(result).toEqual({
+      allowed: false,
+      message:
+        'This user does not have a client profile yet. Create the client record before changing their role to client.',
+    })
+  })
+
+  test('validateAdminUserRoleTransition returns user not found', async () => {
+    selectQueue.push([])
+
+    const result = await validateAdminUserRoleTransition({
+      data: { userId: 'non-existent', role: 'admin' },
+    })
+
+    expect(result).toEqual({
+      allowed: false,
+      message: 'User not found.',
     })
   })
 })

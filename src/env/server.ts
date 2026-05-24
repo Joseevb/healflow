@@ -27,4 +27,5 @@ export const env = createEnv({
   },
   runtimeEnv: process.env,
   emptyStringAsUndefined: true,
+  isServer: true,
 })
