@@ -12,9 +12,9 @@ import { SpecialistsDataRepository } from '@/db/repository/specialists-data.repo
 import { UsersRepository } from '@/db/repository/users.repository'
 import { appointments, specialistAvailability, specialistsData, users } from '@/db/schemas'
 import { selectAppointmentsSchema } from '@/db/types/appointments.zod'
+import { safeSerialize } from '@/lib/result'
 
-import { ensureSessionMiddleware } from './auth.functions'
-import { safeSerialize } from './result'
+import { ensureSessionMiddleware } from './auth'
 
 const appointmentsRepository = new AppointmentsRepository(db, appointments)
 const specialistAvailabilityRepository = new SpecialistAvailabilityRepository(
