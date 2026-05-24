@@ -1,0 +1,26 @@
+import { Result } from 'better-result'
+
+// Automatically strips all functions (like .toJSON, .toString) from the type
+type StripMethods<T> = {
+  [K in keyof T as NonNullable<T[K]> extends (...args: Array<any>) => any ? never : K]: T[K]
+}
+
+// Strips the methods AND safely forces the 'cause' to be a string
+type SafeErrorType<E> = Omit<StripMethods<E>, 'cause'> & { cause?: string }
+
+// The true, network-safe return type
+export type SafeSerializedResult<T, E> =
+  | { status: 'ok'; value: T }
+  | { status: 'error'; error: SafeErrorType<E> }
+
+/**
+ * Helper function to safely serialize a Result<T, E> into a SafeSerializedResult<T, E>.
+ * This is because currently `Result.serialize()` does not strip methods and can include non-serializable properties,
+ * causing a problem with Tanstack Start's server functions
+ *
+ * @param result The Result<T, E> to be serialized. This can be either a success or an error result.
+ * @returns A SafeSerializedResult<T, E> that is safe to send over the network without including any functions or non-serializable properties.
+ */
+export function safeSerialize<T, E>(result: Result<T, E>): SafeSerializedResult<T, E> {
+  return Result.serialize(result) as unknown as SafeSerializedResult<T, E>
+}

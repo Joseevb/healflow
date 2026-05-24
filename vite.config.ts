@@ -1,0 +1,59 @@
+import babel from '@rolldown/plugin-babel'
+import tailwindcss from '@tailwindcss/vite'
+import { devtools } from '@tanstack/devtools-vite'
+import { tanstackStart } from '@tanstack/react-start/plugin/vite'
+import viteReact, { reactCompilerPreset } from '@vitejs/plugin-react'
+import { nitro } from 'nitro/vite'
+/// <reference types="bun-types" />
+import { basename, extname, resolve } from 'path'
+import { fileURLToPath } from 'url'
+import { defineConfig } from 'vite'
+
+const __dirname = fileURLToPath(new URL('.', import.meta.url))
+
+function autoBarrel(dirs: Array<string>) {
+  const generate = async (dir: string) => {
+    const glob = new Bun.Glob('*.{ts,tsx}')
+    const files = Array.from(glob.scanSync(dir))
+      .filter((f) => f !== 'index.ts')
+      .map((f) => `export * from './${basename(f, extname(f))}'`)
+      .join('\n')
+
+    await Bun.write(resolve(dir, 'index.ts'), files + '\n')
+  }
+
+  return {
+    name: 'auto-barrel',
+    buildStart() {
+      dirs.forEach(generate)
+    },
+    configureServer(server: any) {
+      dirs.forEach((dir) => {
+        server.watcher.on('add', (f: string) => f.startsWith(dir) && generate(dir))
+        server.watcher.on('unlink', (f: string) => f.startsWith(dir) && generate(dir))
+      })
+    },
+  }
+}
+
+export default defineConfig({
+  resolve: {
+    tsconfigPaths: true,
+  },
+  plugins: [
+    devtools(),
+    nitro({
+      rollupConfig: {
+        external: [/^@sentry\//],
+      },
+    }),
+    tailwindcss(),
+    tanstackStart(),
+    viteReact(),
+    babel({
+      include: /\.[jt]sx?$/,
+      presets: [reactCompilerPreset()],
+    }),
+    autoBarrel([resolve(__dirname, 'src/db/schemas')]),
+  ],
+})
