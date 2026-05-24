@@ -2,9 +2,9 @@ import type { ZodType } from 'zod'
 
 import { beforeEach, describe, expect, mock, test } from 'bun:test'
 
-import { makeMemoryStorageProvider } from '../../src/lib/storage/memory'
-import { generateAvatarKey } from '../../src/lib/storage/keys'
 import { setStorageProvider } from '../../src/lib/storage'
+import { generateAvatarKey } from '../../src/lib/storage/keys'
+import { makeMemoryStorageProvider } from '../../src/lib/storage/memory'
 
 type Validator = Pick<ZodType<unknown>, 'parse'>
 type ServerFnInput = { data?: unknown }
