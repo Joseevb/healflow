@@ -7,7 +7,7 @@
   "sortPackageJson": {
     "sortScripts": true
   },
-  "ignorePatterns": ["package-lock.json", "pnpm-lock.yaml", "yarn.lock"],
+  "ignorePatterns": ["package-lock.json", "pnpm-lock.yaml", "yarn.lock", "**/*.gen.*"],
 
   "sortImports": {
     "groups": [
