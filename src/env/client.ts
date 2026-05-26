@@ -3,8 +3,7 @@ import * as z from 'zod'
 
 const skipValidation =
   import.meta.env.VITE_SKIP_ENV_VALIDATION === 'true' ||
-  (typeof process !== 'undefined' &&
-    process.env.SKIP_ENV_VALIDATION === 'true')
+  (typeof process !== 'undefined' && process.env.SKIP_ENV_VALIDATION === 'true')
 
 export const env = createEnv({
   skipValidation,
