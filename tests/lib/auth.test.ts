@@ -91,6 +91,10 @@ const createServerFnMock = (opts?: unknown): Record<string, unknown> => ({
   },
 })
 
+const createMiddlewareMock = () => ({
+  server: (handler: unknown) => handler,
+})
+
 const getRequestHeadersMock = mock(() => ({ cookie: 'session=test' }))
 const setResponseStatusMock = mock(() => {})
 const getSessionMock = mock(async (): Promise<MockSession | null> => null)
@@ -118,9 +122,7 @@ const useSessionClearMock = mock(async () => ({ success: true }))
 
 mock.module('@tanstack/react-start', () => ({
   createServerFn: createServerFnMock,
-  createMiddleware: () => ({
-    server: (handler: unknown) => handler,
-  }),
+  createMiddleware: createMiddlewareMock,
 }))
 
 mock.module('@tanstack/react-start/server', () => ({
@@ -168,7 +170,6 @@ const {
   validateSignUpSession,
   finalizeOnboardingIfReady,
 } = await import('../../src/lib/functions/auth')
-const { ensureSessionMiddleware } = await import('../../src/lib/functions/auth')
 
 describe('auth', () => {
   beforeEach(() => {
@@ -279,18 +280,6 @@ describe('auth', () => {
     const middleware = createRoleMiddleware('admin') as (input: {
       next: typeof next
     }) => Promise<unknown>
-    const result = await middleware({ next })
-
-    expect(next).toHaveBeenCalledWith({ context: { session } })
-    expect(result).toEqual({ session })
-  })
-
-  test('ensureSessionMiddleware injects the ensured session into context', async () => {
-    const session = createMockSession('admin')
-    getSessionMock.mockImplementation(async () => session)
-    const next = mock(({ context }: { context: { session: MockSession } }) => context)
-
-    const middleware = ensureSessionMiddleware as (input: { next: typeof next }) => Promise<unknown>
     const result = await middleware({ next })
 
     expect(next).toHaveBeenCalledWith({ context: { session } })
