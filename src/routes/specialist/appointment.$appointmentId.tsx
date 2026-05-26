@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { ArrowLeft, Search } from 'lucide-react'
 import { useDeferredValue, useState } from 'react'
@@ -6,6 +6,7 @@ import { toast } from 'sonner'
 
 import type { SpecialistStartAppointmentInput } from '@/schemas/specialist'
 
+import { getMedicinesOptions } from '@/client/@tanstack/react-query.gen'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -16,7 +17,6 @@ import {
   completeSpecialistAppointmentMutationOptions,
   specialistAppointmentDetailQueryOptions,
   specialistAppointmentsQueryOptions,
-  specialistMedicineSearchQueryOptions,
   specialistOverviewQueryOptions,
 } from '@/queries/specialist-dashboard-queries'
 import { availableSpecialistsQueryOptions } from '@/queries/specialist-queries'
@@ -30,12 +30,14 @@ export const Route = createFileRoute('/specialist/appointment/$appointmentId')({
       ),
       context.queryClient.ensureQueryData(availableSpecialistsQueryOptions()),
     ])
+
+    return { queryClient: context.queryClient }
   },
 })
 
 function RouteComponent() {
   const navigate = useNavigate()
-  const queryClient = useQueryClient()
+  const { queryClient } = Route.useLoaderData()
   const { appointmentId } = Route.useParams()
   const { data: appointment } = useSuspenseQuery(
     specialistAppointmentDetailQueryOptions(appointmentId),
@@ -44,8 +46,15 @@ function RouteComponent() {
   const [medicineQuery, setMedicineQuery] = useState('')
   const deferredMedicineQuery = useDeferredValue(medicineQuery.trim())
   const medicineSearchQuery = useQuery({
-    ...specialistMedicineSearchQueryOptions(deferredMedicineQuery),
+    ...getMedicinesOptions({
+      query: {
+        nameOfMedicine: deferredMedicineQuery,
+        page: 1,
+        pageSize: 10,
+      },
+    }),
     enabled: deferredMedicineQuery.length >= 2,
+    select: (response) => response.data,
   })
 
   const form = useAppForm({
@@ -170,8 +179,8 @@ function RouteComponent() {
                           />
                         </div>
                         <p className="text-sm text-muted-foreground">
-                          This currently uses a mock search and returns no medicines until the
-                          external API is connected.
+                          Search by medicine name in the external catalog, or fill the details
+                          manually.
                         </p>
                       </div>
 
@@ -187,11 +196,11 @@ function RouteComponent() {
                                   type="button"
                                   className="w-full rounded-lg border border-border/60 px-3 py-2 text-left text-sm transition hover:bg-muted/50"
                                   onClick={() => {
-                                    form.setFieldValue('medicine.name', medicine.name)
+                                    form.setFieldValue('medicine.name', medicine.nameOfMedicine)
                                     form.setFieldValue('medicine.medicineId', medicine.id)
                                   }}
                                 >
-                                  {medicine.name}
+                                  {medicine.nameOfMedicine}
                                 </button>
                               ))}
                             </div>
