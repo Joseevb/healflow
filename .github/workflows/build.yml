@@ -28,3 +28,5 @@ jobs:
 
       - name: Validate that project builds
         run: bun run build
+        env:
+          SKIP_ENV_VALIDATION: 'true'
