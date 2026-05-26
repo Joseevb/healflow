@@ -73,19 +73,9 @@ function formatSlotLabel(date: Date) {
 }
 
 async function getRequiredSpecialistDataResult(specialistId: string) {
-  return await Result.tryPromise({
-    try: async () => {
-      const specialist = await specialistsDataRepository.findBySpecialistId(specialistId)
-
-      if (!specialist) {
-        throw createSpecialistNotFoundError(specialistId)
-      }
-
-      return specialist
-    },
-    catch: (cause) =>
-      cause instanceof EntityNotFoundError ? cause : createSpecialistNotFoundError(specialistId),
-  })
+  return (await specialistsDataRepository.findBySpecialistId(specialistId)).mapError((cause) =>
+    cause instanceof EntityNotFoundError ? cause : createSpecialistNotFoundError(specialistId),
+  )
 }
 
 async function getAppointmentSpecialistResult(specialistId: string) {
