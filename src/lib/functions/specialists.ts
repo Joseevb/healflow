@@ -116,9 +116,10 @@ export const getSpecialistById = createServerFn()
         cause instanceof EntityNotFoundError ? cause : createSpecialistNotFoundError(specialistId),
     })
 
-    const specialistDataResult = (await specialistRepository.findBySpecialistId(specialistId)).mapError(
-      (cause) =>
-        cause instanceof EntityNotFoundError ? cause : createSpecialistNotFoundError(specialistId),
+    const specialistDataResult = (
+      await specialistRepository.findBySpecialistId(specialistId)
+    ).mapError((cause) =>
+      cause instanceof EntityNotFoundError ? cause : createSpecialistNotFoundError(specialistId),
     )
 
     return Result.gen(async function* () {
