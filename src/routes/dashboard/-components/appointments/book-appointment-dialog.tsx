@@ -203,7 +203,9 @@ export default function BookAppointmentDialog() {
             availabilityErrorMessage={availabilityQuery.error?.message}
             onRetryAvailability={() => void availabilityQuery.refetch()}
             submitErrorMessage={
-              createAppointmentMutation.isError ? createAppointmentMutation.error.message : undefined
+              createAppointmentMutation.isError
+                ? createAppointmentMutation.error.message
+                : undefined
             }
           />
         </div>

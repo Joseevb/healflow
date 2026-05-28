@@ -76,7 +76,9 @@ export function AvailabilityPicker({
   slotListClassName?: string
   slotPanelFooter?: React.ReactNode
 }) {
-  const selectedDay = selectedDate ? bookingDays.find((day) => day.date === selectedDate) : undefined
+  const selectedDay = selectedDate
+    ? bookingDays.find((day) => day.date === selectedDate)
+    : undefined
 
   const availableDateKeys = useMemo(
     () =>
@@ -91,7 +93,9 @@ export function AvailabilityPicker({
   const availableSlots = selectedDay?.slots.filter((slot) => slot.status === 'available') ?? []
 
   return (
-    <div className={cn('grid gap-6 xl:grid-cols-[minmax(22rem,1.45fr)_minmax(18rem,1fr)]', className)}>
+    <div
+      className={cn('grid gap-6 xl:grid-cols-[minmax(22rem,1.45fr)_minmax(18rem,1fr)]', className)}
+    >
       <Field
         className={cn(
           'min-w-0 space-y-4 rounded-xl border border-border/60 bg-card/70 p-4 xl:min-w-[24rem]',
@@ -145,12 +149,7 @@ export function AvailabilityPicker({
 
         <Field data-invalid={showSlotError}>
           {selectedDate && availableSlots.length > 0 ? (
-            <div
-              className={cn(
-                'max-h-80 overflow-y-auto pr-1 sm:max-h-96',
-                slotListClassName,
-              )}
-            >
+            <div className={cn('max-h-80 overflow-y-auto pr-1 sm:max-h-96', slotListClassName)}>
               <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                 {availableSlots.map((slot) => (
                   <Button

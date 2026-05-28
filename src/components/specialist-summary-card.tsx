@@ -20,18 +20,18 @@ export function SpecialistSummaryCard({
   className?: string
   items?: Array<SpecialistSummaryItem>
 }) {
-  const resolvedItems =
-    items ??
-    [
-      { label: 'Specialist', value: name },
-      { label: 'Specialty', value: specialty ?? 'Specialist' },
-      { label: 'Email', value: email ?? 'Not available' },
-      {
-        label: 'Session length',
-        value:
-          consultationDurationMinutes != null ? `${consultationDurationMinutes} min` : 'Not available',
-      },
-    ]
+  const resolvedItems = items ?? [
+    { label: 'Specialist', value: name },
+    { label: 'Specialty', value: specialty ?? 'Specialist' },
+    { label: 'Email', value: email ?? 'Not available' },
+    {
+      label: 'Session length',
+      value:
+        consultationDurationMinutes != null
+          ? `${consultationDurationMinutes} min`
+          : 'Not available',
+    },
+  ]
 
   return (
     <div

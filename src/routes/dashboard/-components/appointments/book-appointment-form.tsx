@@ -1,15 +1,15 @@
 import { formOptions } from '@tanstack/react-form'
 import { AlertCircle } from 'lucide-react'
 
+import type { BookingDay } from '@/components/availability-picker'
 import type { getSpecialists } from '@/lib/functions/specialists'
 import type { BookAppointmentFormValues } from '@/schemas/appointments'
 
 import { AvailabilityPicker } from '@/components/availability-picker'
-import type { BookingDay } from '@/components/availability-picker'
+import { SpecialistSummaryCard } from '@/components/specialist-summary-card'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { FieldGroup } from '@/components/ui/field'
-import { SpecialistSummaryCard } from '@/components/specialist-summary-card'
 import { Spinner } from '@/components/ui/spinner'
 import { withForm } from '@/hooks/form'
 import { bookAppointmentSchema } from '@/schemas/appointments'
@@ -157,7 +157,9 @@ export const BookAppointmentForm = withForm({
               return null
             }
 
-            const selectedSpecialist = specialists.find((specialist) => specialist.id === specialistId)
+            const selectedSpecialist = specialists.find(
+              (specialist) => specialist.id === specialistId,
+            )
 
             return (
               <div className="space-y-4">
@@ -177,7 +179,8 @@ export const BookAppointmentForm = withForm({
                     <form.AppField name="appointmentDate">
                       {(appointmentDateField) => {
                         const isDateInvalid =
-                          selectedDateField.state.meta.isTouched && !selectedDateField.state.meta.isValid
+                          selectedDateField.state.meta.isTouched &&
+                          !selectedDateField.state.meta.isValid
                         const isSlotInvalid =
                           appointmentDateField.state.meta.isTouched &&
                           !appointmentDateField.state.meta.isValid
