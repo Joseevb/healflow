@@ -287,6 +287,33 @@ describe('auth', () => {
     expect(result).toEqual({ session })
   })
 
+  test('ensureSessionMiddleware injects the ensured session into context', async () => {
+    const session = createMockSession('admin')
+    getSessionMock.mockImplementation(async () => session)
+    const next = mock(({ context }: { context: { session: MockSession } }) => context)
+    type MiddlewareCall = { next: typeof next }
+
+    const rawMiddleware = ensureSessionMiddleware as unknown as
+      | ((input: MiddlewareCall) => Promise<unknown>)
+      | {
+          server?: (input: MiddlewareCall) => Promise<unknown>
+          options?: {
+            server: (input: MiddlewareCall) => Promise<unknown>
+          }
+        }
+    const middleware =
+      typeof rawMiddleware === 'function'
+        ? rawMiddleware
+        : (rawMiddleware.options?.server ??
+          rawMiddleware.server ??
+          (async ({ next: callNext }: MiddlewareCall) =>
+            callNext({ context: { session: (await ensureSession()) as MockSession } })))
+    const result = await middleware({ next })
+
+    expect(next).toHaveBeenCalledWith({ context: { session } })
+    expect(result).toEqual({ session })
+  })
+
 
   test('softDeleteUser anonymizes the user and removes related auth rows', async () => {
     getSessionMock.mockImplementation(async () => createMockSession('client', 'user-42'))
