@@ -4,7 +4,7 @@ import { sql } from 'drizzle-orm'
 import { drizzle } from 'drizzle-orm/bun-sqlite'
 
 import { AddressesRepository } from '../../../src/db/repository/addresses.repository'
-import { DatabaseError, EntityNotFoundError } from '../../../src/db/repository/base-repository'
+import { EntityNotFoundError } from '../../../src/db/repository/base-repository'
 import { addresses } from '../../../src/db/schemas/addresses'
 
 describe('AddressesRepository', () => {
