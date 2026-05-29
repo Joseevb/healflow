@@ -1,6 +1,5 @@
 import type { SQL } from 'drizzle-orm'
-import type { BunSQLiteDatabase } from 'drizzle-orm/bun-sqlite'
-import type { SQLiteTable } from 'drizzle-orm/sqlite-core'
+import type { BaseSQLiteDatabase, SQLiteTable } from 'drizzle-orm/sqlite-core'
 
 import { Result, TaggedError } from 'better-result'
 import { eq, getTableColumns } from 'drizzle-orm'
@@ -42,14 +41,14 @@ interface BaseRepositoryContract<TTable extends SQLiteTable, TIdentifier> {
 
 export class BaseRepository<
   TTable extends SQLiteTable,
-  TSchema extends Record<string, object> = Record<string, object>,
+  TSchema extends Record<string, unknown> = Record<string, unknown>,
   TIdentifier extends string | number | boolean | null = string,
 > implements BaseRepositoryContract<TTable, TIdentifier> {
-  #db: BunSQLiteDatabase<TSchema>
+  #db: BaseSQLiteDatabase<'sync' | 'async', unknown, TSchema>
   #table: TTable
   #columns: TableColumns<TTable>
 
-  constructor(db: BunSQLiteDatabase<TSchema>, table: TTable) {
+  constructor(db: BaseSQLiteDatabase<'sync' | 'async', unknown, TSchema>, table: TTable) {
     this.#db = db
     this.#table = table
     this.#columns = getTableColumns(table)
