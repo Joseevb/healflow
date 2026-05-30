@@ -20,7 +20,8 @@ import { DAYS } from '@/types/date'
 import { HealthMetricType } from '@/types/health-metrics'
 import { SPECIALTIES } from '@/types/specialties'
 
-const tableArgs = Bun.argv.slice(2).length > 0 ? Bun.argv.slice(2) : ['admin', 'specialists', 'basic-specialist']
+const tableArgs =
+  Bun.argv.slice(2).length > 0 ? Bun.argv.slice(2) : ['admin', 'specialists', 'basic-specialist']
 
 // Custom seeders
 
