@@ -5,7 +5,6 @@ import { ArrowLeft, Search } from 'lucide-react'
 import { useDeferredValue, useEffect, useState } from 'react'
 import { toast } from 'sonner'
 
-import type { getSpecialists } from '@/lib/functions/specialists'
 import type { SpecialistStartAppointmentInput } from '@/schemas/specialist'
 
 import { getMedicinesOptions } from '@/client/@tanstack/react-query.gen'

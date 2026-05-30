@@ -77,7 +77,7 @@ export const getSpecialistByQuery = createServerFn()
       .filter(({ specialistData }) => specialistData.isOk())
       .map(({ user, specialistData }) => ({
         ...user,
-        specialistData: specialistData.value,
+        specialistData: specialistData.unwrap(),
       }))
   })
 
@@ -95,7 +95,7 @@ export const getSpecialists = createServerFn().handler(async () => {
     .filter(({ specialistData }) => specialistData.isOk())
     .map(({ user, specialistData }) => ({
       ...user,
-      specialistData: specialistData.value,
+      specialistData: specialistData.unwrap(),
     }))
 })
 
@@ -116,10 +116,10 @@ export const getSpecialistById = createServerFn()
         cause instanceof EntityNotFoundError ? cause : createSpecialistNotFoundError(specialistId),
     })
 
-    const specialistDataResult = (
-      await specialistRepository.findBySpecialistId(specialistId)
-    ).mapError((cause) =>
-      cause instanceof EntityNotFoundError ? cause : createSpecialistNotFoundError(specialistId),
+    const specialistDataResult = Result.mapError(
+      await specialistRepository.findBySpecialistId(specialistId),
+      (cause) =>
+        cause instanceof EntityNotFoundError ? cause : createSpecialistNotFoundError(specialistId),
     )
 
     return Result.gen(async function* () {

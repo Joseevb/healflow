@@ -109,7 +109,7 @@ export const getSpecialistAvailability = createServerFn()
       specialistsDataRepository.findBySpecialistId(session.user.id),
     ])
 
-    const profile = specialistProfile.match({
+    const profile = Result.match(specialistProfile, {
       ok: (value) => value,
       err: () => {
         throw new Error('Specialist profile not found.')
@@ -129,11 +129,12 @@ export const upsertSpecialistAvailability = createServerFn({ method: 'POST' })
     const user = session.user
 
     const result = await Result.gen(async function* () {
-      const specialistProfile = yield* (
-        await specialistsDataRepository.findBySpecialistId(user.id)
-      ).mapError(() => ({
-        message: 'Specialist profile not found.',
-      }))
+      const specialistProfile = yield* Result.mapError(
+        await specialistsDataRepository.findBySpecialistId(user.id),
+        () => ({
+          message: 'Specialist profile not found.',
+        }),
+      )
 
       yield* await Result.tryPromise({
         try: async () => {

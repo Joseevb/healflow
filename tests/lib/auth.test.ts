@@ -286,8 +286,6 @@ describe('auth', () => {
     expect(result).toEqual({ session })
   })
 
-
-
   test('softDeleteUser anonymizes the user and removes related auth rows', async () => {
     getSessionMock.mockImplementation(async () => createMockSession('client', 'user-42'))
 

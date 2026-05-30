@@ -73,8 +73,10 @@ function formatSlotLabel(date: Date) {
 }
 
 async function getRequiredSpecialistDataResult(specialistId: string) {
-  return (await specialistsDataRepository.findBySpecialistId(specialistId)).mapError((cause) =>
-    cause instanceof EntityNotFoundError ? cause : createSpecialistNotFoundError(specialistId),
+  return Result.mapError(
+    await specialistsDataRepository.findBySpecialistId(specialistId),
+    (cause) =>
+      cause instanceof EntityNotFoundError ? cause : createSpecialistNotFoundError(specialistId),
   )
 }
 
