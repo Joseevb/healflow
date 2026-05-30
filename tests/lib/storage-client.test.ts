@@ -14,8 +14,8 @@ mock.module('@/lib/functions/avatar', () => ({
 const originalFetch = globalThis.fetch
 const originalRandomUUID = crypto.randomUUID
 
-globalThis.fetch = fetchMock as typeof fetch
-crypto.randomUUID = () => 'fixed-id'
+globalThis.fetch = fetchMock as unknown as typeof fetch
+crypto.randomUUID = () => 'fixed-id' as `${string}-${string}-${string}-${string}-${string}`
 
 const { uploadAvatar } = await import('../../src/lib/storage/client')
 

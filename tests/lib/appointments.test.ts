@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, mock, test } from 'bun:test'
 
-const createServerFnMock = (opts?: unknown): Record<string, unknown> => ({
+const createServerFnMock = (_opts?: unknown): Record<string, unknown> => ({
   inputValidator() {
     return this
   },
@@ -91,7 +91,7 @@ const mockAppointment = {
   specialistId: 'spec-1',
   appointmentDate: new Date('2026-06-15T10:00:00Z'),
   durationMinutes: 30,
-  status: 'pending',
+  status: 'pending' as const,
   notes: null,
   cancellationReason: null,
   createdAt: new Date(),
@@ -142,7 +142,7 @@ describe('appointments', () => {
 
       const result = await getClientUpcomingAppointments({
         context: { session: mockSession },
-      })
+      } as never)
 
       expect(result).toHaveLength(2)
       expect(result[0]).toMatchObject({ id: 'apt-1' })
@@ -154,7 +154,7 @@ describe('appointments', () => {
 
       const result = await getClientUpcomingAppointments({
         context: { session: mockSession },
-      })
+      } as never)
 
       expect(result).toEqual([])
     })
@@ -173,7 +173,7 @@ describe('appointments', () => {
 
       const result = await getClientAppointmentHistory({
         context: { session: mockSession },
-      })
+      } as never)
 
       expect(result).toHaveLength(2)
       expect(result[0]).toMatchObject({ id: 'apt-3' })
@@ -185,7 +185,7 @@ describe('appointments', () => {
 
       const result = await getClientAppointmentHistory({
         context: { session: mockSession },
-      })
+      } as never)
 
       expect(result).toEqual([])
     })
@@ -220,7 +220,7 @@ describe('appointments', () => {
       const result = await createAppointment({
         data: createInput,
         context: { session: mockSession },
-      })
+      } as never)
 
       expect(result.status).toBe('ok')
       if (result.status === 'ok') {
@@ -238,7 +238,7 @@ describe('appointments', () => {
       const result = await createAppointment({
         data: createInput,
         context: { session: mockSession },
-      })
+      } as never)
 
       expect(result.status).toBe('error')
       if (result.status === 'error') {
@@ -252,7 +252,7 @@ describe('appointments', () => {
       const result = await createAppointment({
         data: createInput,
         context: { session: mockSession },
-      })
+      } as never)
 
       expect(result.status).toBe('error')
     })
@@ -266,7 +266,7 @@ describe('appointments', () => {
       const result = await cancelAppointment({
         data: { appointmentId: 'apt-1' },
         context: { session: mockSession },
-      })
+      } as never)
 
       expect(result.status).toBe('ok')
       if (result.status === 'ok') {
@@ -280,7 +280,7 @@ describe('appointments', () => {
       const result = await cancelAppointment({
         data: { appointmentId: 'non-existent' },
         context: { session: mockSession },
-      })
+      } as never)
 
       expect(result.status).toBe('error')
       if (result.status === 'error') {

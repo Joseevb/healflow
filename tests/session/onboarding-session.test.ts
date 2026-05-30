@@ -1,7 +1,6 @@
-import { Result } from 'better-result'
 import { beforeEach, describe, expect, mock, test } from 'bun:test'
 
-const createServerFnMock = (opts?: unknown): Record<string, unknown> => ({
+const createServerFnMock = (_opts?: unknown): Record<string, unknown> => ({
   inputValidator() {
     return this
   },

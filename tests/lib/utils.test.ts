@@ -38,7 +38,7 @@ describe('utils', () => {
   test('createUrl creates a URL with params', () => {
     globalThis.window = { location: { origin: 'http://localhost' } } as Window & typeof globalThis
 
-    const url = createUrl('/appointments' as never, { page: '2', filter: 'active' })
+    const url: string = createUrl('/appointments' as never, { page: '2', filter: 'active' })
 
     expect(url).toBe('http://localhost/appointments?page=2&filter=active')
   })
@@ -46,7 +46,7 @@ describe('utils', () => {
   test('createUrl creates a URL without params', () => {
     globalThis.window = { location: { origin: 'http://localhost' } } as Window & typeof globalThis
 
-    const url = createUrl('/appointments' as never)
+    const url: string = createUrl('/appointments' as never)
 
     expect(url).toBe('http://localhost/appointments')
   })

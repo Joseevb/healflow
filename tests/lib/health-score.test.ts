@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, mock, test } from 'bun:test'
 
-const createServerFnMock = (opts?: unknown): Record<string, unknown> => ({
+const createServerFnMock = (_opts?: unknown): Record<string, unknown> => ({
   inputValidator() {
     return this
   },
@@ -74,7 +74,9 @@ describe('health-score', () => {
     test('returns the latest health score for the authenticated client', async () => {
       selectResults.push([mockHealthScore])
 
-      const result = await getClientLatestHealthScore({ context: { session: mockSession } })
+      const result = await getClientLatestHealthScore({
+        context: { session: mockSession },
+      } as never)
 
       expect(result).toMatchObject({ id: 'score-1', score: 85, category: 'good' })
     })
@@ -82,7 +84,9 @@ describe('health-score', () => {
     test('returns null when no health score exists', async () => {
       selectResults.push([])
 
-      const result = await getClientLatestHealthScore({ context: { session: mockSession } })
+      const result = await getClientLatestHealthScore({
+        context: { session: mockSession },
+      } as never)
 
       expect(result).toBeNull()
     })

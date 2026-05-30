@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, test } from 'bun:test'
 import { sql } from 'drizzle-orm'
 import { drizzle } from 'drizzle-orm/bun-sqlite'
 
-import { DatabaseError, EntityNotFoundError } from '../../../src/db/repository/base-repository'
+import { EntityNotFoundError } from '../../../src/db/repository/base-repository'
 import { ClientsRepository } from '../../../src/db/repository/clients-repository'
 import { clients } from '../../../src/db/schemas/clients'
 

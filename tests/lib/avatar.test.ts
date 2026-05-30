@@ -76,7 +76,7 @@ describe('avatar', () => {
       getAvatarPresignedUrl({
         data: {
           tempId: 'temp-avatar-2',
-          contentType: 'image/gif',
+          contentType: 'image/gif' as never,
         },
       }),
     ).rejects.toThrow()

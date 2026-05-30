@@ -15,7 +15,7 @@ type MockUpdateUserResponse = {
   error: { message: string } | null
 }
 
-const createServerFnMock = (opts?: unknown): Record<string, unknown> => ({
+const createServerFnMock = (_opts?: unknown): Record<string, unknown> => ({
   inputValidator() {
     return this
   },

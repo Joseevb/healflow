@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, mock, test } from 'bun:test'
 
-const createServerFnMock = (opts?: unknown): Record<string, unknown> => ({
+const createServerFnMock = (_opts?: unknown): Record<string, unknown> => ({
   inputValidator() {
     return this
   },
@@ -82,7 +82,7 @@ describe('medicines', () => {
 
     const result = await getClientMedicines({
       context: { session: { user: { id: 'user-123' } } },
-    })
+    } as never)
 
     expect(result).toEqual(expected)
   })
@@ -92,7 +92,7 @@ describe('medicines', () => {
 
     const result = await getClientMedicines({
       context: { session: { user: { id: 'user-456' } } },
-    })
+    } as never)
 
     expect(result).toHaveLength(0)
   })

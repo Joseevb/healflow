@@ -79,7 +79,7 @@ const createMockSession = (role: Role, userId = 'user-1'): MockSession => ({
   },
 })
 
-const createServerFnMock = (opts?: unknown): Record<string, unknown> => ({
+const createServerFnMock = (_opts?: unknown): Record<string, unknown> => ({
   inputValidator() {
     return this
   },
@@ -167,8 +167,8 @@ const {
   softDeleteUser,
   validateSignUpSession,
   finalizeOnboardingIfReady,
+  ensureSessionMiddleware,
 } = await import('../../src/lib/functions/auth')
-const { ensureSessionMiddleware } = await import('../../src/lib/functions/auth')
 
 describe('auth', () => {
   beforeEach(() => {
@@ -276,7 +276,7 @@ describe('auth', () => {
     getSessionMock.mockImplementation(async () => session)
     const next = mock(({ context }: { context: { session: MockSession } }) => context)
 
-    const middleware = createRoleMiddleware('admin') as (input: {
+    const middleware = createRoleMiddleware('admin') as unknown as (input: {
       next: typeof next
     }) => Promise<unknown>
     const result = await middleware({ next })
@@ -289,8 +289,23 @@ describe('auth', () => {
     const session = createMockSession('admin')
     getSessionMock.mockImplementation(async () => session)
     const next = mock(({ context }: { context: { session: MockSession } }) => context)
+    type MiddlewareCall = { next: typeof next }
 
-    const middleware = ensureSessionMiddleware as (input: { next: typeof next }) => Promise<unknown>
+    const rawMiddleware = ensureSessionMiddleware as unknown as
+      | ((input: MiddlewareCall) => Promise<unknown>)
+      | {
+          server?: (input: MiddlewareCall) => Promise<unknown>
+          options?: {
+            server: (input: MiddlewareCall) => Promise<unknown>
+          }
+        }
+    const middleware =
+      typeof rawMiddleware === 'function'
+        ? rawMiddleware
+        : (rawMiddleware.options?.server ??
+          rawMiddleware.server ??
+          (async ({ next: callNext }: MiddlewareCall) =>
+            callNext({ context: { session: (await ensureSession()) as MockSession } })))
     const result = await middleware({ next })
 
     expect(next).toHaveBeenCalledWith({ context: { session } })

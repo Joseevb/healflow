@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, mock, test } from 'bun:test'
 
-const createServerFnMock = (opts?: unknown): Record<string, unknown> => ({
+const createServerFnMock = (_opts?: unknown): Record<string, unknown> => ({
   inputValidator() {
     return this
   },
@@ -124,7 +124,7 @@ describe('settings', () => {
 
       const result = await getCurrentAccountSummary({
         context: { session: { user: { id: 'user-123' } } },
-      })
+      } as never)
 
       expect(result).toMatchObject({
         id: 'user-123',
@@ -140,7 +140,7 @@ describe('settings', () => {
       await expect(
         getCurrentAccountSummary({
           context: { session: { user: { id: 'nonexistent' } } },
-        }),
+        } as never),
       ).rejects.toThrow('Unable to load account')
     })
   })
@@ -153,7 +153,7 @@ describe('settings', () => {
 
       const result = await getUserSettings({
         context: { session: { user: { id: 'user-123' } } },
-      })
+      } as never)
 
       expect(result).toMatchObject({
         account: { id: 'user-123', name: 'John Doe' },
@@ -169,7 +169,7 @@ describe('settings', () => {
 
       const result = await getUserSettings({
         context: { session: { user: { id: 'user-123' } } },
-      })
+      } as never)
 
       expect(result.address).toEqual({
         street: '',
@@ -188,7 +188,7 @@ describe('settings', () => {
       await expect(
         getUserSettings({
           context: { session: { user: { id: 'user-123' } } },
-        }),
+        } as never),
       ).rejects.toThrow('Unable to load settings')
     })
   })
@@ -199,7 +199,7 @@ describe('settings', () => {
       lastName: 'Deer',
       email: 'jane@test.com',
       phoneNumber: '+1987654321',
-      birthDate: '1992-05-15',
+      birthDate: new Date('1992-05-15'),
       primaryCareSpecialist: 'spec-2',
       address: {
         street: '456 Oak Ave',
@@ -217,7 +217,7 @@ describe('settings', () => {
       const result = await updateUserSettings({
         data: input,
         context: { session: { user: { id: 'user-123' } } },
-      })
+      } as never)
 
       expect(transactionMock).toHaveBeenCalled()
       expect(txUpdateMock).toHaveBeenCalledTimes(3)
@@ -234,7 +234,7 @@ describe('settings', () => {
       const result = await updateUserSettings({
         data: input,
         context: { session: { user: { id: 'user-123' } } },
-      })
+      } as never)
 
       expect(txInsertMock).toHaveBeenCalled()
       expect(txInsertValuesMock).toHaveBeenCalled()
@@ -248,7 +248,7 @@ describe('settings', () => {
       const result = await updateUserSettings({
         data: input,
         context: { session: { user: { id: 'user-123' } } },
-      })
+      } as never)
 
       expect(transactionMock).toHaveBeenCalled()
       expect(txUpdateMock).toHaveBeenCalledTimes(2)
@@ -262,7 +262,7 @@ describe('settings', () => {
       await updateUserSettings({
         data: input,
         context: { session: { user: { id: 'user-123' } } },
-      })
+      } as never)
 
       const txCallback = transactionMock.mock.calls[0]?.[0] as TransactionCallback
       const fakeTx = {

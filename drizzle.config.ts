@@ -1,10 +1,12 @@
+import 'dotenv/config'
 import { defineConfig } from 'drizzle-kit'
 
 export default defineConfig({
   out: './drizzle',
   schema: './src/db/schemas',
-  dialect: 'sqlite',
+  dialect: 'turso',
   dbCredentials: {
-    url: Bun.env.DB_FILE_NAME!,
+    url: process.env.DATABASE_URL!,
+    authToken: process.env.DATABASE_AUTH_TOKEN || undefined,
   },
 })

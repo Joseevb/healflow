@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, mock, test } from 'bun:test'
 
-const createServerFnMock = (opts?: unknown): Record<string, unknown> => ({
+const createServerFnMock = (_opts?: unknown): Record<string, unknown> => ({
   inputValidator() {
     return this
   },
@@ -81,7 +81,7 @@ describe('health-metrics', () => {
         { ...mockMetric, id: 'metric-2' },
       ])
 
-      const result = await getClientMetrics({ context: { session: mockSession } })
+      const result = await getClientMetrics({ context: { session: mockSession } } as never)
 
       expect(result).toHaveLength(2)
       expect(result[0]).toMatchObject({ id: 'metric-1' })
@@ -91,7 +91,7 @@ describe('health-metrics', () => {
     test('returns empty array when no metrics exist', async () => {
       selectResults.push([])
 
-      const result = await getClientMetrics({ context: { session: mockSession } })
+      const result = await getClientMetrics({ context: { session: mockSession } } as never)
 
       expect(result).toEqual([])
     })
@@ -109,7 +109,7 @@ describe('health-metrics', () => {
       const result = await getRecentClientMetrics({
         data: dates,
         context: { session: mockSession },
-      })
+      } as never)
 
       expect(result).toHaveLength(1)
       expect(result[0]).toMatchObject({ id: 'metric-1' })
@@ -121,7 +121,7 @@ describe('health-metrics', () => {
       const result = await getRecentClientMetrics({
         data: dates,
         context: { session: mockSession },
-      })
+      } as never)
 
       expect(result).toEqual([])
     })
