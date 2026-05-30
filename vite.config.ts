@@ -7,9 +7,8 @@ import viteReact, { reactCompilerPreset } from '@vitejs/plugin-react'
 import { nitro } from 'nitro/vite'
 import { basename, extname, resolve } from 'path'
 import { fileURLToPath } from 'url'
+import type { Plugin } from 'vite'
 import { defineConfig } from 'vite'
-
-import { env } from '@/env/server'
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url))
 
@@ -38,11 +37,35 @@ function autoBarrel(dirs: Array<string>) {
   }
 }
 
+function kyselyAdapterStub(): Plugin {
+  return {
+    name: 'kysely-adapter-stub',
+    resolveId(id) {
+      if (id.startsWith('@better-auth/kysely-adapter')) {
+        return '\0kysely-adapter-stub'
+      }
+    },
+    load(id) {
+      if (id === '\0kysely-adapter-stub') {
+        return `
+export function createKyselyAdapter() {
+  return { kysely: null, databaseType: null }
+}
+export function getKyselyDatabaseType() {
+  return undefined
+}
+`
+      }
+    },
+  }
+}
+
 export default defineConfig({
   resolve: {
     tsconfigPaths: true,
   },
   plugins: [
+    kyselyAdapterStub(),
     devtools(),
     nitro({
       preset: 'bun',
@@ -60,7 +83,7 @@ export default defineConfig({
     autoBarrel([resolve(__dirname, 'src/db/schemas')]),
     heyApiPlugin({
       config: {
-        input: env.MEDICINES_API_URL!,
+        input: process.env.MEDICINES_API_URL!,
         output: 'src/client',
         plugins: ['@tanstack/react-query'],
       },
