@@ -13,7 +13,7 @@ import { defineConfig } from 'vite'
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url))
 
-function autoBarrel(dirs: Array<string>) {
+function autoBarrel(dirs: Array<string>): Plugin {
   const generate = async (dir: string) => {
     const glob = new Bun.Glob('*.{ts,tsx}')
     const files = Array.from(glob.scanSync(dir))

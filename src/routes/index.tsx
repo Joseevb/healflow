@@ -15,7 +15,7 @@ function Home() {
   return (
     <>
       <Header />
-      <main className="h-full bg-linear-to-tr from-slate-100 via-blue-50 to-green-50 p-10 dark:from-slate-950 dark:via-blue-950 dark:to-green-950">
+      <main className="min-h-full overflow-hidden bg-linear-to-tr from-slate-100 via-blue-50 to-green-50 px-5 pt-20 text-slate-950 sm:px-8 lg:px-10 dark:from-slate-950 dark:via-blue-950 dark:to-green-950 dark:text-white">
         <HeroSection />
         <StatsSection />
         <PatientFeatures />
