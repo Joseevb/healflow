@@ -45,13 +45,17 @@ export function TrustIndicators() {
             return (
               <div
                 key={item.title}
-                className="rounded-[2rem] border border-slate-800 bg-slate-950 p-6 text-white shadow-md dark:border-slate-700"
+                className="rounded-[2rem] border border-slate-200 bg-white/88 p-6 text-slate-950 shadow-sm dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:shadow-md"
               >
-                <div className="mb-8 w-fit rounded-2xl bg-primary/20 p-3 text-cyan-200">
+                <div className="mb-8 w-fit rounded-2xl bg-primary/10 p-3 text-primary dark:bg-primary/20 dark:text-cyan-200">
                   <Icon className="h-6 w-6" />
                 </div>
-                <h3 className="text-xl font-black tracking-tight text-white">{item.title}</h3>
-                <p className="mt-3 text-sm leading-6 text-slate-300">{item.description}</p>
+                <h3 className="text-xl font-black tracking-tight text-slate-950 dark:text-white">
+                  {item.title}
+                </h3>
+                <p className="mt-3 text-sm leading-6 text-slate-600 dark:text-slate-300">
+                  {item.description}
+                </p>
               </div>
             )
           })}

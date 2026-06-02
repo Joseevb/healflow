@@ -15,9 +15,9 @@ import { Button } from '@/components/ui/button'
 import { useSession } from '@/lib/auth-client'
 
 const careSignals = [
-  { label: 'Heart rate', value: '72 bpm', tone: 'text-emerald-300' },
-  { label: 'Sleep', value: '7h 40m', tone: 'text-cyan-300' },
-  { label: 'Adherence', value: '96%', tone: 'text-lime-300' },
+  { label: 'Heart rate', value: '72 bpm', tone: 'text-emerald-600 dark:text-emerald-300' },
+  { label: 'Sleep', value: '7h 40m', tone: 'text-cyan-600 dark:text-cyan-300' },
+  { label: 'Adherence', value: '96%', tone: 'text-lime-700 dark:text-lime-300' },
 ]
 
 const timeline = [
@@ -46,19 +46,19 @@ export function HeroSection() {
   const isAuthenticated = session !== null
 
   return (
-    <section className="relative mx-auto max-w-7xl overflow-hidden rounded-[1.75rem] border border-slate-800 bg-linear-to-br from-slate-950 via-blue-950 to-green-950 px-4 py-8 shadow-md shadow-slate-900/10 sm:rounded-[2.25rem] sm:px-8 sm:py-10 lg:px-12 lg:py-16 dark:border-slate-700">
-      <div className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-cyan-300/50 to-transparent" />
+    <section className="relative mx-auto max-w-7xl overflow-hidden rounded-[1.75rem] border border-white/70 bg-linear-to-br from-white/92 via-blue-100/85 to-emerald-100/85 px-4 py-8 shadow-xl shadow-slate-900/10 sm:rounded-[2.25rem] sm:px-8 sm:py-10 lg:px-12 lg:py-16 dark:border-slate-700 dark:from-slate-950 dark:via-blue-950 dark:to-green-950">
+      <div className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-white to-transparent dark:via-cyan-300/50" />
       <div className="relative grid items-center gap-8 lg:grid-cols-[1.02fr_0.98fr] lg:gap-12">
         <div className="space-y-6 sm:space-y-8">
           <div className="space-y-5">
-            <div className="inline-flex items-center gap-2 rounded-full border border-cyan-300/20 bg-cyan-300/10 px-4 py-2 text-sm font-medium text-cyan-100">
+            <div className="inline-flex items-center gap-2 rounded-full border border-cyan-600/15 bg-cyan-100/80 px-4 py-2 text-sm font-medium text-cyan-900 dark:border-cyan-300/20 dark:bg-cyan-300/10 dark:text-cyan-100">
               <ShieldCheck className="h-4 w-4" />
               Encrypted care workflows for clients and specialists
             </div>
-            <h1 className="max-w-4xl text-left font-heading text-4xl leading-[0.98] font-black tracking-[-0.05em] text-white sm:text-6xl sm:tracking-[-0.06em] lg:text-7xl">
+            <h1 className="max-w-4xl text-left font-heading text-4xl leading-[0.98] font-black tracking-[-0.05em] text-slate-950 sm:text-6xl sm:tracking-[-0.06em] lg:text-7xl dark:text-white">
               Healthcare that moves in one controlled flow.
             </h1>
-            <p className="max-w-2xl text-base leading-7 text-slate-300 sm:text-xl sm:leading-8">
+            <p className="max-w-2xl text-base leading-7 text-slate-600 sm:text-xl sm:leading-8 dark:text-slate-300">
               Healflow connects appointment booking, medicine refills, health metrics, specialist
               schedules, and secure account management into one calm operating system for care.
             </p>
@@ -79,7 +79,7 @@ export function HeroSection() {
                 <Button
                   variant="outline"
                   size="lg"
-                  className="w-full rounded-full border-cyan-200/25 bg-slate-900/40 px-8 py-6 text-base text-white hover:bg-slate-800 hover:text-white sm:w-auto"
+                  className="w-full rounded-full border-cyan-700/15 bg-white/55 px-8 py-6 text-base text-slate-800 hover:bg-white hover:text-slate-950 sm:w-auto dark:border-cyan-200/25 dark:bg-slate-900/40 dark:text-white dark:hover:bg-slate-800 dark:hover:text-white"
                   render={<a href="#features">Explore workflows</a>}
                 />
               </>
@@ -97,7 +97,7 @@ export function HeroSection() {
                 <Button
                   variant="outline"
                   size="lg"
-                  className="w-full rounded-full border-cyan-200/25 bg-slate-900/40 px-8 py-6 text-base text-white hover:bg-slate-800 hover:text-white sm:w-auto"
+                  className="w-full rounded-full border-cyan-700/15 bg-white/55 px-8 py-6 text-base text-slate-800 hover:bg-white hover:text-slate-950 sm:w-auto dark:border-cyan-200/25 dark:bg-slate-900/40 dark:text-white dark:hover:bg-slate-800 dark:hover:text-white"
                   render={
                     <Link to="/dashboard/appointments" className="flex items-center gap-2">
                       <Calendar className="h-5 w-5" />
@@ -113,9 +113,11 @@ export function HeroSection() {
             {careSignals.map((signal) => (
               <div
                 key={signal.label}
-                className="rounded-3xl border border-cyan-200/15 bg-slate-900/55 p-4"
+                className="rounded-3xl border border-white/70 bg-white/65 p-4 shadow-sm shadow-slate-950/10 dark:border-cyan-200/15 dark:bg-slate-900/55"
               >
-                <p className="text-xs tracking-[0.18em] text-slate-400 uppercase">{signal.label}</p>
+                <p className="text-xs tracking-[0.18em] text-slate-500 uppercase dark:text-slate-400">
+                  {signal.label}
+                </p>
                 <p className={`mt-2 text-2xl font-black ${signal.tone}`}>{signal.value}</p>
               </div>
             ))}
@@ -123,7 +125,7 @@ export function HeroSection() {
         </div>
 
         <div className="relative">
-          <div className="rounded-[1.5rem] border border-cyan-200/15 bg-slate-900/60 p-2 shadow-sm sm:rounded-[2rem] sm:p-6">
+          <div className="rounded-[1.5rem] border border-cyan-100/25 bg-white/10 p-2 shadow-sm shadow-slate-950/10 sm:rounded-[2rem] sm:p-6 dark:border-cyan-200/15 dark:bg-slate-900/60">
             <div className="rounded-[1.25rem] bg-slate-50 p-4 text-slate-950 sm:rounded-[1.5rem] sm:p-5 dark:bg-slate-900 dark:text-white">
               <div className="mb-4 inline-flex rounded-full bg-green-100 px-3 py-1 text-xs font-black tracking-[0.16em] text-green-700 uppercase dark:bg-green-900/30 dark:text-green-200">
                 Live care plan
