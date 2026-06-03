@@ -55,7 +55,7 @@ export function PatientFeatures() {
           <p className="text-sm font-black tracking-[0.22em] text-cyan-700 uppercase dark:text-cyan-300">
             Client workspace
           </p>
-          <h2 className="mt-4 max-w-xl border-none pb-0 font-heading text-3xl leading-tight font-black tracking-[-0.04em] sm:text-5xl sm:tracking-[-0.05em]">
+          <h2 className="mt-4 max-w-xl border-none pb-0 font-heading text-3xl leading-tight font-black tracking-[-0.04em] sm:text-5xl sm:tracking-tighter">
             Every personal care task, arranged by what needs attention.
           </h2>
           <p className="mt-4 max-w-lg text-base leading-7 text-slate-600 sm:mt-5 sm:text-lg sm:leading-8 dark:text-slate-300">
@@ -77,7 +77,7 @@ export function PatientFeatures() {
               >
                 <CardHeader className="p-5 sm:p-6">
                   <div className={`mb-4 w-fit rounded-2xl p-3 sm:mb-5 ${feature.accent}`}>
-                    <Icon className="h-6 w-6" />
+                    <Icon className="size-6" />
                   </div>
                   <CardTitle className="text-lg font-black tracking-tight sm:text-xl">
                     {feature.title}

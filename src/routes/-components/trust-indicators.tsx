@@ -29,7 +29,7 @@ export function TrustIndicators() {
           <p className="text-sm font-black tracking-[0.22em] text-cyan-700 uppercase dark:text-cyan-300">
             Trust architecture
           </p>
-          <h2 className="mt-4 border-none pb-0 font-heading text-4xl leading-tight font-black tracking-[-0.05em] sm:text-5xl">
+          <h2 className="mt-4 border-none pb-0 font-heading text-4xl leading-tight font-black tracking-tighter sm:text-5xl">
             Built for healthcare work that cannot feel casual.
           </h2>
           <p className="mt-5 text-lg leading-8 text-slate-600 dark:text-slate-300">
@@ -48,7 +48,7 @@ export function TrustIndicators() {
                 className="rounded-[2rem] border border-slate-200 bg-white/88 p-6 text-slate-950 shadow-sm dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:shadow-md"
               >
                 <div className="mb-8 w-fit rounded-2xl bg-primary/10 p-3 text-primary dark:bg-primary/20 dark:text-cyan-200">
-                  <Icon className="h-6 w-6" />
+                  <Icon className="size-6" />
                 </div>
                 <h3 className="text-xl font-black tracking-tight text-slate-950 dark:text-white">
                   {item.title}

@@ -19,7 +19,7 @@ export function WelcomeHero() {
       <div>
         <Badge
           variant="secondary"
-          className="mb-4 border-border/60 bg-white/80 text-foreground shadow-sm backdrop-blur-xs dark:border-white/15 dark:bg-white/10 dark:text-primary-foreground dark:hover:bg-white/15"
+          className="mb-4 border-border/60 bg-white/80 text-foreground shadow-sm backdrop-blur-xs dark:border-white/15 dark:bg-white/10 dark:text-primary-foreground hover:dark:bg-white/15"
         >
           <Heart className="mr-1 size-3" />
           Welcome back
@@ -39,11 +39,11 @@ export function WelcomeHero() {
               </Link>
             }
             variant="secondary"
-            className="border-0 bg-white/95 text-foreground shadow-sm hover:bg-white dark:bg-white/92 dark:text-slate-900 dark:hover:bg-white"
+            className="border-0 bg-white/95 text-foreground shadow-sm hover:bg-white dark:bg-white/92 dark:text-slate-900 hover:dark:bg-white"
           />
           <Button
             variant="outline"
-            className="border-border/60 bg-white/50 text-foreground hover:bg-white/75 dark:border-white/15 dark:bg-white/8 dark:text-primary-foreground dark:hover:bg-white/14 dark:hover:text-primary-foreground"
+            className="border-border/60 bg-white/50 text-foreground hover:bg-white/75 dark:border-white/15 dark:bg-white/8 dark:text-primary-foreground hover:dark:bg-white/14 hover:dark:text-primary-foreground"
           >
             View Health Records
           </Button>

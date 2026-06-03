@@ -164,7 +164,7 @@ export const UserDataForm = withForm({
       </FieldGroup>
 
       <form.AppForm>
-        <div className="mt-3 flex flex-row items-end justify-end gap-5 ">
+        <div className="mt-3 flex flex-row items-end justify-end gap-5">
           <Button variant="secondary">Go back</Button>
           <form.SubscribeButton label="Continue" />
         </div>

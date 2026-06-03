@@ -99,13 +99,13 @@ export function Header() {
             >
               <NavigationMenuItem className="hidden md:block">
                 <NavigationMenuLink
-                  className="text-sm text-slate-600 transition-colors hover:text-slate-950 dark:text-slate-300 dark:hover:text-white"
+                  className="text-sm text-slate-600 transition-colors hover:text-slate-950 dark:text-slate-300 hover:dark:text-white"
                   render={<a href="#features">Workflows</a>}
                 />
               </NavigationMenuItem>
               <NavigationMenuItem className="hidden md:block">
                 <NavigationMenuLink
-                  className="text-sm text-slate-600 transition-colors hover:text-slate-950 dark:text-slate-300 dark:hover:text-white"
+                  className="text-sm text-slate-600 transition-colors hover:text-slate-950 dark:text-slate-300 hover:dark:text-white"
                   render={<a href="#providers">Specialists</a>}
                 />
               </NavigationMenuItem>

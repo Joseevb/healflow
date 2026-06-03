@@ -44,7 +44,7 @@ export function StatsSection() {
                   {stat.value}
                 </div>
                 <div className="rounded-2xl bg-primary/10 p-3 text-primary dark:bg-primary/20 dark:text-cyan-200">
-                  <Icon className="h-5 w-5" />
+                  <Icon className="size-5" />
                 </div>
               </div>
               <h2 className="text-base font-black tracking-tight">{stat.label}</h2>

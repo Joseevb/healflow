@@ -19,7 +19,7 @@ export function CTASection() {
             <p className="text-sm font-black tracking-[0.22em] text-teal-800 uppercase dark:text-cyan-200">
               Ready to enter the flow
             </p>
-            <h2 className="mt-4 border-none pb-0 font-heading text-4xl leading-tight font-black tracking-[-0.05em] sm:text-6xl">
+            <h2 className="mt-4 border-none pb-0 font-heading text-4xl leading-tight font-black tracking-tighter sm:text-6xl">
               Replace scattered healthcare tasks with one focused workspace.
             </h2>
             <p className="mt-5 max-w-2xl text-lg leading-8 text-slate-700 dark:text-cyan-50/80">
@@ -28,7 +28,7 @@ export function CTASection() {
             </p>
           </div>
 
-          <div className="flex flex-col gap-3 sm:flex-row lg:flex-col">
+          <div className="flex flex-col gap-3 sm:flex-row">
             {!isAuthenticated ? (
               <>
                 <Button
@@ -37,7 +37,7 @@ export function CTASection() {
                   className="rounded-full bg-primary px-8 py-6 text-base font-black text-primary-foreground hover:bg-primary/90"
                   render={
                     <Link to="/auth/sign-up" className="flex items-center gap-2">
-                      Create account <ArrowRight className="h-5 w-5" />
+                      Create account <ArrowRight className="size-5" />
                     </Link>
                   }
                 />
@@ -45,7 +45,7 @@ export function CTASection() {
                   nativeButton={false}
                   variant="outline"
                   size="lg"
-                  className="rounded-full border-slate-300 bg-white/70 px-8 py-6 text-base font-bold hover:bg-white dark:border-slate-700 dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800"
+                  className="rounded-full border-slate-300 bg-white/70 px-8 py-6 text-base font-bold hover:bg-white dark:border-slate-700 dark:bg-slate-900 dark:text-white hover:dark:bg-slate-800"
                   render={<Link to="/auth">Sign in</Link>}
                 />
               </>
@@ -57,7 +57,7 @@ export function CTASection() {
                   className="rounded-full bg-primary px-8 py-6 text-base font-black text-primary-foreground hover:bg-primary/90"
                   render={
                     <Link to="/dashboard" className="flex items-center gap-2">
-                      <LayoutDashboard className="h-5 w-5" />
+                      <LayoutDashboard className="size-5" />
                       Open dashboard
                     </Link>
                   }
@@ -66,10 +66,10 @@ export function CTASection() {
                   nativeButton={false}
                   variant="outline"
                   size="lg"
-                  className="rounded-full border-slate-300 bg-white/70 px-8 py-6 text-base font-bold hover:bg-white dark:border-slate-700 dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800"
+                  className="rounded-full border-slate-300 bg-white/70 px-8 py-6 text-base font-bold hover:bg-white dark:border-slate-700 dark:bg-slate-900 dark:text-white hover:dark:bg-slate-800"
                   render={
                     <Link to="/dashboard/appointments" className="flex items-center gap-2">
-                      <CalendarPlus className="h-5 w-5" />
+                      <CalendarPlus className="size-5" />
                       Book appointment
                     </Link>
                   }

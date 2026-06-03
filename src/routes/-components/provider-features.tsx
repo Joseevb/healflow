@@ -48,7 +48,7 @@ export function ProviderFeatures() {
                 <p className="text-sm font-black tracking-[0.22em] text-lime-200 uppercase">
                   Specialist operations
                 </p>
-                <h2 className="mt-4 max-w-xl border-none pb-0 font-heading text-3xl leading-tight font-black tracking-[-0.04em] sm:text-5xl sm:tracking-[-0.05em]">
+                <h2 className="mt-4 max-w-xl border-none pb-0 font-heading text-3xl leading-tight font-black tracking-[-0.04em] sm:text-5xl sm:tracking-tighter">
                   Less admin fog. More visible care capacity.
                 </h2>
                 <p className="mt-4 max-w-lg text-base leading-7 text-slate-300 sm:mt-5 sm:text-lg sm:leading-8">
@@ -81,11 +81,11 @@ export function ProviderFeatures() {
               return (
                 <Card
                   key={feature.title}
-                  className="group rounded-none border-0 bg-white/88 p-0 text-slate-950 shadow-none hover:bg-cyan-50/90 dark:bg-slate-950/90 dark:text-white dark:hover:bg-blue-950"
+                  className="group rounded-none border-0 bg-white/88 p-0 text-slate-950 shadow-none hover:bg-cyan-50/90 dark:bg-slate-950/90 dark:text-white hover:dark:bg-blue-950"
                 >
                   <CardHeader className="min-h-48 justify-between p-5 sm:min-h-56 sm:p-8">
                     <div className="w-fit rounded-2xl bg-cyan-100 p-3 text-cyan-700 transition-colors group-hover:bg-cyan-200 group-hover:text-slate-950 dark:bg-white/10 dark:text-cyan-200 dark:group-hover:bg-cyan-200 dark:group-hover:text-slate-950">
-                      <Icon className="h-6 w-6" />
+                      <Icon className="size-6" />
                     </div>
                     <div>
                       <CardTitle className="text-xl font-black tracking-tight text-slate-950 dark:text-white">

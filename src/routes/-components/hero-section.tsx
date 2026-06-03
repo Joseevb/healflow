@@ -52,10 +52,10 @@ export function HeroSection() {
         <div className="space-y-6 sm:space-y-8">
           <div className="space-y-5">
             <div className="inline-flex items-center gap-2 rounded-full border border-cyan-600/15 bg-cyan-100/80 px-4 py-2 text-sm font-medium text-cyan-900 dark:border-cyan-300/20 dark:bg-cyan-300/10 dark:text-cyan-100">
-              <ShieldCheck className="h-4 w-4" />
+              <ShieldCheck className="size-4" />
               Encrypted care workflows for clients and specialists
             </div>
-            <h1 className="max-w-4xl text-left font-heading text-4xl leading-[0.98] font-black tracking-[-0.05em] text-slate-950 sm:text-6xl sm:tracking-[-0.06em] lg:text-7xl dark:text-white">
+            <h1 className="max-w-4xl text-left font-heading text-4xl leading-[0.98] font-black tracking-tighter text-slate-950 sm:text-6xl sm:tracking-[-0.06em] lg:text-7xl dark:text-white">
               Healthcare that moves in one controlled flow.
             </h1>
             <p className="max-w-2xl text-base leading-7 text-slate-600 sm:text-xl sm:leading-8 dark:text-slate-300">
@@ -73,7 +73,7 @@ export function HeroSection() {
                   className="w-full rounded-full bg-primary px-8 py-6 text-base font-bold text-primary-foreground shadow-sm hover:bg-primary/90 sm:w-auto"
                   render={
                     <Link to="/auth/sign-up" className="flex items-center gap-2">
-                      Start your care hub <ArrowRight className="h-5 w-5" />
+                      Start your care hub <ArrowRight className="size-5" />
                     </Link>
                   }
                 />
@@ -81,7 +81,7 @@ export function HeroSection() {
                   nativeButton={false}
                   variant="outline"
                   size="lg"
-                  className="w-full rounded-full border-cyan-700/15 bg-white/55 px-8 py-6 text-base text-slate-800 hover:bg-white hover:text-slate-950 sm:w-auto dark:border-cyan-200/25 dark:bg-slate-900/40 dark:text-white dark:hover:bg-slate-800 dark:hover:text-white"
+                  className="w-full rounded-full border-cyan-700/15 bg-white/55 px-8 py-6 text-base text-slate-800 hover:bg-white hover:text-slate-950 sm:w-auto dark:border-cyan-200/25 dark:bg-slate-900/40 dark:text-white hover:dark:bg-slate-800 hover:dark:text-white"
                   render={<a href="#features">Explore workflows</a>}
                 />
               </>
@@ -93,7 +93,7 @@ export function HeroSection() {
                   className="w-full rounded-full bg-primary px-8 py-6 text-base font-bold text-primary-foreground shadow-sm hover:bg-primary/90 sm:w-auto"
                   render={
                     <Link to="/dashboard" className="flex items-center gap-2">
-                      Open dashboard <ArrowRight className="h-5 w-5" />
+                      Open dashboard <ArrowRight className="size-5" />
                     </Link>
                   }
                 />
@@ -101,10 +101,10 @@ export function HeroSection() {
                   nativeButton={false}
                   variant="outline"
                   size="lg"
-                  className="w-full rounded-full border-cyan-700/15 bg-white/55 px-8 py-6 text-base text-slate-800 hover:bg-white hover:text-slate-950 sm:w-auto dark:border-cyan-200/25 dark:bg-slate-900/40 dark:text-white dark:hover:bg-slate-800 dark:hover:text-white"
+                  className="w-full rounded-full border-cyan-700/15 bg-white/55 px-8 py-6 text-base text-slate-800 hover:bg-white hover:text-slate-950 sm:w-auto dark:border-cyan-200/25 dark:bg-slate-900/40 dark:text-white hover:dark:bg-slate-800 hover:dark:text-white"
                   render={
                     <Link to="/dashboard/appointments" className="flex items-center gap-2">
-                      <Calendar className="h-5 w-5" />
+                      <Calendar className="size-5" />
                       Book appointment
                     </Link>
                   }
@@ -163,7 +163,7 @@ export function HeroSection() {
                       </div>
                       <div className="flex items-center gap-3">
                         <div className="rounded-2xl bg-cyan-100 p-2 text-cyan-700 sm:p-3 dark:bg-cyan-400/10 dark:text-cyan-200">
-                          <Icon className="h-5 w-5" />
+                          <Icon className="size-5" />
                         </div>
                         <div>
                           <p className="text-sm font-bold sm:text-base">{item.title}</p>
@@ -180,7 +180,7 @@ export function HeroSection() {
               <div className="mt-5 grid gap-3 sm:grid-cols-2">
                 <div className="rounded-3xl bg-slate-950 p-4 text-white dark:bg-white dark:text-slate-950">
                   <div className="flex items-center gap-2 text-cyan-200 dark:text-cyan-700">
-                    <Activity className="h-4 w-4" />
+                    <Activity className="size-4" />
                     <span className="text-xs font-bold tracking-[0.16em] uppercase">Metrics</span>
                   </div>
                   <p className="mt-3 text-2xl font-black sm:text-3xl">8</p>
@@ -188,14 +188,14 @@ export function HeroSection() {
                 </div>
                 <div className="rounded-3xl border border-slate-950/10 bg-lime-200 p-4 text-slate-950 dark:border-white/10">
                   <div className="flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4" />
+                    <CheckCircle2 className="size-4" />
                     <span className="text-xs font-bold tracking-[0.16em] uppercase">
                       Specialist
                     </span>
                   </div>
                   <p className="mt-3 text-lg font-black">Availability synced</p>
                   <p className="flex items-center gap-1 text-sm text-slate-700">
-                    <Clock3 className="h-3.5 w-3.5" />
+                    <Clock3 className="size-3.5" />
                     next slot in 22 min
                   </p>
                 </div>

@@ -55,7 +55,7 @@ export default function AppointmentHistory({
         <Button
           variant="ghost"
           size="sm"
-          className="text-blue-600 hover:bg-blue-50 hover:text-blue-700 dark:text-blue-400 dark:hover:bg-blue-900/20"
+          className="text-blue-600 hover:bg-blue-50 hover:text-blue-700 dark:text-blue-400 hover:dark:bg-blue-900/20"
         >
           Export Records
         </Button>

@@ -128,7 +128,7 @@ export function MedicationTableCard({
 }: MedicationTableCardProps) {
   return (
     <Card className="overflow-hidden border border-border/60 bg-card/95 p-0 shadow-lg dark:shadow-slate-900/50">
-      <CardHeader className={`rounded-t-xl border-b px-6 py-6 ${headerBg} ${borderColor}`}>
+      <CardHeader className={`rounded-t-xl border-b p-6 ${headerBg} ${borderColor}`}>
         <div className="flex items-center gap-3">
           <div className={`rounded-xl p-2.5 ${iconBg}`}>
             <Icon className="size-5" />

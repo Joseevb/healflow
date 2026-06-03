@@ -24,7 +24,7 @@ export function HealthMetricsLoader() {
       </div>
 
       <div className="rounded-xl border border-border/60 bg-card/95 shadow-lg">
-        <div className="flex items-center gap-3 border-b border-border/60 px-6 py-6">
+        <div className="flex items-center gap-3 border-b border-border/60 p-6">
           <div className="rounded-lg bg-green-100 p-2 dark:bg-green-900/20">
             <Activity className="size-5 text-green-600" />
           </div>

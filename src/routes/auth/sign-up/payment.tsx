@@ -104,8 +104,8 @@ function RouteComponent() {
             )}
           >
             {plan.popular && (
-              <Badge className="absolute -top-2 left-1/2 z-50 -translate-x-1/2 " variant="default">
-                <Zap className="mr-1 h-3 w-3" />
+              <Badge className="absolute -top-2 left-1/2 z-50 -translate-x-1/2" variant="default">
+                <Zap className="mr-1 size-3" />
                 Best Value
               </Badge>
             )}
@@ -129,7 +129,7 @@ function RouteComponent() {
               <ul className="space-y-3 text-sm">
                 {plan.features.map((feature) => (
                   <li key={feature} className="flex items-center gap-2">
-                    <Check className="h-4 w-4 shrink-0 text-primary" />
+                    <Check className="size-4 shrink-0 text-primary" />
                     <span>{feature}</span>
                   </li>
                 ))}
@@ -141,7 +141,7 @@ function RouteComponent() {
                 variant={plan.popular ? 'default' : 'outline'}
                 onClick={() => handleSubscribe(plan.id)}
               >
-                <CreditCard className="mr-2 h-4 w-4" />
+                <CreditCard className="mr-2 size-4" />
                 Subscribe {plan.name}
               </Button>
             </CardContent>

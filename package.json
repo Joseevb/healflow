@@ -15,14 +15,14 @@
     "dev:debug": "bun --inspect=9229 vite dev --port 3000",
     "fmt": "oxfmt",
     "fmt:check": "oxfmt --check",
-    "lint": "tsgo && oxlint",
-    "lint:fix": "tsgo && oxlint --fix",
+    "lint": "oxlint",
+    "lint:fix": "oxlint --fix",
     "preview": "bunx --bun vite preview",
     "start": "bun .output/server/index.mjs",
     "stripe:webhook": "stripe listen --forward-to localhost:3000/api/auth/stripe/webhook",
     "test": "bun test",
     "tsc": "tsgo",
-    "typecheck": "tsgo"
+    "validate": "tsgo && oxlint"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1057.0",
@@ -97,6 +97,7 @@
     "nano-staged": "^1.0.2",
     "oxfmt": "^0.52.0",
     "oxlint": "^1.67.0",
+    "oxlint-tailwindcss": "^1.1.0",
     "tsx": "^4.22.3",
     "typescript": "^6.0.3",
     "vite": "^8.0.14",

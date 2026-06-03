@@ -85,7 +85,7 @@ const columns: Array<ColumnDef<HealthMetrics>> = [
 export function HealthMetricsTable({ metrics }: { metrics: Array<HealthMetrics> }) {
   return (
     <Card className="overflow-hidden border border-border/60 bg-card/95 p-0 shadow-lg dark:shadow-slate-900/50">
-      <CardHeader className="rounded-t-xl border-b border-border/60 bg-[linear-gradient(to_right,hsl(var(--card))_0%,hsl(var(--primary)/0.08)_45%,hsl(var(--card))_100%)] pt-6 pb-6">
+      <CardHeader className="rounded-t-xl border-b border-border/60 bg-[linear-gradient(to_right,hsl(var(--card))_0%,hsl(var(--primary)/0.08)_45%,hsl(var(--card))_100%)] py-6">
         <div className="flex items-center gap-3">
           <div className="rounded-xl bg-blue-100 p-2.5 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
             <Activity className="size-5" />

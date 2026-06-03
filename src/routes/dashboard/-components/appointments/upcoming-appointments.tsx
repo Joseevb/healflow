@@ -61,7 +61,7 @@ export default function UpcomingAppointments({
         {upcomingAppointments.length === 0 ? (
           <Card className="border border-border/60 bg-card/95 shadow-md">
             <CardContent className="flex flex-col items-center justify-center py-12">
-              <div className="mb-4 rounded-full bg-gradient-to-br from-blue-100 via-teal-100 to-green-100 p-4 dark:from-blue-900/20 dark:via-teal-900/20 dark:to-green-900/20">
+              <div className="mb-4 rounded-full bg-linear-to-br from-blue-100 via-teal-100 to-green-100 p-4 dark:from-blue-900/20 dark:via-teal-900/20 dark:to-green-900/20">
                 <Calendar className="size-8 text-teal-600" />
               </div>
               <h3 className="mb-2 text-lg font-semibold">No upcoming appointments</h3>
@@ -76,12 +76,12 @@ export default function UpcomingAppointments({
             {upcomingAppointments.map((appointment) => (
               <Card
                 key={appointment.id}
-                className="group overflow-hidden border border-border/60 bg-card/95 shadow-md transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg dark:hover:shadow-teal-500/10"
+                className="group overflow-hidden border border-border/60 bg-card/95 shadow-md transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg hover:dark:shadow-teal-500/10"
               >
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex items-start gap-4">
-                      <div className="rounded-2xl bg-gradient-to-br from-blue-100 via-teal-100 to-green-100 p-3 transition-transform duration-300 group-hover:scale-105 dark:from-blue-900/20 dark:via-teal-900/20 dark:to-green-900/20">
+                      <div className="rounded-2xl bg-linear-to-br from-blue-100 via-teal-100 to-green-100 p-3 transition-transform duration-300 group-hover:scale-105 dark:from-blue-900/20 dark:via-teal-900/20 dark:to-green-900/20">
                         <SpecialistImage
                           profilePictureName={appointment.specialist?.image}
                           name={appointment.specialist.name}
@@ -92,7 +92,7 @@ export default function UpcomingAppointments({
                           {appointment.specialist.name}
                         </CardTitle>
                         <CardDescription className="flex items-center gap-1.5">
-                          <span className="inline-block h-2 w-2 rounded-full bg-teal-500" />
+                          <span className="inline-block size-2 rounded-full bg-teal-500" />
                           {appointment.specialist.specialistData.specialty}
                         </CardDescription>
                       </div>
