@@ -31,7 +31,7 @@ export function CTASection() {
           <div className="flex flex-col gap-3 sm:flex-row lg:flex-col">
             {!isAuthenticated ? (
               <>
-                <Button
+                <Button nativeButton={false}
                   size="lg"
                   className="rounded-full bg-primary px-8 py-6 text-base font-black text-primary-foreground hover:bg-primary/90"
                   render={
