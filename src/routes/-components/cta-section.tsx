@@ -40,7 +40,7 @@ export function CTASection() {
                     </Link>
                   }
                 />
-                <Button
+                <Button nativeButton={false}
                   variant="outline"
                   size="lg"
                   className="rounded-full border-slate-300 bg-white/70 px-8 py-6 text-base font-bold hover:bg-white dark:border-slate-700 dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800"
