@@ -40,7 +40,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
         content: 'width=device-width, initial-scale=1',
       },
       {
-        title: env.VITE_APP_TITLE,
+        title: env.VITE_APP_TITLE ?? 'Healflow',
       },
     ],
     links: [
