@@ -333,9 +333,9 @@ bun run auth:generate
 | `bun run preview`        | Preview the production build                    |
 | `bun run start`          | Start the built Nitro server                    |
 | `bun run test`           | Run the Bun test suite                          |
-| `bun run typecheck`      | Run TypeScript checks with tsgo                 |
-| `bun run lint`           | Run tsgo and oxlint                             |
-| `bun run lint:fix`       | Run tsgo and oxlint with automatic fixes        |
+| `bun run validate`       | Run TypeScript checks (tsgo) and oxlint         |
+| `bun run lint`           | Run oxlint                                      |
+| `bun run lint:fix`       | Run oxlint with automatic fixes                 |
 | `bun run fmt`            | Format the project with oxfmt                   |
 | `bun run fmt:check`      | Check formatting without writing changes        |
 | `bun run check`          | Run oxfmt and oxlint fix workflow               |
