@@ -158,7 +158,7 @@ function RouteComponent() {
                           <Button
                             size="sm"
                             variant="outline"
-                            className="border-destructive/30 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                            className="border-destructive/30 text-destructive hover:bg-destructive/10"
                             disabled={!canCancel || updateAppointmentMutation.isPending}
                             onClick={() => {
                               setAppointmentToCancel({
@@ -243,7 +243,7 @@ function RouteComponent() {
             </AlertDialogCancel>
             <AlertDialogAction
               disabled={!appointmentToCancel || updateAppointmentMutation.isPending}
-              className="text-destructive-foreground bg-destructive hover:bg-destructive/90"
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               onClick={(event) => {
                 event.preventDefault()
 

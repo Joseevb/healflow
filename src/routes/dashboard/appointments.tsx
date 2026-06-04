@@ -40,7 +40,7 @@ const UpcomingLoadingFallback = (
 
 const HistoryLoadingFallback = (
   <div className="flex flex-col items-center justify-center gap-4 py-12">
-    <div className="animate-pulse rounded-full bg-gradient-to-br from-blue-100 via-teal-100 to-green-100 p-4 dark:from-blue-900/20 dark:via-teal-900/20 dark:to-green-900/20">
+    <div className="animate-pulse rounded-full bg-linear-to-br from-blue-100 via-teal-100 to-green-100 p-4 dark:from-blue-900/20 dark:via-teal-900/20 dark:to-green-900/20">
       <Calendar className="size-8 text-teal-600" />
     </div>
     <span className="flex items-center gap-2 text-sm text-muted-foreground">

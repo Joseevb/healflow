@@ -101,7 +101,7 @@ export function DeleteAdminUserDialog({
                   deleteMutation.isPending ||
                   validation?.allowed !== true
                 }
-                className="text-destructive-foreground bg-destructive hover:bg-destructive/90"
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                 onClick={(event) => {
                   event.preventDefault()
 

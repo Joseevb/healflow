@@ -169,7 +169,7 @@ function RouteComponent() {
                         <Button
                           size="icon-sm"
                           variant="ghost"
-                          className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+                          className="text-destructive hover:bg-destructive/10"
                           disabled={deleteAvailabilityMutation.isPending}
                           onClick={() => void deleteAvailabilityMutation.mutateAsync(slot.id)}
                         >

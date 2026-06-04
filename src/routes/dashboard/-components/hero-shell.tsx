@@ -18,7 +18,7 @@ export function HeroShell({ children, className, contentClassName }: HeroShellPr
     >
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,hsl(var(--background)/0.76),transparent_36%)] dark:bg-[radial-gradient(circle_at_top_left,hsl(var(--background)/0.08),transparent_30%)]" />
       <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_bottom_right,hsl(222_78%_58%/0.04)_0%,hsl(205_90%_56%/0.05)_30%,hsl(188_92%_58%/0.07)_65%,hsl(149_76%_42%/0.1)_100%)] dark:bg-[linear-gradient(to_bottom_right,hsl(222_78%_58%/0.05)_0%,hsl(205_90%_56%/0.07)_30%,hsl(188_92%_58%/0.1)_65%,hsl(149_76%_42%/0.12)_100%)]" />
-      <div className="pointer-events-none absolute inset-0 [background-image:linear-gradient(hsl(var(--foreground)/0.06)_1px,transparent_1px),linear-gradient(90deg,hsl(var(--foreground)/0.06)_1px,transparent_1px)] [background-size:32px_32px] [background-position:center] opacity-30 dark:opacity-20" />
+      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(hsl(var(--foreground)/0.06)_1px,transparent_1px),linear-gradient(90deg,hsl(var(--foreground)/0.06)_1px,transparent_1px)] bg-size-[32px_32px] bg-center opacity-30 dark:opacity-20" />
 
       <div className={cn('relative z-10 p-8 sm:p-10', contentClassName)}>{children}</div>
     </section>

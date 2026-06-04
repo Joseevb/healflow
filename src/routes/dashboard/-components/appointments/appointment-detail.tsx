@@ -287,7 +287,7 @@ export default function AppointmentDetailsDialog({
             <div className="flex justify-end pt-2">
               <Button
                 variant="outline"
-                className="border-destructive/30 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                className="border-destructive/30 text-destructive hover:bg-destructive/10"
                 onClick={() => setShowCancelDialog(true)}
               >
                 Cancel Appointment
@@ -334,7 +334,7 @@ export default function AppointmentDetailsDialog({
                 void handleCancelConfirm()
               }}
               disabled={cancelAppointmentMutation.isPending}
-              className="text-destructive-foreground bg-destructive hover:bg-destructive/90"
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               {cancelAppointmentMutation.isPending ? 'Cancelling...' : 'Yes, Cancel'}
             </AlertDialogAction>

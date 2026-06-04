@@ -24,7 +24,7 @@ export function Loader() {
           <Card key={i} className="border-0 shadow-md">
             <CardContent className="p-6">
               <div className="flex items-center gap-4">
-                <Skeleton className="h-12 w-12 rounded-xl" />
+                <Skeleton className="size-12 rounded-xl" />
                 <div className="flex-1 space-y-2">
                   <Skeleton className="h-4 w-24" />
                   <Skeleton className="h-8 w-16" />
@@ -41,7 +41,7 @@ export function Loader() {
         {[1, 2, 3].map((i) => (
           <Card key={i} className="border-0 shadow-md">
             <CardHeader>
-              <Skeleton className="mb-2 h-12 w-12 rounded-xl" />
+              <Skeleton className="mb-2 size-12 rounded-xl" />
               <Skeleton className="mb-2 h-6 w-32" />
               <Skeleton className="h-4 w-full" />
               <Skeleton className="h-4 w-3/4" />
@@ -63,7 +63,7 @@ export function Loader() {
           <CardContent className="divide-y divide-slate-100 p-0 dark:divide-slate-700">
             {[1, 2, 3].map((i) => (
               <div key={i} className="flex items-center gap-4 p-4">
-                <Skeleton className="h-8 w-8 rounded-lg" />
+                <Skeleton className="size-8 rounded-lg" />
                 <div className="flex-1 space-y-2">
                   <Skeleton className="h-4 w-48" />
                   <Skeleton className="h-3 w-32" />
