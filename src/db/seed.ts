@@ -20,8 +20,9 @@ import { DAYS } from '@/types/date'
 import { HealthMetricType } from '@/types/health-metrics'
 import { SPECIALTIES } from '@/types/specialties'
 
-const tableArgs =
-  Bun.argv.slice(2).length > 0 ? Bun.argv.slice(2) : ['admin', 'specialists', 'basic-specialist']
+const rawArgs = Bun.argv.slice(2)
+const defaultSeeders = ['admin', 'specialists', 'basic-specialist']
+const tableArgs = rawArgs.length > 0 ? rawArgs : defaultSeeders
 
 // Custom seeders
 
@@ -427,6 +428,65 @@ const customSeeders: Record<string, () => Promise<void>> = {
   specialists: seedSpecialists,
   admin: seedAdmin,
   'basic-specialist': seedBasicSpecialist,
+}
+
+const customSeederDescriptions: Record<keyof typeof customSeeders, string> = {
+  'medical-info': 'Interactive demo medical profile for one client user',
+  specialists: 'Ten fake specialists with availability slots',
+  admin: 'Development admin user: admin@admin.admin / admin',
+  'basic-specialist': 'Stable test specialist: spe@test.com / spe',
+}
+
+function color(code: number, value: string) {
+  return `\x1b[${code}m${value}\x1b[0m`
+}
+
+function printHelp() {
+  const cyan = (value: string) => color(36, value)
+  const dim = (value: string) => color(2, value)
+  const bold = (value: string) => color(1, value)
+  const green = (value: string) => color(32, value)
+  const customKeys = Object.keys(customSeeders)
+  const schemaKeys = Object.keys(schemas)
+    .filter((key) => !(key in customSeeders))
+    .sort()
+  const defaultLabel = defaultSeeders.map((key) => green(key)).join(dim(' + '))
+
+  console.log(`
+${cyan('╭────────────────────────────────────────────────────────╮')}
+${cyan('│')} ${bold('Healflow database seeder')}                              ${cyan('│')}
+${cyan('╰────────────────────────────────────────────────────────╯')}
+
+${bold('What it does')}
+  Seeds local development data into the configured SQLite database.
+  With no arguments it runs: ${defaultLabel}
+
+${bold('Usage')}
+  ${green('bun run db:seed')} ${dim('[seed ...]')}
+  ${green('bun run src/db/seed.ts')} ${dim('[seed ...]')}
+
+${bold('Examples')}
+  ${green('bun run db:seed')}
+  ${green('bun run db:seed admin specialists')}
+  ${green('bun run db:seed medical-info')}
+  ${green('bun run db:seed appointments healthMetrics')}
+
+${bold('Custom seeders')}
+${customKeys.map((key) => `  ${green(key.padEnd(16))} ${customSeederDescriptions[key]}`).join('\n')}
+
+${bold('Schema seed targets')}
+  ${schemaKeys.map((key) => cyan(key)).join(dim(', '))}
+
+${bold('Options')}
+  ${green('--help')}, ${green('-h')}       Show this help and exit.
+
+${dim('Tip: pass one or more seed targets to run only those targets, in order.')}
+`)
+}
+
+if (rawArgs.some((arg) => arg === '--help' || arg === '-h')) {
+  printHelp()
+  process.exit(0)
 }
 
 // ── Run ─────────────────────────────────────────────────────
